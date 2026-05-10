@@ -24,15 +24,6 @@ void main() {
     ],
   };
 
-  final itemsValid = [
-    const SaleItemResponse(
-      batchId: 42,
-      quantity: 2.5,
-      unitPrice: 150.00,
-      unitCost: 100.00,
-    ),
-  ];
-
   group('SaleResponse', () {
     // Verifica que fromJson construye correctamente el objeto
     // con todos los campos mapeados desde el JSON
