@@ -349,6 +349,44 @@ void main() {
   });
 
   // ──────────────────────────────────────────────
+  // stockTotal
+  // ──────────────────────────────────────────────
+  group('stockTotal', () {
+    test('debe sumar currentStock de todos los batches cuando hay lotes',
+        () async {
+      // Arrange
+      when(() => mockRepo.getProducts())
+          .thenAnswer((_) async => [productA]);
+      await provider.loadProducts();
+
+      when(() => mockRepo.getBatchesByProduct(1))
+          .thenAnswer((_) async => [
+            const ProductionBatchResponse(
+              id: 1,
+              productId: 1,
+              currentStock: 100.0,
+            ),
+            const ProductionBatchResponse(
+              id: 2,
+              productId: 1,
+              currentStock: 50.0,
+            ),
+          ]);
+      await provider.loadStock(1);
+
+      // Assert
+      expect(provider.stockTotal, 150.0);
+    });
+
+    test('debe ser 0 cuando no hay batches', () async {
+      // Arrange: estado inicial sin lotes cargados
+
+      // Assert
+      expect(provider.stockTotal, 0.0);
+    });
+  });
+
+  // ──────────────────────────────────────────────
   // clearError
   // ──────────────────────────────────────────────
   group('clearError', () {
