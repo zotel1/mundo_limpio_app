@@ -1,0 +1,54 @@
+# CI Pipeline para MundoLimpio App
+#
+# Se ejecuta en:
+# - Pull Requests hacia develop y main
+# - Push directo a develop y main (post-merge)
+#
+# Verifica:
+# - El código compila sin errores (flutter analyze)
+# - Todos los tests pasan (flutter test)
+# - El formato sigue las convenciones (dart format --check)
+
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+jobs:
+  build-and-test:
+    name: Analyze & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+
+      - name: 🎯 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: 📦 Cache dependencias
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            .dart_tool
+          key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: 📦 Instalar dependencias
+        run: flutter pub get
+
+      - name: 🔍 Análisis estático
+        run: flutter analyze
+
+      - name: 🧪 Ejecutar tests
+        run: flutter test
+
+      - name: 📐 Verificar formato
+        run: dart format --check lib/ test/
