@@ -125,7 +125,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         DropdownButtonFormField<int>(
-          value: provider.selectedProductId,
+          initialValue: provider.selectedProductId,
           hint: const Text('Seleccioná un producto'),
           decoration: const InputDecoration(
             labelText: 'Producto',
