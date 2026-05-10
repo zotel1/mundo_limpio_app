@@ -69,6 +69,11 @@ void main() {
     test('isAuthenticated debe ser false al iniciar', () {
       expect(provider.isAuthenticated, isFalse);
     });
+
+    // TDD: RED — verificar que role es null antes de login
+    test('role debe ser null al iniciar', () {
+      expect(provider.role, isNull);
+    });
   });
 
   group('checkAuth', () {
@@ -165,6 +170,19 @@ void main() {
       await provider.login('otro@test.com', 'OtraPass456!');
 
       verify(() => mockAuthRepository.login('otro@test.com', 'OtraPass456!')).called(1);
+    });
+
+    // TDD: RED — verificar que login guarda el role del AuthResponse
+    test('debe guardar role desde AuthResponse después de login exitoso', () async {
+      // Arrange
+      when(() => mockAuthRepository.login(testEmail, testPassword))
+          .thenAnswer((_) async => authResponse);
+
+      // Act
+      await provider.login(testEmail, testPassword);
+
+      // Assert
+      expect(provider.role, 'user');
     });
   });
 

@@ -39,6 +39,9 @@ class AuthProvider extends ChangeNotifier {
   AuthStatus _status = AuthStatus.loading;
   String? _error;
 
+  /// Rol del usuario autenticado (null si no hay sesión activa).
+  String? _role;
+
   /// Estado actual de autenticación.
   AuthStatus get status => _status;
 
@@ -50,6 +53,13 @@ class AuthProvider extends ChangeNotifier {
 
   /// True si hay una sesión activa.
   bool get isAuthenticated => _status == AuthStatus.authenticated;
+
+  /// Rol del usuario autenticado.
+  ///
+  /// Retorna null si no hay sesión activa (estado inicial o después de logout).
+  /// Se popula después de un login exitoso desde [AuthResponse.role].
+  /// T-5.3 lo usa para mostrar botones condicionales según el rol.
+  String? get role => _role;
 
   /// Crea un [AuthProvider] con el [repository] inyectado.
   AuthProvider(this._repository);
@@ -79,15 +89,18 @@ class AuthProvider extends ChangeNotifier {
   Future<void> login(String email, String password) async {
     _setLoading();
     try {
-      await _repository.login(email, password);
+      final response = await _repository.login(email, password);
+      _role = response.role;
       _status = AuthStatus.authenticated;
       _error = null;
     } on ApiException catch (e) {
       // ApiException tiene mensaje amigable via ErrorHandler
+      _role = null;
       _error = ErrorHandler.getMessage(e);
       _status = AuthStatus.unauthenticated;
     } catch (e) {
       // Error genérico (no debería ocurrir en condiciones normales)
+      _role = null;
       _error = 'Error inesperado. Intentalo de nuevo.';
       _status = AuthStatus.unauthenticated;
     }
@@ -126,6 +139,7 @@ class AuthProvider extends ChangeNotifier {
       // para no quedar en un estado inconsistente
     }
     _status = AuthStatus.unauthenticated;
+    _role = null;
     _error = null;
     notifyListeners();
   }
