@@ -11,6 +11,7 @@
 // TDD: GREEN — creado después de que AuthProvider pasa los tests
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../provider/auth_provider.dart';
@@ -33,21 +34,34 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: const Center(
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.check_circle_outline,
               size: 64,
               color: Colors.green,
             ),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 16),
+            const Text(
               '¡Bienvenido! Sesión iniciada correctamente.',
               style: TextStyle(fontSize: 18),
               textAlign: TextAlign.center,
             ),
+            // Botón "Nueva Venta" solo para administradores (T-5.3)
+            if (context.read<AuthProvider>().role == 'ADMIN') ...[
+              const SizedBox(height: 24),
+              SizedBox(
+                width: 200,
+                height: 48,
+                child: ElevatedButton.icon(
+                  onPressed: () => context.push('/sales/new'),
+                  icon: const Icon(Icons.add_shopping_cart),
+                  label: const Text('Nueva Venta'),
+                ),
+              ),
+            ],
           ],
         ),
       ),
