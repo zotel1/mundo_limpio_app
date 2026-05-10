@@ -16,6 +16,9 @@ import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provid
 import 'package:mundo_limpio_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/screens/register_screen.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/screens/home_screen.dart';
+import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
+import 'package:mundo_limpio_app/features/sales/presentation/screens/create_sale_screen.dart';
+import 'package:mundo_limpio_app/features/sales/presentation/screens/sale_result_screen.dart';
 
 // ---------------------------------------------------------------------------
 // Pantalla de splash / carga
@@ -104,6 +107,29 @@ GoRouter createRouter(
       GoRoute(
         path: '/',
         builder: (_, _) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: '/sales/new',
+        builder: (_, _) => const CreateSaleScreen(),
+      ),
+      GoRoute(
+        path: '/sales/result',
+        builder: (context, state) {
+          // SaleResultScreen requiere un SaleResponse recibido vía
+          // state.extra desde GoRouter. En el flujo actual,
+          // CreateSaleScreen navega via Navigator.pushReplacement
+          // pasando el objeto directamente, pero la ruta existe
+          // para futura navegación con GoRouter (state.extra).
+          final sale = state.extra as SaleResponse?;
+          if (sale == null) {
+            return const Scaffold(
+              body: Center(
+                child: Text('Error: datos de venta no disponibles'),
+              ),
+            );
+          }
+          return SaleResultScreen(sale: sale);
+        },
       ),
     ],
   );

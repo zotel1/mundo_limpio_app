@@ -2,13 +2,18 @@
 //
 // Configura el árbol de dependencias via MultiProvider:
 // 1. TokenStorage — almacenamiento seguro de tokens JWT
-// 2. AuthRepository — capa de datos de autenticación
-// 3. AuthProvider — estado global de autenticación (ChangeNotifier)
+// 2. Dio compartido — instancia única con AuthInterceptor para toda la app
+// 3. AuthRepository — capa de datos de autenticación
+// 4. AuthProvider — estado global de autenticación (ChangeNotifier)
+// 5. SalesApi — cliente HTTP para el módulo de ventas
+// 6. SalesRepository — capa de datos de ventas
+// 7. SalesProvider — estado del flujo de venta (ChangeNotifier)
 //
 // Luego renderiza MundoLimpioApp con MaterialApp.router.
 //
 // TDD: GREEN — implementación con MultiProvider + MaterialApp.router
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -20,6 +25,10 @@ import 'features/auth/data/api/auth_api.dart';
 import 'features/auth/data/repository/auth_repository_impl.dart';
 import 'features/auth/domain/repository/auth_repository.dart';
 import 'features/auth/presentation/provider/auth_provider.dart';
+import 'features/sales/data/api/sales_api.dart';
+import 'features/sales/data/repository/sales_repository_impl.dart';
+import 'features/sales/domain/repository/sales_repository.dart';
+import 'features/sales/presentation/provider/sales_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,9 +44,13 @@ void main() {
         ),
 
         // ------------------------------------------------------------------
-        // Repositorio de autenticación
+        // Dio compartido con AuthInterceptor (T-5.2)
+        //
+        // Crea una única instancia de Dio con el interceptor de auth
+        // para que AuthApi y SalesApi compartan la misma conexión,
+        // cookies y lógica de refresh automático.
         // ------------------------------------------------------------------
-        Provider<AuthRepository>(
+        Provider<Dio>(
           create: (ctx) {
             final tokenStorage = ctx.read<TokenStorage>();
 
@@ -52,9 +65,19 @@ void main() {
             );
 
             // Dio principal — CON AuthInterceptor para requests autenticados
-            final dio = ApiClient.create(
+            return ApiClient.create(
               extraInterceptors: [authInterceptor],
             );
+          },
+        ),
+
+        // ------------------------------------------------------------------
+        // Repositorio de autenticación (usa el Dio compartido)
+        // ------------------------------------------------------------------
+        Provider<AuthRepository>(
+          create: (ctx) {
+            final dio = ctx.read<Dio>();
+            final tokenStorage = ctx.read<TokenStorage>();
 
             return AuthRepositoryImpl(
               authApi: AuthApi(dio: dio),
@@ -77,6 +100,31 @@ void main() {
 
             return authProvider;
           },
+        ),
+
+        // ------------------------------------------------------------------
+        // Sales API (usa el Dio compartido)
+        // ------------------------------------------------------------------
+        Provider<SalesApi>(
+          create: (ctx) => SalesApi(dio: ctx.read<Dio>()),
+        ),
+
+        // ------------------------------------------------------------------
+        // Sales Repository
+        // ------------------------------------------------------------------
+        Provider<SalesRepository>(
+          create: (ctx) => SalesRepositoryImpl(
+            salesApi: ctx.read<SalesApi>(),
+          ),
+        ),
+
+        // ------------------------------------------------------------------
+        // Sales Provider (ChangeNotifier para UI reactiva)
+        // ------------------------------------------------------------------
+        ChangeNotifierProvider<SalesProvider>(
+          create: (ctx) => SalesProvider(
+            ctx.read<SalesRepository>(),
+          ),
         ),
       ],
       child: const MundoLimpioApp(),
