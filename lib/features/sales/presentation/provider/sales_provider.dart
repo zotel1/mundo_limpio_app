@@ -64,6 +64,12 @@ class SalesProvider extends ChangeNotifier {
   /// Mensaje de error actual (null si no hay error).
   String? get errorMessage => _errorMessage;
 
+  /// Stock total disponible sumando todos los lotes.
+  ///
+  /// Retorna 0.0 si no hay lotes cargados.
+  double get stockTotal =>
+      _batches.fold<double>(0, (sum, batch) => sum + batch.currentStock);
+
   /// Última venta creada (null si no hay venta).
   SaleResponse? get lastSale => _lastSale;
 
