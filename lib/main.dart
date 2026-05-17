@@ -25,6 +25,10 @@ import 'features/auth/data/api/auth_api.dart';
 import 'features/auth/data/repository/auth_repository_impl.dart';
 import 'features/auth/domain/repository/auth_repository.dart';
 import 'features/auth/presentation/provider/auth_provider.dart';
+import 'features/inventory/data/api/inventory_api.dart';
+import 'features/inventory/data/repository/inventory_repository_impl.dart';
+import 'features/inventory/domain/repository/inventory_repository.dart';
+import 'features/inventory/presentation/provider/inventory_provider.dart';
 import 'features/sales/data/api/sales_api.dart';
 import 'features/sales/data/repository/sales_repository_impl.dart';
 import 'features/sales/domain/repository/sales_repository.dart';
@@ -124,6 +128,31 @@ void main() {
         ChangeNotifierProvider<SalesProvider>(
           create: (ctx) => SalesProvider(
             ctx.read<SalesRepository>(),
+          ),
+        ),
+
+        // ------------------------------------------------------------------
+        // Inventory API (usa el Dio compartido)
+        // ------------------------------------------------------------------
+        Provider<InventoryApi>(
+          create: (ctx) => InventoryApi(dio: ctx.read<Dio>()),
+        ),
+
+        // ------------------------------------------------------------------
+        // Inventory Repository
+        // ------------------------------------------------------------------
+        Provider<InventoryRepository>(
+          create: (ctx) => InventoryRepositoryImpl(
+            inventoryApi: ctx.read<InventoryApi>(),
+          ),
+        ),
+
+        // ------------------------------------------------------------------
+        // Inventory Provider (ChangeNotifier para UI reactiva)
+        // ------------------------------------------------------------------
+        ChangeNotifierProvider<InventoryProvider>(
+          create: (ctx) => InventoryProvider(
+            repository: ctx.read<InventoryRepository>(),
           ),
         ),
       ],

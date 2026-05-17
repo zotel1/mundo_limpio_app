@@ -61,6 +61,16 @@ class HomeScreen extends StatelessWidget {
                   label: const Text('Nueva Venta'),
                 ),
               ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: 200,
+                height: 48,
+                child: ElevatedButton.icon(
+                  onPressed: () => context.push('/inventory'),
+                  icon: const Icon(Icons.inventory_2),
+                  label: const Text('Inventario'),
+                ),
+              ),
             ],
           ],
         ),

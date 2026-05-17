@@ -16,6 +16,8 @@ import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provid
 import 'package:mundo_limpio_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/screens/register_screen.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/screens/home_screen.dart';
+import 'package:mundo_limpio_app/features/inventory/presentation/screens/inventory_detail_screen.dart';
+import 'package:mundo_limpio_app/features/inventory/presentation/screens/inventory_list_screen.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/screens/create_sale_screen.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/screens/sale_result_screen.dart';
@@ -111,6 +113,17 @@ GoRouter createRouter(
       GoRoute(
         path: '/sales/new',
         builder: (_, _) => const CreateSaleScreen(),
+      ),
+      GoRoute(
+        path: '/inventory',
+        builder: (_, _) => const InventoryListScreen(),
+      ),
+      GoRoute(
+        path: '/inventory/:productId',
+        builder: (context, state) {
+          final productId = int.parse(state.pathParameters['productId']!);
+          return InventoryDetailScreen(productId: productId);
+        },
       ),
       GoRoute(
         path: '/sales/result',
