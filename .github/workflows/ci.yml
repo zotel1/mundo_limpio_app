@@ -51,4 +51,4 @@ jobs:
         run: flutter test
 
       - name: 📐 Verificar formato
-        run: dart format --check lib/ test/
+        run: dart format --set-exit-if-changed lib/ test/
