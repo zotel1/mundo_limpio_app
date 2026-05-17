@@ -53,28 +53,28 @@ class ApiException implements Exception {
   }
 }
 
-  /// Error de autenticaci├│n (HTTP 401 Unauthorized o 403 Forbidden).
-  ///
-  /// Indica que el token falta, expir├│ o es inv├ílido.
-  /// El AuthInterceptor captura esta excepci├│n para gatillar el refresh.
-  class AuthException extends ApiException {
-    /// El c├│digo SIEMPRE es 401 (no autorizado).
-    const AuthException(String message) : super(message, 401);
-  }
+/// Error de autenticaci├│n (HTTP 401 Unauthorized o 403 Forbidden).
+///
+/// Indica que el token falta, expir├│ o es inv├ílido.
+/// El AuthInterceptor captura esta excepci├│n para gatillar el refresh.
+class AuthException extends ApiException {
+  /// El c├│digo SIEMPRE es 401 (no autorizado).
+  const AuthException(String message) : super(message, 401);
+}
 
-  /// Error de conectividad de red (sin internet, timeout, DNS).
-  ///
-  /// C├│digo 0 porque no hay un c├│digo HTTP asociado.
-  class NetworkException extends ApiException {
-    /// El c├│digo SIEMPRE es 0 (sin clasificaci├│n HTTP).
-    const NetworkException(String message) : super(message, 0);
-  }
+/// Error de conectividad de red (sin internet, timeout, DNS).
+///
+/// C├│digo 0 porque no hay un c├│digo HTTP asociado.
+class NetworkException extends ApiException {
+  /// El c├│digo SIEMPRE es 0 (sin clasificaci├│n HTTP).
+  const NetworkException(String message) : super(message, 0);
+}
 
-  /// Error interno del servidor (HTTP 5xx).
-  ///
-  /// Indica que el backend fall├│. La UI debe mostrar un mensaje
-  /// gen├®rico sin exponer detalles internos.
-  class ServerException extends ApiException {
-    /// El c├│digo SIEMPRE es 500 (error interno del servidor).
-    const ServerException(String message) : super(message, 500);
-  }
+/// Error interno del servidor (HTTP 5xx).
+///
+/// Indica que el backend fall├│. La UI debe mostrar un mensaje
+/// gen├®rico sin exponer detalles internos.
+class ServerException extends ApiException {
+  /// El c├│digo SIEMPRE es 500 (error interno del servidor).
+  const ServerException(String message) : super(message, 500);
+}

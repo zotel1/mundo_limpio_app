@@ -40,12 +40,8 @@ class InventoryApi {
   /// Endpoint: `GET /api/v1/inventory/{productId}`
   Future<InventoryResponse> getInventory(int productId) async {
     try {
-      final response = await _dio.get(
-        '/api/v1/inventory/$productId',
-      );
-      return InventoryResponse.fromJson(
-        response.data as Map<String, dynamic>,
-      );
+      final response = await _dio.get('/api/v1/inventory/$productId');
+      return InventoryResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
     }
@@ -56,9 +52,7 @@ class InventoryApi {
   /// Endpoint: `GET /api/v1/inventory/low-stock`
   Future<List<InventoryResponse>> getLowStock() async {
     try {
-      final response = await _dio.get(
-        '/api/v1/inventory/low-stock',
-      );
+      final response = await _dio.get('/api/v1/inventory/low-stock');
       final data = response.data as List<dynamic>;
       return data
           .map((e) => InventoryResponse.fromJson(e as Map<String, dynamic>))
@@ -73,15 +67,15 @@ class InventoryApi {
   /// Endpoint: `POST /api/v1/inventory/{productId}/adjust`
   /// Body: serialización JSON de [request]
   Future<InventoryResponse> adjustStock(
-      int productId, AdjustmentRequest request) async {
+    int productId,
+    AdjustmentRequest request,
+  ) async {
     try {
       final response = await _dio.post(
         '/api/v1/inventory/$productId/adjust',
         data: request.toJson(),
       );
-      return InventoryResponse.fromJson(
-        response.data as Map<String, dynamic>,
-      );
+      return InventoryResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
     }
