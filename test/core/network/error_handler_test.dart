@@ -54,13 +54,16 @@ void main() {
     });
 
     // Triangulación: AuthException con diferentes mensajes
-    test('should return auth message even with custom AuthException message', () {
-      final exception = AuthException('Custom auth error');
-      final result = ErrorHandler.getMessage(exception);
+    test(
+      'should return auth message even with custom AuthException message',
+      () {
+        final exception = AuthException('Custom auth error');
+        final result = ErrorHandler.getMessage(exception);
 
-      // Debe ignorar el mensaje custom y devolver el mensaje estándar de auth
-      expect(result, contains('No autorizado'));
-    });
+        // Debe ignorar el mensaje custom y devolver el mensaje estándar de auth
+        expect(result, contains('No autorizado'));
+      },
+    );
 
     // Triangulación: ServerException con código 502
     test('should return server error message for any ServerException', () {

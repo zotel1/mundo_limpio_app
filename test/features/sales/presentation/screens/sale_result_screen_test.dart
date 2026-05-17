@@ -34,9 +34,7 @@ Widget createTestApp(SalesProvider provider, SaleResponse sale) {
           body: ElevatedButton(
             onPressed: () => Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (_) => SaleResultScreen(sale: sale),
-              ),
+              MaterialPageRoute(builder: (_) => SaleResultScreen(sale: sale)),
             ),
             child: const Text('IR'),
           ),
@@ -77,8 +75,9 @@ void main() {
   // R6.1: Detalles de la venta
   // ──────────────────────────────────────────────
   group('SaleResultScreen — R6.1: Detalles de venta', () {
-    testWidgets('debe mostrar todos los detalles de la venta (R6.1)',
-        (tester) async {
+    testWidgets('debe mostrar todos los detalles de la venta (R6.1)', (
+      tester,
+    ) async {
       await tester.pumpWidget(createTestApp(provider, sale));
       await tester.pumpAndSettle();
 
@@ -111,15 +110,15 @@ void main() {
   // R6.2: "Nueva Venta"
   // ──────────────────────────────────────────────
   group('SaleResultScreen — R6.2: Nueva Venta', () {
-    testWidgets('"Nueva Venta" debe resetear provider y navegar atrás (R6.2)',
-        (tester) async {
+    testWidgets('"Nueva Venta" debe resetear provider y navegar atrás (R6.2)', (
+      tester,
+    ) async {
       // Arrange: poner el provider en estado success
-      when(() => mockRepo.getProducts())
-          .thenAnswer((_) async => []);
-      when(() => mockRepo.getBatchesByProduct(any()))
-          .thenAnswer((_) async => []);
-      when(() => mockRepo.createSale(any()))
-          .thenAnswer((_) async => sale);
+      when(() => mockRepo.getProducts()).thenAnswer((_) async => []);
+      when(
+        () => mockRepo.getBatchesByProduct(any()),
+      ).thenAnswer((_) async => []);
+      when(() => mockRepo.createSale(any())).thenAnswer((_) async => sale);
 
       await tester.pumpWidget(createTestApp(provider, sale));
       await tester.pumpAndSettle();
@@ -150,28 +149,29 @@ void main() {
   // ──────────────────────────────────────────────
   group('SaleResultScreen — R6.3: Volver al Inicio', () {
     testWidgets(
-        '"Volver al Inicio" debe resetear provider y navegar atrás (R6.3)',
-        (tester) async {
-      await tester.pumpWidget(createTestApp(provider, sale));
-      await tester.pumpAndSettle();
+      '"Volver al Inicio" debe resetear provider y navegar atrás (R6.3)',
+      (tester) async {
+        await tester.pumpWidget(createTestApp(provider, sale));
+        await tester.pumpAndSettle();
 
-      // Navegar a SaleResultScreen
-      await tester.tap(find.widgetWithText(ElevatedButton, 'IR'));
-      await tester.pumpAndSettle();
+        // Navegar a SaleResultScreen
+        await tester.tap(find.widgetWithText(ElevatedButton, 'IR'));
+        await tester.pumpAndSettle();
 
-      expect(find.byType(SaleResultScreen), findsOneWidget);
+        expect(find.byType(SaleResultScreen), findsOneWidget);
 
-      // Tap "Volver al Inicio"
-      await tester.tap(find.widgetWithText(TextButton, 'Volver al Inicio'));
-      await tester.pumpAndSettle();
+        // Tap "Volver al Inicio"
+        await tester.tap(find.widgetWithText(TextButton, 'Volver al Inicio'));
+        await tester.pumpAndSettle();
 
-      // Provider debe estar reseteado
-      expect(provider.status, SalesStatus.idle);
-      expect(provider.lastSale, isNull);
+        // Provider debe estar reseteado
+        expect(provider.status, SalesStatus.idle);
+        expect(provider.lastSale, isNull);
 
-      // Debe navegar atrás (pop)
-      expect(find.byType(SaleResultScreen), findsNothing);
-      expect(find.text('IR'), findsOneWidget);
-    });
+        // Debe navegar atrás (pop)
+        expect(find.byType(SaleResultScreen), findsNothing);
+        expect(find.text('IR'), findsOneWidget);
+      },
+    );
   });
 }

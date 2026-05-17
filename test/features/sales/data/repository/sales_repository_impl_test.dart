@@ -33,87 +33,94 @@ void main() {
 
   group('getProducts', () {
     // Verifica que getProducts delega en SalesApi.getProducts
-    test('debe llamar SalesApi.getProducts y retornar lista de productos',
-        () async {
-      // Arrange
-      final expectedProducts = [
-        const ProductResponse(id: 1, name: 'Producto A'),
-        const ProductResponse(id: 2, name: 'Producto B'),
-      ];
-      when(() => mockSalesApi.getProducts())
-          .thenAnswer((_) async => expectedProducts);
+    test(
+      'debe llamar SalesApi.getProducts y retornar lista de productos',
+      () async {
+        // Arrange
+        final expectedProducts = [
+          const ProductResponse(id: 1, name: 'Producto A'),
+          const ProductResponse(id: 2, name: 'Producto B'),
+        ];
+        when(
+          () => mockSalesApi.getProducts(),
+        ).thenAnswer((_) async => expectedProducts);
 
-      // Act
-      final result = await repository.getProducts();
+        // Act
+        final result = await repository.getProducts();
 
-      // Assert: retorna los mismos productos
-      expect(result, hasLength(2));
-      expect(result[0].id, 1);
-      expect(result[0].name, 'Producto A');
-      expect(result[1].id, 2);
+        // Assert: retorna los mismos productos
+        expect(result, hasLength(2));
+        expect(result[0].id, 1);
+        expect(result[0].name, 'Producto A');
+        expect(result[1].id, 2);
 
-      // Assert: llamó a SalesApi exactamente una vez
-      verify(() => mockSalesApi.getProducts()).called(1);
-    });
+        // Assert: llamó a SalesApi exactamente una vez
+        verify(() => mockSalesApi.getProducts()).called(1);
+      },
+    );
 
     // Triangulación: propaga errores desde SalesApi
-    test('debe propagar ApiException cuando SalesApi.getProducts falla',
-        () async {
-      // Arrange
-      when(() => mockSalesApi.getProducts()).thenThrow(
-        const ApiException('Error de red', 0),
-      );
+    test(
+      'debe propagar ApiException cuando SalesApi.getProducts falla',
+      () async {
+        // Arrange
+        when(
+          () => mockSalesApi.getProducts(),
+        ).thenThrow(const ApiException('Error de red', 0));
 
-      // Act & Assert
-      expect(
-        () => repository.getProducts(),
-        throwsA(isA<ApiException>()),
-      );
-    });
+        // Act & Assert
+        expect(() => repository.getProducts(), throwsA(isA<ApiException>()));
+      },
+    );
   });
 
   group('getBatchesByProduct', () {
     // Verifica que getBatchesByProduct pasa el productId correcto
-    test('debe llamar SalesApi.getBatchesByProduct con el productId correcto',
-        () async {
-      // Arrange
-      const productId = 42;
-      final expectedBatches = [
-        const ProductionBatchResponse(
-          id: 1,
-          productId: productId,
-          currentStock: 100.0,
-        ),
-      ];
-      when(() => mockSalesApi.getBatchesByProduct(productId))
-          .thenAnswer((_) async => expectedBatches);
+    test(
+      'debe llamar SalesApi.getBatchesByProduct con el productId correcto',
+      () async {
+        // Arrange
+        const productId = 42;
+        final expectedBatches = [
+          const ProductionBatchResponse(
+            id: 1,
+            productId: productId,
+            currentStock: 100.0,
+          ),
+        ];
+        when(
+          () => mockSalesApi.getBatchesByProduct(productId),
+        ).thenAnswer((_) async => expectedBatches);
 
-      // Act
-      final result = await repository.getBatchesByProduct(productId);
+        // Act
+        final result = await repository.getBatchesByProduct(productId);
 
-      // Assert: retorna los lotes correctos
-      expect(result, hasLength(1));
-      expect(result[0].id, 1);
-      expect(result[0].productId, productId);
+        // Assert: retorna los lotes correctos
+        expect(result, hasLength(1));
+        expect(result[0].id, 1);
+        expect(result[0].productId, productId);
 
-      // Assert: llamó con el ID correcto
-      verify(() => mockSalesApi.getBatchesByProduct(productId)).called(1);
-    });
+        // Assert: llamó con el ID correcto
+        verify(() => mockSalesApi.getBatchesByProduct(productId)).called(1);
+      },
+    );
 
     // Triangulación: propaga errores
-    test('debe propagar ApiException cuando SalesApi.getBatchesByProduct falla',
-        () async {
-      // Arrange
-      when(() => mockSalesApi.getBatchesByProduct(any())).thenThrow(
-        const ApiException('Producto no encontrado', 404),
-      );
+    test(
+      'debe propagar ApiException cuando SalesApi.getBatchesByProduct falla',
+      () async {
+        // Arrange
+        when(
+          () => mockSalesApi.getBatchesByProduct(any()),
+        ).thenThrow(const ApiException('Producto no encontrado', 404));
 
-      // Act & Assert
-      expect(
-        () => repository.getBatchesByProduct(1),
-        throwsA(isA<ApiException>()),
-      );
-    });
+        // Act & Assert
+        expect(
+          () => repository.getBatchesByProduct(1),
+          throwsA(isA<ApiException>()),
+        );
+      },
+    );
   });
 
   group('createSale', () {
@@ -134,8 +141,9 @@ void main() {
           ),
         ],
       );
-      when(() => mockSalesApi.createSale(request))
-          .thenAnswer((_) async => expectedResponse);
+      when(
+        () => mockSalesApi.createSale(request),
+      ).thenAnswer((_) async => expectedResponse);
 
       // Act
       final result = await repository.createSale(request);
@@ -150,19 +158,21 @@ void main() {
     });
 
     // Triangulación: propaga errores desde SalesApi
-    test('debe propagar ApiException cuando SalesApi.createSale falla',
-        () async {
-      // Arrange
-      final request = SaleRequest(productId: 1, quantity: 100.0);
-      when(() => mockSalesApi.createSale(request)).thenThrow(
-        const ApiException('Stock insuficiente', 400),
-      );
+    test(
+      'debe propagar ApiException cuando SalesApi.createSale falla',
+      () async {
+        // Arrange
+        final request = SaleRequest(productId: 1, quantity: 100.0);
+        when(
+          () => mockSalesApi.createSale(request),
+        ).thenThrow(const ApiException('Stock insuficiente', 400));
 
-      // Act & Assert
-      expect(
-        () => repository.createSale(request),
-        throwsA(isA<ApiException>()),
-      );
-    });
+        // Act & Assert
+        expect(
+          () => repository.createSale(request),
+          throwsA(isA<ApiException>()),
+        );
+      },
+    );
   });
 }

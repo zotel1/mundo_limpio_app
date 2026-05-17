@@ -24,10 +24,7 @@ class LoginRequest {
   final String password;
 
   /// Crea un [LoginRequest] con email y password.
-  const LoginRequest({
-    required this.email,
-    required this.password,
-  });
+  const LoginRequest({required this.email, required this.password});
 
   /// Construye desde un mapa JSON.
   factory LoginRequest.fromJson(Map<String, dynamic> json) =>

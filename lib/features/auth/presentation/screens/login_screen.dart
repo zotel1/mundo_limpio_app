@@ -51,10 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final auth = context.read<AuthProvider>();
-    await auth.login(
-      _emailController.text.trim(),
-      _passwordController.text,
-    );
+    await auth.login(_emailController.text.trim(), _passwordController.text);
 
     if (!mounted) return;
 
@@ -71,9 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final auth = context.watch<AuthProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Iniciar Sesión'),
-      ),
+      appBar: AppBar(title: const Text('Iniciar Sesión')),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -123,7 +118,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   obscureText: true,
                   textInputAction: TextInputAction.done,
-                  onFieldSubmitted: auth.isLoading ? null : (_) => _handleLogin(),
+                  onFieldSubmitted: auth.isLoading
+                      ? null
+                      : (_) => _handleLogin(),
                   validator: AuthValidators.validatePassword,
                 ),
                 const SizedBox(height: 24),

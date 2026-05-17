@@ -72,7 +72,9 @@ class AuthProvider extends ChangeNotifier {
     _setLoading();
     try {
       final loggedIn = await _repository.isLoggedIn();
-      _status = loggedIn ? AuthStatus.authenticated : AuthStatus.unauthenticated;
+      _status = loggedIn
+          ? AuthStatus.authenticated
+          : AuthStatus.unauthenticated;
       _error = null;
     } catch (_) {
       // Si falla la verificación (ej: storage corrupto),

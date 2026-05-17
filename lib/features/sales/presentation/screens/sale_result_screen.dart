@@ -23,9 +23,7 @@ class SaleResultScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Venta Creada'),
-      ),
+      appBar: AppBar(title: const Text('Venta Creada')),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -33,11 +31,7 @@ class SaleResultScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Icono de éxito
-              const Icon(
-                Icons.check_circle,
-                size: 64,
-                color: Colors.green,
-              ),
+              const Icon(Icons.check_circle, size: 64, color: Colors.green),
               const SizedBox(height: 16),
 
               // Mensaje de éxito
@@ -86,12 +80,14 @@ class SaleResultScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      ...sale.items.map((item) => Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Text(
-                          'Lote #${item.batchId} — ${item.quantity} x \$${item.unitPrice.toStringAsFixed(2)}',
+                      ...sale.items.map(
+                        (item) => Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: Text(
+                            'Lote #${item.batchId} — ${item.quantity} x \$${item.unitPrice.toStringAsFixed(2)}',
+                          ),
                         ),
-                      )),
+                      ),
                     ],
                   ),
                 ),

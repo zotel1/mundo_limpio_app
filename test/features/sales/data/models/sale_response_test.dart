@@ -15,12 +15,7 @@ void main() {
     'totalAmount': 375.00,
     'createdAt': '2026-05-10T10:30:00.000',
     'items': [
-      {
-        'batchId': 42,
-        'quantity': 2.5,
-        'unitPrice': 150.00,
-        'unitCost': 100.00,
-      },
+      {'batchId': 42, 'quantity': 2.5, 'unitPrice': 150.00, 'unitCost': 100.00},
     ],
   };
 
@@ -110,18 +105,8 @@ void main() {
     test('debe manejar múltiples items', () {
       final json = Map<String, dynamic>.from(jsonValid);
       json['items'] = [
-        {
-          'batchId': 1,
-          'quantity': 1.0,
-          'unitPrice': 100.0,
-          'unitCost': 50.0,
-        },
-        {
-          'batchId': 2,
-          'quantity': 3.0,
-          'unitPrice': 200.0,
-          'unitCost': 120.0,
-        },
+        {'batchId': 1, 'quantity': 1.0, 'unitPrice': 100.0, 'unitCost': 50.0},
+        {'batchId': 2, 'quantity': 3.0, 'unitPrice': 200.0, 'unitCost': 120.0},
       ];
 
       final result = SaleResponse.fromJson(json);

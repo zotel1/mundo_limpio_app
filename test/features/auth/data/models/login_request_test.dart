@@ -25,10 +25,7 @@ void main() {
     // Verifica que fromJson construye el objeto desde un mapa JSON.
     // Útil si el servidor devuelve los mismos campos en una respuesta.
     test('fromJson debe crear LoginRequest con todos los campos', () {
-      final json = {
-        'email': 'user@domain.com',
-        'password': 'MyP@ssw0rd',
-      };
+      final json = {'email': 'user@domain.com', 'password': 'MyP@ssw0rd'};
 
       final result = LoginRequest.fromJson(json);
 

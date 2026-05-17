@@ -43,13 +43,8 @@ class SalesApi {
   /// Body: serialización JSON de [request]
   Future<SaleResponse> createSale(SaleRequest request) async {
     try {
-      final response = await _dio.post(
-        '/api/v1/sales',
-        data: request.toJson(),
-      );
-      return SaleResponse.fromJson(
-        response.data as Map<String, dynamic>,
-      );
+      final response = await _dio.post('/api/v1/sales', data: request.toJson());
+      return SaleResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
     }
@@ -74,15 +69,17 @@ class SalesApi {
   ///
   /// Endpoint: `GET /api/v1/production-batches/product/{productId}`
   Future<List<ProductionBatchResponse>> getBatchesByProduct(
-      int productId) async {
+    int productId,
+  ) async {
     try {
       final response = await _dio.get(
         '/api/v1/production-batches/product/$productId',
       );
       final data = response.data as List<dynamic>;
       return data
-          .map((e) =>
-              ProductionBatchResponse.fromJson(e as Map<String, dynamic>))
+          .map(
+            (e) => ProductionBatchResponse.fromJson(e as Map<String, dynamic>),
+          )
           .toList();
     } on DioException catch (e) {
       throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);

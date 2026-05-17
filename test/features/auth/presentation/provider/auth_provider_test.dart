@@ -43,14 +43,14 @@ void main() {
     provider = AuthProvider(mockAuthRepository);
 
     // Stubs por defecto para evitar null errors en mocktail
-    when(() => mockAuthRepository.isLoggedIn())
-        .thenAnswer((_) async => false);
-    when(() => mockAuthRepository.login(any(), any()))
-        .thenAnswer((_) async => authResponse);
-    when(() => mockAuthRepository.register(any(), any()))
-        .thenAnswer((_) async => authResponse);
-    when(() => mockAuthRepository.logout())
-        .thenAnswer((_) async {});
+    when(() => mockAuthRepository.isLoggedIn()).thenAnswer((_) async => false);
+    when(
+      () => mockAuthRepository.login(any(), any()),
+    ).thenAnswer((_) async => authResponse);
+    when(
+      () => mockAuthRepository.register(any(), any()),
+    ).thenAnswer((_) async => authResponse);
+    when(() => mockAuthRepository.logout()).thenAnswer((_) async {});
   });
 
   group('estado inicial', () {
@@ -79,8 +79,7 @@ void main() {
   group('checkAuth', () {
     test('debe setear authenticated cuando hay tokens locales', () async {
       // Arrange: hay tokens guardados
-      when(() => mockAuthRepository.isLoggedIn())
-          .thenAnswer((_) async => true);
+      when(() => mockAuthRepository.isLoggedIn()).thenAnswer((_) async => true);
 
       // Act
       await provider.checkAuth();
@@ -113,8 +112,9 @@ void main() {
   group('login', () {
     test('debe setear authenticated en login exitoso (R3.1)', () async {
       // Arrange
-      when(() => mockAuthRepository.login(testEmail, testPassword))
-          .thenAnswer((_) async => authResponse);
+      when(
+        () => mockAuthRepository.login(testEmail, testPassword),
+      ).thenAnswer((_) async => authResponse);
 
       // Act
       await provider.login(testEmail, testPassword);
@@ -126,38 +126,47 @@ void main() {
       verify(() => mockAuthRepository.login(testEmail, testPassword)).called(1);
     });
 
-    test('debe setear error y unauthenticated con credenciales inválidas (R3.2)', () async {
-      // Arrange: el repositorio lanza AuthException
-      when(() => mockAuthRepository.login(testEmail, testPassword))
-          .thenThrow(const AuthException('Credenciales inválidas'));
+    test(
+      'debe setear error y unauthenticated con credenciales inválidas (R3.2)',
+      () async {
+        // Arrange: el repositorio lanza AuthException
+        when(
+          () => mockAuthRepository.login(testEmail, testPassword),
+        ).thenThrow(const AuthException('Credenciales inválidas'));
 
-      // Act
-      await provider.login(testEmail, testPassword);
+        // Act
+        await provider.login(testEmail, testPassword);
 
-      // Assert
-      expect(provider.status, AuthStatus.unauthenticated);
-      expect(provider.isAuthenticated, isFalse);
-      expect(provider.error, contains('No autorizado'));
-    });
+        // Assert
+        expect(provider.status, AuthStatus.unauthenticated);
+        expect(provider.isAuthenticated, isFalse);
+        expect(provider.error, contains('No autorizado'));
+      },
+    );
 
-    test('debe setear error de red y unauthenticated sin conexión (R3.3)', () async {
-      // Arrange: el repositorio lanza NetworkException
-      when(() => mockAuthRepository.login(testEmail, testPassword))
-          .thenThrow(const NetworkException('Sin conexión'));
+    test(
+      'debe setear error de red y unauthenticated sin conexión (R3.3)',
+      () async {
+        // Arrange: el repositorio lanza NetworkException
+        when(
+          () => mockAuthRepository.login(testEmail, testPassword),
+        ).thenThrow(const NetworkException('Sin conexión'));
 
-      // Act
-      await provider.login(testEmail, testPassword);
+        // Act
+        await provider.login(testEmail, testPassword);
 
-      // Assert
-      expect(provider.status, AuthStatus.unauthenticated);
-      expect(provider.isAuthenticated, isFalse);
-      expect(provider.error, contains('Sin conexión'));
-    });
+        // Assert
+        expect(provider.status, AuthStatus.unauthenticated);
+        expect(provider.isAuthenticated, isFalse);
+        expect(provider.error, contains('Sin conexión'));
+      },
+    );
 
     // Triangulación: error genérico (no ApiException)
     test('debe manejar errores genéricos en login', () async {
-      when(() => mockAuthRepository.login(testEmail, testPassword))
-          .thenThrow(Exception('Error inesperado'));
+      when(
+        () => mockAuthRepository.login(testEmail, testPassword),
+      ).thenThrow(Exception('Error inesperado'));
 
       await provider.login(testEmail, testPassword);
 
@@ -169,28 +178,35 @@ void main() {
     test('debe pasar las credenciales correctas al repositorio', () async {
       await provider.login('otro@test.com', 'OtraPass456!');
 
-      verify(() => mockAuthRepository.login('otro@test.com', 'OtraPass456!')).called(1);
+      verify(
+        () => mockAuthRepository.login('otro@test.com', 'OtraPass456!'),
+      ).called(1);
     });
 
     // TDD: RED — verificar que login guarda el role del AuthResponse
-    test('debe guardar role desde AuthResponse después de login exitoso', () async {
-      // Arrange
-      when(() => mockAuthRepository.login(testEmail, testPassword))
-          .thenAnswer((_) async => authResponse);
+    test(
+      'debe guardar role desde AuthResponse después de login exitoso',
+      () async {
+        // Arrange
+        when(
+          () => mockAuthRepository.login(testEmail, testPassword),
+        ).thenAnswer((_) async => authResponse);
 
-      // Act
-      await provider.login(testEmail, testPassword);
+        // Act
+        await provider.login(testEmail, testPassword);
 
-      // Assert
-      expect(provider.role, 'user');
-    });
+        // Assert
+        expect(provider.role, 'user');
+      },
+    );
   });
 
   group('register', () {
     test('debe setear unauthenticated en registro exitoso (R2.1)', () async {
       // Arrange
-      when(() => mockAuthRepository.register(testEmail, testPassword))
-          .thenAnswer((_) async => authResponse);
+      when(
+        () => mockAuthRepository.register(testEmail, testPassword),
+      ).thenAnswer((_) async => authResponse);
 
       // Act
       await provider.register(testEmail, testPassword);
@@ -199,39 +215,48 @@ void main() {
       expect(provider.status, AuthStatus.unauthenticated);
       expect(provider.isAuthenticated, isFalse);
       expect(provider.error, isNull);
-      verify(() => mockAuthRepository.register(testEmail, testPassword)).called(1);
+      verify(
+        () => mockAuthRepository.register(testEmail, testPassword),
+      ).called(1);
     });
 
-    test('debe setear error y unauthenticated con email duplicado (R2.2)', () async {
-      // Arrange: el repositorio lanza ApiException con código 409
-      when(() => mockAuthRepository.register(testEmail, testPassword))
-          .thenThrow(const ApiException('Email already registered', 409));
+    test(
+      'debe setear error y unauthenticated con email duplicado (R2.2)',
+      () async {
+        // Arrange: el repositorio lanza ApiException con código 409
+        when(
+          () => mockAuthRepository.register(testEmail, testPassword),
+        ).thenThrow(const ApiException('Email already registered', 409));
 
-      // Act
-      await provider.register(testEmail, testPassword);
+        // Act
+        await provider.register(testEmail, testPassword);
 
-      // Assert
-      expect(provider.status, AuthStatus.unauthenticated);
-      expect(provider.error, contains('Email already registered'));
-    });
+        // Assert
+        expect(provider.status, AuthStatus.unauthenticated);
+        expect(provider.error, contains('Email already registered'));
+      },
+    );
 
     // Triangulación: error genérico en register (no ApiException)
-    test('debe manejar errores genéricos en register con mensaje genérico', () async {
-      when(() => mockAuthRepository.register(testEmail, testPassword))
-          .thenThrow(Exception('Error de registro'));
+    test(
+      'debe manejar errores genéricos en register con mensaje genérico',
+      () async {
+        when(
+          () => mockAuthRepository.register(testEmail, testPassword),
+        ).thenThrow(Exception('Error de registro'));
 
-      await provider.register(testEmail, testPassword);
+        await provider.register(testEmail, testPassword);
 
-      expect(provider.status, AuthStatus.unauthenticated);
-      expect(provider.error, contains('Error inesperado'));
-    });
+        expect(provider.status, AuthStatus.unauthenticated);
+        expect(provider.error, contains('Error inesperado'));
+      },
+    );
   });
 
   group('logout', () {
     test('debe setear unauthenticated y llamar repo.logout (R5.1)', () async {
       // Arrange: autenticar primero
-      when(() => mockAuthRepository.isLoggedIn())
-          .thenAnswer((_) async => true);
+      when(() => mockAuthRepository.isLoggedIn()).thenAnswer((_) async => true);
       await provider.checkAuth();
       expect(provider.isAuthenticated, isTrue);
 
@@ -248,8 +273,9 @@ void main() {
   group('clearError', () {
     test('debe limpiar el mensaje de error', () async {
       // Arrange: forzar un error
-      when(() => mockAuthRepository.login(testEmail, testPassword))
-          .thenThrow(const AuthException('Error'));
+      when(
+        () => mockAuthRepository.login(testEmail, testPassword),
+      ).thenThrow(const AuthException('Error'));
       await provider.login(testEmail, testPassword);
       expect(provider.error, isNotNull);
 
@@ -288,8 +314,7 @@ void main() {
 
     test('debe llamar notifyListeners durante logout', () async {
       // Arrange: autenticar primero
-      when(() => mockAuthRepository.isLoggedIn())
-          .thenAnswer((_) async => true);
+      when(() => mockAuthRepository.isLoggedIn()).thenAnswer((_) async => true);
       await provider.checkAuth();
 
       var notifyCount = 0;
@@ -304,8 +329,9 @@ void main() {
 
     test('debe llamar notifyListeners en clearError', () async {
       // Arrange: poner el provider en estado de error
-      when(() => mockAuthRepository.login(testEmail, testPassword))
-          .thenThrow(const AuthException('Error'));
+      when(
+        () => mockAuthRepository.login(testEmail, testPassword),
+      ).thenThrow(const AuthException('Error'));
       await provider.login(testEmail, testPassword);
 
       var notifyCount = 0;

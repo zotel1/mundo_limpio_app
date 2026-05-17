@@ -18,7 +18,9 @@ import 'package:mundo_limpio_app/core/network/auth_interceptor.dart';
 import 'package:mundo_limpio_app/core/storage/token_storage.dart';
 
 class MockDio extends Mock implements Dio {}
+
 class MockTokenStorage extends Mock implements TokenStorage {}
+
 class MockRequestOptions extends Fake implements RequestOptions {}
 
 // ---------------------------------------------------------------------------
@@ -39,7 +41,9 @@ class Always200Adapter implements HttpClientAdapter {
     return ResponseBody.fromString(
       '{"message":"success"}',
       200,
-      headers: {'content-type': ['application/json']},
+      headers: {
+        'content-type': ['application/json'],
+      },
     );
   }
 
@@ -69,14 +73,18 @@ class TokenTestAdapter implements HttpClientAdapter {
       return ResponseBody.fromString(
         '{"error":"Unauthorized"}',
         401,
-        headers: {'content-type': ['application/json']},
+        headers: {
+          'content-type': ['application/json'],
+        },
       );
     }
 
     return ResponseBody.fromString(
       '{"accessToken":"new-access","refreshToken":"new-refresh"}',
       200,
-      headers: {'content-type': ['application/json']},
+      headers: {
+        'content-type': ['application/json'],
+      },
     );
   }
 
@@ -100,20 +108,17 @@ class Test401OnRequestInterceptor extends Interceptor {
   Test401OnRequestInterceptor({this.max401Count = 1});
 
   @override
-  void onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) {
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     if (_rejectCount < max401Count) {
       _rejectCount++;
-      handler.reject(DioException(
-        requestOptions: options,
-        response: Response(
+      handler.reject(
+        DioException(
           requestOptions: options,
-          statusCode: 401,
+          response: Response(requestOptions: options, statusCode: 401),
+          type: DioExceptionType.badResponse,
         ),
-        type: DioExceptionType.badResponse,
-      ), true);  // callFollowingErrorInterceptor=true: necesario para que Dio 5.x propague el error a onError
+        true,
+      ); // callFollowingErrorInterceptor=true: necesario para que Dio 5.x propague el error a onError
     } else {
       // Si ya pasamos el límite de 401, dejamos pasar la request
       handler.next(options);
@@ -136,12 +141,11 @@ void main() {
     tokenDio = Dio(BaseOptions(baseUrl: 'http://test.com/api/v1'));
     mockTokenStorage = MockTokenStorage();
 
-    when(() => mockTokenStorage.readTokens())
-        .thenAnswer((_) async => null);
-    when(() => mockTokenStorage.saveTokens(any(), any()))
-        .thenAnswer((_) async {});
-    when(() => mockTokenStorage.clear())
-        .thenAnswer((_) async {});
+    when(() => mockTokenStorage.readTokens()).thenAnswer((_) async => null);
+    when(
+      () => mockTokenStorage.saveTokens(any(), any()),
+    ).thenAnswer((_) async {});
+    when(() => mockTokenStorage.clear()).thenAnswer((_) async {});
 
     interceptor = AuthInterceptor(
       dio: dio,
@@ -152,8 +156,9 @@ void main() {
 
   group('onRequest', () {
     test('should add Authorization header when tokens exist', () async {
-      when(() => mockTokenStorage.readTokens())
-          .thenAnswer((_) async => (access: 'access-123', refresh: 'refresh-456'));
+      when(
+        () => mockTokenStorage.readTokens(),
+      ).thenAnswer((_) async => (access: 'access-123', refresh: 'refresh-456'));
 
       // AuthInterceptor debe ir PRIMERO en la cadena para que
       // modifique los options ANTES de que el wrappers los capture.
@@ -161,15 +166,19 @@ void main() {
       dio.options.headers.clear();
       dio.interceptors.clear();
       dio.interceptors.add(interceptor);
-      dio.interceptors.add(InterceptorsWrapper(
-        onRequest: (options, handler) {
-          capturedOptions = options;
-          handler.reject(DioException(
-            requestOptions: options,
-            type: DioExceptionType.cancel,
-          ));
-        },
-      ));
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            capturedOptions = options;
+            handler.reject(
+              DioException(
+                requestOptions: options,
+                type: DioExceptionType.cancel,
+              ),
+            );
+          },
+        ),
+      );
 
       try {
         await dio.get('/test');
@@ -184,15 +193,19 @@ void main() {
       RequestOptions? capturedOptions;
       dio.interceptors.clear();
       dio.interceptors.add(interceptor);
-      dio.interceptors.add(InterceptorsWrapper(
-        onRequest: (options, handler) {
-          capturedOptions = options;
-          handler.reject(DioException(
-            requestOptions: options,
-            type: DioExceptionType.cancel,
-          ));
-        },
-      ));
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            capturedOptions = options;
+            handler.reject(
+              DioException(
+                requestOptions: options,
+                type: DioExceptionType.cancel,
+              ),
+            );
+          },
+        ),
+      );
 
       try {
         await dio.get('/test');
@@ -236,12 +249,11 @@ void main() {
 
       // Mock: storage devuelve tokens existentes para que el
       // interceptor pueda leer el refresh token
-      when(() => r4Storage.readTokens())
-          .thenAnswer((_) async => (access: 'test-access', refresh: 'test-refresh'));
-      when(() => r4Storage.saveTokens(any(), any()))
-          .thenAnswer((_) async {});
-      when(() => r4Storage.clear())
-          .thenAnswer((_) async {});
+      when(() => r4Storage.readTokens()).thenAnswer(
+        (_) async => (access: 'test-access', refresh: 'test-refresh'),
+      );
+      when(() => r4Storage.saveTokens(any(), any())).thenAnswer((_) async {});
+      when(() => r4Storage.clear()).thenAnswer((_) async {});
 
       // TokenDio con adapter que controla refresh
       r4TokenDio = Dio(BaseOptions(baseUrl: 'http://test.com/api/v1'));
@@ -304,23 +316,26 @@ void main() {
     //   THEN AuthInterceptor intenta refresh, falla, limpia tokens,
     //        y propaga el error para que el router redirija a login
     // ===============================================================
-    test('R4.2: refresh falla con 401 → error propagado + tokens limpios', () async {
-      // Arrange: refresh falla
-      tokenAdapter.failRefresh = true;
-      mainDio.interceptors.add(Test401OnRequestInterceptor(max401Count: 1));
+    test(
+      'R4.2: refresh falla con 401 → error propagado + tokens limpios',
+      () async {
+        // Arrange: refresh falla
+        tokenAdapter.failRefresh = true;
+        mainDio.interceptors.add(Test401OnRequestInterceptor(max401Count: 1));
 
-      // Act & Assert: el error se propaga como DioException
-      await expectLater(
-        () => mainDio.get('/api/v1/protected'),
-        throwsA(isA<DioException>()),
-      );
+        // Act & Assert: el error se propaga como DioException
+        await expectLater(
+          () => mainDio.get('/api/v1/protected'),
+          throwsA(isA<DioException>()),
+        );
 
-      // Assert: refresh fue intentado una vez
-      expect(tokenAdapter.refreshCallCount, equals(1));
+        // Assert: refresh fue intentado una vez
+        expect(tokenAdapter.refreshCallCount, equals(1));
 
-      // Assert: storage.clear fue llamado (limpiar tokens expirados, R4.2)
-      verify(() => r4Storage.clear()).called(1);
-    });
+        // Assert: storage.clear fue llamado (limpiar tokens expirados, R4.2)
+        verify(() => r4Storage.clear()).called(1);
+      },
+    );
 
     // Triangulación: refresh fallido en endpoint diferente
     test('R4.2: refresh fallido en endpoint distinto propaga error', () async {

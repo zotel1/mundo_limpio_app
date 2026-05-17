@@ -37,8 +37,9 @@ void main() {
         const ProductResponse(id: 1, name: 'Producto A'),
         const ProductResponse(id: 2, name: 'Producto B'),
       ];
-      when(() => mockRepository.getProducts())
-          .thenAnswer((_) async => expectedProducts);
+      when(
+        () => mockRepository.getProducts(),
+      ).thenAnswer((_) async => expectedProducts);
 
       // Act
       final result = await mockRepository.getProducts();
@@ -53,34 +54,37 @@ void main() {
     });
 
     // Verifica que getBatchesByProduct retorna List<ProductionBatchResponse>
-    test('getBatchesByProduct debe retornar List<ProductionBatchResponse>',
-        () async {
-      // Arrange
-      final expectedBatches = [
-        const ProductionBatchResponse(
-          id: 1,
-          productId: 1,
-          currentStock: 100.0,
-        ),
-        const ProductionBatchResponse(
-          id: 2,
-          productId: 1,
-          currentStock: 50.0,
-        ),
-      ];
-      when(() => mockRepository.getBatchesByProduct(1))
-          .thenAnswer((_) async => expectedBatches);
+    test(
+      'getBatchesByProduct debe retornar List<ProductionBatchResponse>',
+      () async {
+        // Arrange
+        final expectedBatches = [
+          const ProductionBatchResponse(
+            id: 1,
+            productId: 1,
+            currentStock: 100.0,
+          ),
+          const ProductionBatchResponse(
+            id: 2,
+            productId: 1,
+            currentStock: 50.0,
+          ),
+        ];
+        when(
+          () => mockRepository.getBatchesByProduct(1),
+        ).thenAnswer((_) async => expectedBatches);
 
-      // Act
-      final result = await mockRepository.getBatchesByProduct(1);
+        // Act
+        final result = await mockRepository.getBatchesByProduct(1);
 
-      // Assert
-      expect(result, isA<List<ProductionBatchResponse>>());
-      expect(result, hasLength(2));
-      expect(result[0].id, 1);
-      expect(result[0].currentStock, 100.0);
-      expect(result[1].currentStock, 50.0);
-    });
+        // Assert
+        expect(result, isA<List<ProductionBatchResponse>>());
+        expect(result, hasLength(2));
+        expect(result[0].id, 1);
+        expect(result[0].currentStock, 100.0);
+        expect(result[1].currentStock, 50.0);
+      },
+    );
 
     // Verifica que createSale retorna SaleResponse
     test('createSale debe retornar SaleResponse', () async {
@@ -100,8 +104,9 @@ void main() {
         ],
       );
 
-      when(() => mockRepository.createSale(request))
-          .thenAnswer((_) async => expectedResponse);
+      when(
+        () => mockRepository.createSale(request),
+      ).thenAnswer((_) async => expectedResponse);
 
       // Act
       final result = await mockRepository.createSale(request);
@@ -116,8 +121,9 @@ void main() {
     // Verifica que se pasa el productId correcto a getBatchesByProduct
     test('getBatchesByProduct debe aceptar productId y delegar', () async {
       // Arrange
-      when(() => mockRepository.getBatchesByProduct(42))
-          .thenAnswer((_) async => []);
+      when(
+        () => mockRepository.getBatchesByProduct(42),
+      ).thenAnswer((_) async => []);
 
       // Act
       await mockRepository.getBatchesByProduct(42);
@@ -130,13 +136,14 @@ void main() {
     test('createSale debe recibir SaleRequest y delegar', () async {
       // Arrange
       final request = SaleRequest(productId: 5, quantity: 10.0);
-      when(() => mockRepository.createSale(request))
-          .thenAnswer((_) async => SaleResponse(
-                id: 2,
-                totalAmount: 100.0,
-                createdAt: DateTime(2026, 5, 10),
-                items: [],
-              ));
+      when(() => mockRepository.createSale(request)).thenAnswer(
+        (_) async => SaleResponse(
+          id: 2,
+          totalAmount: 100.0,
+          createdAt: DateTime(2026, 5, 10),
+          items: [],
+        ),
+      );
 
       // Act
       await mockRepository.createSale(request);

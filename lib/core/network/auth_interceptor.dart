@@ -40,11 +40,14 @@ class AuthInterceptor extends QueuedInterceptor {
 
   /// Cola de requests que esperan mientras se refresca el token.
   /// Cada entrada tiene: options (request original), handler, error original.
-  final _pendingRequests = <({
-    RequestOptions options,
-    ErrorInterceptorHandler handler,
-    DioException error
-  })>[];
+  final _pendingRequests =
+      <
+        ({
+          RequestOptions options,
+          ErrorInterceptorHandler handler,
+          DioException error,
+        })
+      >[];
 
   /// Wrapper seguro para [ErrorInterceptorHandler.next].
   ///
@@ -88,10 +91,7 @@ class AuthInterceptor extends QueuedInterceptor {
   }
 
   @override
-  void onError(
-    DioException err,
-    ErrorInterceptorHandler handler,
-  ) async {
+  void onError(DioException err, ErrorInterceptorHandler handler) async {
     // No interceptar errores del propio endpoint de refresh
     // (esto evitaría loops infinitos de refresh)
     if (err.requestOptions.path.contains('/auth/refresh')) {

@@ -28,10 +28,7 @@ class ApiClient {
   /// - [baseUrl]: override de la URL base (default: AppConfig.baseUrl)
   ///
   /// Siempre incluye [LogInterceptor] para debugging en desarrollo.
-  static Dio create({
-    List<Interceptor>? extraInterceptors,
-    String? baseUrl,
-  }) {
+  static Dio create({List<Interceptor>? extraInterceptors, String? baseUrl}) {
     final dio = Dio(
       BaseOptions(
         baseUrl: baseUrl ?? AppConfig.baseUrl,

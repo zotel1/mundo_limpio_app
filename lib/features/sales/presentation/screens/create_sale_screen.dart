@@ -86,9 +86,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen> {
     final provider = context.watch<SalesProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Nueva Venta'),
-      ),
+      appBar: AppBar(title: const Text('Nueva Venta')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: _buildBody(provider),
@@ -175,9 +173,9 @@ class _CreateSaleScreenState extends State<CreateSaleScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  ...provider.batches.map((batch) => Text(
-                    'Lote #${batch.id}: ${batch.currentStock}',
-                  )),
+                  ...provider.batches.map(
+                    (batch) => Text('Lote #${batch.id}: ${batch.currentStock}'),
+                  ),
                 ],
               ),
             ),
@@ -221,10 +219,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen> {
                       width: 24,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text(
-                      'Crear Venta',
-                      style: TextStyle(fontSize: 16),
-                    ),
+                  : const Text('Crear Venta', style: TextStyle(fontSize: 16)),
             ),
           ),
         ],
@@ -259,10 +254,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen> {
           height: 48,
           child: ElevatedButton(
             onPressed: _retry,
-            child: const Text(
-              'Reintentar',
-              style: TextStyle(fontSize: 16),
-            ),
+            child: const Text('Reintentar', style: TextStyle(fontSize: 16)),
           ),
         ),
       ],
