@@ -35,11 +35,26 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
-  # JSON serialization (runtime annotations)
-  json_annotation: ^4.11.0
-
-  # HTTP client
+  # Cliente HTTP con interceptors para JWT refresh automático
+  # y manejo centralizado de errores de red.
   dio: ^5.4.0
+
+  # Almacenamiento seguro de tokens (iOS Keychain, Android EncryptedSharedPreferences).
+  # No usar shared_preferences porque almacena en texto plano.
+  flutter_secure_storage: ^9.2.0
+
+  # Estado global con ChangeNotifier. Oficial de Flutter, suficiente
+  # para el scope actual. Migrar a Riverpod después si hace falta.
+  provider: ^6.1.0
+
+  # Routing declarativo con redirects por estado de autenticación.
+  go_router: ^14.0.0
+
+  # Equality por valor (evita tener que sobreescribir == y hashCode a mano).
+  equatable: ^2.0.0
+
+  # Anotaciones para generar código de serialización JSON.
+  json_annotation: ^4.8.0
 
 dev_dependencies:
   flutter_test:
@@ -52,11 +67,14 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
 
-  # JSON serialization code generation
-  json_serializable: ^6.13.0
+  # Generador de código para json_serializable.
   build_runner: ^2.4.0
 
-  # Mocking for tests
+  # Genera fromJson/toJson a partir de anotaciones @JsonSerializable.
+  json_serializable: ^6.7.0
+
+  # Mocking para tests unitarios. Similar a Mockito pero sin boilerplate
+  # (no requiere generar código ni archivos .g.dart para mocks).
   mocktail: ^1.0.0
 
 # For information on the generic Dart part of this file, see the
