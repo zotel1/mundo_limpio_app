@@ -24,7 +24,7 @@ class InventoryRepositoryImpl implements InventoryRepository {
   ///
   /// [inventoryApi]: cliente HTTP para endpoints de inventario.
   const InventoryRepositoryImpl({required InventoryApi inventoryApi})
-      : _inventoryApi = inventoryApi;
+    : _inventoryApi = inventoryApi;
 
   @override
   Future<InventoryResponse> getInventory(int productId) async {
@@ -38,7 +38,9 @@ class InventoryRepositoryImpl implements InventoryRepository {
 
   @override
   Future<InventoryResponse> adjustStock(
-      int productId, AdjustmentRequest request) async {
+    int productId,
+    AdjustmentRequest request,
+  ) async {
     return _inventoryApi.adjustStock(productId, request);
   }
 }

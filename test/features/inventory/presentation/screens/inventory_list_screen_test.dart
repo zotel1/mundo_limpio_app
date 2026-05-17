@@ -31,8 +31,10 @@ class MockInventoryRepository extends Mock implements InventoryRepository {}
 ///
 /// [provider] es el provider de inventario inyectado.
 /// [initialLocation] permite arrancar desde una ruta específica.
-Widget createTestApp(InventoryProvider provider,
-    {String initialLocation = '/'}) {
+Widget createTestApp(
+  InventoryProvider provider, {
+  String initialLocation = '/',
+}) {
   final router = GoRouter(
     initialLocation: initialLocation,
     routes: [
@@ -60,8 +62,7 @@ Widget createTestApp(InventoryProvider provider,
 }
 
 /// Helper para pump repetido hasta que los async tasks resuelven.
-Future<void> pumpUntilSettled(WidgetTester tester,
-    {int maxFrames = 20}) async {
+Future<void> pumpUntilSettled(WidgetTester tester, {int maxFrames = 20}) async {
   for (int i = 0; i < maxFrames; i++) {
     await tester.pump(const Duration(milliseconds: 100));
   }
@@ -94,10 +95,10 @@ void main() {
   // R6.1: Muestra lista de low-stock items
   // ──────────────────────────────────────────────
   group('InventoryListScreen — R6.1: Low-stock list', () {
-    testWidgets('debe mostrar lista de low-stock items con indicadores',
-        (tester) async {
-      when(() => mockRepo.getLowStock())
-          .thenAnswer((_) async => lowStockItems);
+    testWidgets('debe mostrar lista de low-stock items con indicadores', (
+      tester,
+    ) async {
+      when(() => mockRepo.getLowStock()).thenAnswer((_) async => lowStockItems);
 
       await tester.pumpWidget(createTestApp(provider));
       await pumpUntilSettled(tester);
@@ -119,7 +120,9 @@ void main() {
   // R6.2: Spinner durante carga
   // ──────────────────────────────────────────────
   group('InventoryListScreen — R6.2: Loading spinner', () {
-    testWidgets('debe mostrar spinner mientras carga low-stock', (tester) async {
+    testWidgets('debe mostrar spinner mientras carga low-stock', (
+      tester,
+    ) async {
       final completer = Completer<List<InventoryResponse>>();
       when(() => mockRepo.getLowStock()).thenAnswer((_) => completer.future);
 
@@ -138,8 +141,9 @@ void main() {
   // ──────────────────────────────────────────────
   group('InventoryListScreen — R6.3: Error state', () {
     testWidgets('debe mostrar error con botón reintentar', (tester) async {
-      when(() => mockRepo.getLowStock())
-          .thenThrow(const ApiException('Error del servidor', 500));
+      when(
+        () => mockRepo.getLowStock(),
+      ).thenThrow(const ApiException('Error del servidor', 500));
 
       await tester.pumpWidget(createTestApp(provider));
       await pumpUntilSettled(tester);
@@ -148,21 +152,20 @@ void main() {
       expect(find.textContaining('Error del servidor'), findsOneWidget);
 
       // Debe mostrar botón reintentar
-      expect(
-          find.widgetWithText(ElevatedButton, 'Reintentar'), findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton, 'Reintentar'), findsOneWidget);
     });
 
     testWidgets('reintentar debe recargar low-stock', (tester) async {
       // Arrange: falla primero
-      when(() => mockRepo.getLowStock())
-          .thenThrow(const ApiException('Error', 500));
+      when(
+        () => mockRepo.getLowStock(),
+      ).thenThrow(const ApiException('Error', 500));
       await tester.pumpWidget(createTestApp(provider));
       await pumpUntilSettled(tester);
       expect(find.textContaining('Error'), findsOneWidget);
 
       // Arrange: éxito después
-      when(() => mockRepo.getLowStock())
-          .thenAnswer((_) async => lowStockItems);
+      when(() => mockRepo.getLowStock()).thenAnswer((_) async => lowStockItems);
 
       // Act: tocar reintentar
       await tester.tap(find.widgetWithText(ElevatedButton, 'Reintentar'));
@@ -179,11 +182,11 @@ void main() {
   // ──────────────────────────────────────────────
   group('InventoryListScreen — R6.4: Navigation', () {
     testWidgets('tap en item navega a InventoryDetailScreen', (tester) async {
-      when(() => mockRepo.getLowStock())
-          .thenAnswer((_) async => lowStockItems);
+      when(() => mockRepo.getLowStock()).thenAnswer((_) async => lowStockItems);
       // Stub getInventory para que el detail screen no falle al cargar
-      when(() => mockRepo.getInventory(any()))
-          .thenAnswer((_) async => lowStockItem1);
+      when(
+        () => mockRepo.getInventory(any()),
+      ).thenAnswer((_) async => lowStockItem1);
 
       await tester.pumpWidget(createTestApp(provider));
       await pumpUntilSettled(tester);

@@ -32,44 +32,49 @@ void main() {
 
   group('getInventory', () {
     // Verifica que getInventory delega en InventoryApi.getInventory
-    test('debe llamar InventoryApi.getInventory y retornar InventoryResponse',
-        () async {
-      // Arrange
-      final expectedResponse = InventoryResponse(
-        productId: testProductId,
-        productName: 'Jabón Líquido',
-        currentStock: 50.0,
-        minStockThreshold: 10.0,
-      );
-      when(() => mockInventoryApi.getInventory(testProductId))
-          .thenAnswer((_) async => expectedResponse);
+    test(
+      'debe llamar InventoryApi.getInventory y retornar InventoryResponse',
+      () async {
+        // Arrange
+        final expectedResponse = InventoryResponse(
+          productId: testProductId,
+          productName: 'Jabón Líquido',
+          currentStock: 50.0,
+          minStockThreshold: 10.0,
+        );
+        when(
+          () => mockInventoryApi.getInventory(testProductId),
+        ).thenAnswer((_) async => expectedResponse);
 
-      // Act
-      final result = await repository.getInventory(testProductId);
+        // Act
+        final result = await repository.getInventory(testProductId);
 
-      // Assert: retorna el mismo InventoryResponse
-      expect(result.productId, testProductId);
-      expect(result.productName, 'Jabón Líquido');
-      expect(result.currentStock, 50.0);
+        // Assert: retorna el mismo InventoryResponse
+        expect(result.productId, testProductId);
+        expect(result.productName, 'Jabón Líquido');
+        expect(result.currentStock, 50.0);
 
-      // Assert: llamó a InventoryApi exactamente una vez
-      verify(() => mockInventoryApi.getInventory(testProductId)).called(1);
-    });
+        // Assert: llamó a InventoryApi exactamente una vez
+        verify(() => mockInventoryApi.getInventory(testProductId)).called(1);
+      },
+    );
 
     // Triangulación: propaga errores desde InventoryApi
-    test('debe propagar ApiException cuando InventoryApi.getInventory falla',
-        () async {
-      // Arrange
-      when(() => mockInventoryApi.getInventory(testProductId)).thenThrow(
-        const ApiException('Producto no encontrado', 404),
-      );
+    test(
+      'debe propagar ApiException cuando InventoryApi.getInventory falla',
+      () async {
+        // Arrange
+        when(
+          () => mockInventoryApi.getInventory(testProductId),
+        ).thenThrow(const ApiException('Producto no encontrado', 404));
 
-      // Act & Assert
-      expect(
-        () => repository.getInventory(testProductId),
-        throwsA(isA<ApiException>()),
-      );
-    });
+        // Act & Assert
+        expect(
+          () => repository.getInventory(testProductId),
+          throwsA(isA<ApiException>()),
+        );
+      },
+    );
   });
 
   group('getLowStock', () {
@@ -90,8 +95,9 @@ void main() {
           minStockThreshold: 20.0,
         ),
       ];
-      when(() => mockInventoryApi.getLowStock())
-          .thenAnswer((_) async => expectedItems);
+      when(
+        () => mockInventoryApi.getLowStock(),
+      ).thenAnswer((_) async => expectedItems);
 
       // Act
       final result = await repository.getLowStock();
@@ -108,70 +114,74 @@ void main() {
     });
 
     // Triangulación: propaga errores
-    test('debe propagar ApiException cuando InventoryApi.getLowStock falla',
-        () async {
-      // Arrange
-      when(() => mockInventoryApi.getLowStock()).thenThrow(
-        const ApiException('Error interno', 500),
-      );
+    test(
+      'debe propagar ApiException cuando InventoryApi.getLowStock falla',
+      () async {
+        // Arrange
+        when(
+          () => mockInventoryApi.getLowStock(),
+        ).thenThrow(const ApiException('Error interno', 500));
 
-      // Act & Assert
-      expect(
-        () => repository.getLowStock(),
-        throwsA(isA<ApiException>()),
-      );
-    });
+        // Act & Assert
+        expect(() => repository.getLowStock(), throwsA(isA<ApiException>()));
+      },
+    );
   });
 
   group('adjustStock', () {
     // Verifica que adjustStock delega en InventoryApi.adjustStock
-    test('debe llamar InventoryApi.adjustStock y retornar InventoryResponse',
-        () async {
-      // Arrange
-      final request = const AdjustmentRequest(
-        type: AdjustmentType.ADJUSTMENT,
-        quantity: 10.0,
-        reason: 'ajuste manual',
-      );
-      final expectedResponse = InventoryResponse(
-        productId: testProductId,
-        productName: 'Jabón Líquido',
-        currentStock: 60.0,
-        minStockThreshold: 10.0,
-      );
-      when(() => mockInventoryApi.adjustStock(testProductId, request))
-          .thenAnswer((_) async => expectedResponse);
+    test(
+      'debe llamar InventoryApi.adjustStock y retornar InventoryResponse',
+      () async {
+        // Arrange
+        final request = const AdjustmentRequest(
+          type: AdjustmentType.ADJUSTMENT,
+          quantity: 10.0,
+          reason: 'ajuste manual',
+        );
+        final expectedResponse = InventoryResponse(
+          productId: testProductId,
+          productName: 'Jabón Líquido',
+          currentStock: 60.0,
+          minStockThreshold: 10.0,
+        );
+        when(
+          () => mockInventoryApi.adjustStock(testProductId, request),
+        ).thenAnswer((_) async => expectedResponse);
 
-      // Act
-      final result = await repository.adjustStock(testProductId, request);
+        // Act
+        final result = await repository.adjustStock(testProductId, request);
 
-      // Assert: retorna el InventoryResponse correcto
-      expect(result.currentStock, 60.0);
+        // Assert: retorna el InventoryResponse correcto
+        expect(result.currentStock, 60.0);
 
-      // Assert: llamó con el ID y request correctos
-      verify(() => mockInventoryApi.adjustStock(testProductId, request))
-          .called(1);
-    });
+        // Assert: llamó con el ID y request correctos
+        verify(
+          () => mockInventoryApi.adjustStock(testProductId, request),
+        ).called(1);
+      },
+    );
 
     // Triangulación: propaga errores desde InventoryApi
-    test('debe propagar ApiException cuando InventoryApi.adjustStock falla',
-        () async {
-      // Arrange
-      final request = const AdjustmentRequest(
-        type: AdjustmentType.BREAKAGE,
-        quantity: -5.0,
-        reason: 'quebrado',
-      );
-      when(() => mockInventoryApi.adjustStock(testProductId, request))
-          .thenThrow(
-        const ApiException('Conflicto de versión', 409),
-      );
+    test(
+      'debe propagar ApiException cuando InventoryApi.adjustStock falla',
+      () async {
+        // Arrange
+        final request = const AdjustmentRequest(
+          type: AdjustmentType.BREAKAGE,
+          quantity: -5.0,
+          reason: 'quebrado',
+        );
+        when(
+          () => mockInventoryApi.adjustStock(testProductId, request),
+        ).thenThrow(const ApiException('Conflicto de versión', 409));
 
-      // Act & Assert
-      expect(
-        () => repository.adjustStock(testProductId, request),
-        throwsA(isA<ApiException>()),
-      );
-    });
+        // Act & Assert
+        expect(
+          () => repository.adjustStock(testProductId, request),
+          throwsA(isA<ApiException>()),
+        );
+      },
+    );
   });
 }
