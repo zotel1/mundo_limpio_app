@@ -141,6 +141,7 @@ void main() {
           create: (ctx) =>
               InventoryProvider(repository: ctx.read<InventoryRepository>()),
         ),
+        ),
       ],
       child: const MundoLimpioApp(),
     ),
