@@ -70,10 +70,11 @@ class AuthProviderMock extends ChangeNotifier implements AuthProvider {
 ///
 /// [authProvider] controla el estado de autenticación.
 /// [initialLocation] permite arrancar desde una ruta específica.
-Widget createTestApp(AuthProviderMock authProvider,
-    {String initialLocation = '/'}) {
-  final router = createRouter(authProvider,
-      initialLocation: initialLocation);
+Widget createTestApp(
+  AuthProviderMock authProvider, {
+  String initialLocation = '/',
+}) {
+  final router = createRouter(authProvider, initialLocation: initialLocation);
 
   return ChangeNotifierProvider<AuthProvider>.value(
     value: authProvider,
@@ -92,16 +93,17 @@ void main() {
   ///
   /// Como GoRouter usa SchedulerBinding.addPostFrameCallback,
   /// necesitamos múltiples frames para que los redirects se evalúen.
-  Future<void> pumpUntilSettled(WidgetTester tester,
-      {int maxFrames = 20}) async {
+  Future<void> pumpUntilSettled(
+    WidgetTester tester, {
+    int maxFrames = 20,
+  }) async {
     for (int i = 0; i < maxFrames; i++) {
       await tester.pump(const Duration(milliseconds: 100));
     }
   }
 
   group('GoRouter redirects (R6)', () {
-    testWidgets('R6.1: No autenticado en / redirige a /login',
-        (tester) async {
+    testWidgets('R6.1: No autenticado en / redirige a /login', (tester) async {
       // Arrange: usuario no autenticado
       authProvider.setStatus(AuthStatus.unauthenticated);
 
@@ -114,14 +116,14 @@ void main() {
       expect(find.byType(HomeScreen), findsNothing);
     });
 
-    testWidgets('R6.2: Autenticado en /login redirige a /',
-        (tester) async {
+    testWidgets('R6.2: Autenticado en /login redirige a /', (tester) async {
       // Arrange: usuario autenticado
       authProvider.setStatus(AuthStatus.authenticated);
 
       // Act: arrancar desde /login
       await tester.pumpWidget(
-          createTestApp(authProvider, initialLocation: '/login'));
+        createTestApp(authProvider, initialLocation: '/login'),
+      );
       await pumpUntilSettled(tester);
 
       // Assert: debe mostrar HomeScreen (no LoginScreen)
@@ -129,8 +131,7 @@ void main() {
       expect(find.byType(LoginScreen), findsNothing);
     });
 
-    testWidgets('R6.3: Loading durante startup muestra splash',
-        (tester) async {
+    testWidgets('R6.3: Loading durante startup muestra splash', (tester) async {
       // Arrange: estado loading por defecto
 
       // Act: renderizar app desde /
@@ -143,36 +144,35 @@ void main() {
       expect(find.byType(HomeScreen), findsNothing);
     });
 
-    testWidgets('/login es accesible sin autenticación',
-        (tester) async {
+    testWidgets('/login es accesible sin autenticación', (tester) async {
       // Arrange: usuario no autenticado
       authProvider.setStatus(AuthStatus.unauthenticated);
 
       // Act: ir a /login explícitamente
       await tester.pumpWidget(
-          createTestApp(authProvider, initialLocation: '/login'));
+        createTestApp(authProvider, initialLocation: '/login'),
+      );
       await pumpUntilSettled(tester);
 
       // Assert: LoginScreen visible
       expect(find.byType(LoginScreen), findsOneWidget);
     });
 
-    testWidgets('/register es accesible sin autenticación',
-        (tester) async {
+    testWidgets('/register es accesible sin autenticación', (tester) async {
       // Arrange: usuario no autenticado
       authProvider.setStatus(AuthStatus.unauthenticated);
 
       // Act: ir a /register explícitamente
       await tester.pumpWidget(
-          createTestApp(authProvider, initialLocation: '/register'));
+        createTestApp(authProvider, initialLocation: '/register'),
+      );
       await pumpUntilSettled(tester);
 
       // Assert: RegisterScreen visible
       expect(find.byType(RegisterScreen), findsOneWidget);
     });
 
-    testWidgets('/ redirige a /login cuando no autenticado',
-        (tester) async {
+    testWidgets('/ redirige a /login cuando no autenticado', (tester) async {
       // Arrange: usuario no autenticado
       authProvider.setStatus(AuthStatus.unauthenticated);
 
@@ -185,9 +185,9 @@ void main() {
       expect(find.byType(HomeScreen), findsNothing);
     });
 
-    testWidgets(
-        'Cambio loading → unauthenticated redirige a /login',
-        (tester) async {
+    testWidgets('Cambio loading → unauthenticated redirige a /login', (
+      tester,
+    ) async {
       // Arrange: empezar en loading (splash)
       await tester.pumpWidget(createTestApp(authProvider));
       await tester.pump();
@@ -201,9 +201,7 @@ void main() {
       expect(find.byType(LoginScreen), findsOneWidget);
     });
 
-    testWidgets(
-        'Cambio loading → authenticated redirige a /',
-        (tester) async {
+    testWidgets('Cambio loading → authenticated redirige a /', (tester) async {
       // Arrange: empezar en loading
       await tester.pumpWidget(createTestApp(authProvider));
       await tester.pump();

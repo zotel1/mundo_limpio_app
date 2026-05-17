@@ -26,7 +26,7 @@ class SalesRepositoryImpl implements SalesRepository {
   ///
   /// [salesApi]: cliente HTTP para endpoints de ventas.
   const SalesRepositoryImpl({required SalesApi salesApi})
-      : _salesApi = salesApi;
+    : _salesApi = salesApi;
 
   @override
   Future<List<ProductResponse>> getProducts() async {
@@ -35,7 +35,8 @@ class SalesRepositoryImpl implements SalesRepository {
 
   @override
   Future<List<ProductionBatchResponse>> getBatchesByProduct(
-      int productId) async {
+    int productId,
+  ) async {
     return _salesApi.getBatchesByProduct(productId);
   }
 

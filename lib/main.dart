@@ -43,9 +43,7 @@ void main() {
         // ------------------------------------------------------------------
         // Almacenamiento seguro de tokens
         // ------------------------------------------------------------------
-        Provider<TokenStorage>(
-          create: (_) => TokenStorage(),
-        ),
+        Provider<TokenStorage>(create: (_) => TokenStorage()),
 
         // ------------------------------------------------------------------
         // Dio compartido con AuthInterceptor (T-5.2)
@@ -69,9 +67,7 @@ void main() {
             );
 
             // Dio principal — CON AuthInterceptor para requests autenticados
-            return ApiClient.create(
-              extraInterceptors: [authInterceptor],
-            );
+            return ApiClient.create(extraInterceptors: [authInterceptor]);
           },
         ),
 
@@ -95,9 +91,7 @@ void main() {
         // ------------------------------------------------------------------
         ChangeNotifierProvider<AuthProvider>(
           create: (ctx) {
-            final authProvider = AuthProvider(
-              ctx.read<AuthRepository>(),
-            );
+            final authProvider = AuthProvider(ctx.read<AuthRepository>());
 
             // Iniciar verificación de autenticación al arrancar
             authProvider.checkAuth();
@@ -109,26 +103,20 @@ void main() {
         // ------------------------------------------------------------------
         // Sales API (usa el Dio compartido)
         // ------------------------------------------------------------------
-        Provider<SalesApi>(
-          create: (ctx) => SalesApi(dio: ctx.read<Dio>()),
-        ),
+        Provider<SalesApi>(create: (ctx) => SalesApi(dio: ctx.read<Dio>())),
 
         // ------------------------------------------------------------------
         // Sales Repository
         // ------------------------------------------------------------------
         Provider<SalesRepository>(
-          create: (ctx) => SalesRepositoryImpl(
-            salesApi: ctx.read<SalesApi>(),
-          ),
+          create: (ctx) => SalesRepositoryImpl(salesApi: ctx.read<SalesApi>()),
         ),
 
         // ------------------------------------------------------------------
         // Sales Provider (ChangeNotifier para UI reactiva)
         // ------------------------------------------------------------------
         ChangeNotifierProvider<SalesProvider>(
-          create: (ctx) => SalesProvider(
-            ctx.read<SalesRepository>(),
-          ),
+          create: (ctx) => SalesProvider(ctx.read<SalesRepository>()),
         ),
 
         // ------------------------------------------------------------------
@@ -142,18 +130,16 @@ void main() {
         // Inventory Repository
         // ------------------------------------------------------------------
         Provider<InventoryRepository>(
-          create: (ctx) => InventoryRepositoryImpl(
-            inventoryApi: ctx.read<InventoryApi>(),
-          ),
+          create: (ctx) =>
+              InventoryRepositoryImpl(inventoryApi: ctx.read<InventoryApi>()),
         ),
 
         // ------------------------------------------------------------------
         // Inventory Provider (ChangeNotifier para UI reactiva)
         // ------------------------------------------------------------------
         ChangeNotifierProvider<InventoryProvider>(
-          create: (ctx) => InventoryProvider(
-            repository: ctx.read<InventoryRepository>(),
-          ),
+          create: (ctx) =>
+              InventoryProvider(repository: ctx.read<InventoryRepository>()),
         ),
       ],
       child: const MundoLimpioApp(),

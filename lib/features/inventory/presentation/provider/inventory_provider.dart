@@ -81,7 +81,7 @@ class InventoryProvider extends ChangeNotifier {
   ///
   /// [repository]: implementación de [InventoryRepository].
   InventoryProvider({required InventoryRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   // ─── Acciones ────────────────────────────────────────
 
@@ -126,10 +126,7 @@ class InventoryProvider extends ChangeNotifier {
   /// Ajusta el stock de un producto.
   ///
   /// Transición: → loading → success | error
-  Future<void> adjustStock(
-    int productId,
-    AdjustmentRequest request,
-  ) async {
+  Future<void> adjustStock(int productId, AdjustmentRequest request) async {
     _status = InventoryStatus.loading;
     _errorMessage = null;
     notifyListeners();

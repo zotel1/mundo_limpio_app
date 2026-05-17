@@ -39,5 +39,7 @@ abstract class InventoryRepository {
   /// Retorna [InventoryResponse] con los datos actualizados.
   /// Lanza [ApiException] en caso de error (400/409).
   Future<InventoryResponse> adjustStock(
-      int productId, AdjustmentRequest request);
+    int productId,
+    AdjustmentRequest request,
+  );
 }

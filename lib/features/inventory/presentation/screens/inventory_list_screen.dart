@@ -48,9 +48,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
     final provider = context.watch<InventoryProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Inventario'),
-      ),
+      appBar: AppBar(title: const Text('Inventario')),
       body: _buildBody(provider),
     );
   }
@@ -87,10 +85,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
           if (items.isNotEmpty) ...[
             const Text(
               'Productos con stock bajo',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
           ],
@@ -238,10 +233,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
             height: 48,
             child: ElevatedButton(
               onPressed: _handleRetry,
-              child: const Text(
-                'Reintentar',
-                style: TextStyle(fontSize: 16),
-              ),
+              child: const Text('Reintentar', style: TextStyle(fontSize: 16)),
             ),
           ),
         ],

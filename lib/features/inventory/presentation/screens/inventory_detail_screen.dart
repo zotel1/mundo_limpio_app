@@ -166,17 +166,11 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
           children: [
             Text(
               label,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey.shade600,
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
             Text(
               value,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -227,10 +221,7 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
             height: 48,
             child: ElevatedButton(
               onPressed: _handleRetry,
-              child: const Text(
-                'Reintentar',
-                style: TextStyle(fontSize: 16),
-              ),
+              child: const Text('Reintentar', style: TextStyle(fontSize: 16)),
             ),
           ),
         ],
@@ -318,8 +309,9 @@ class _AdjustStockDialogState extends State<_AdjustStockDialog> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.numbers),
                 ),
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'La cantidad es requerida';

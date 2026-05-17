@@ -83,8 +83,9 @@ void main() {
   group('2. loadInventory', () {
     test('success: idle → loading → inventoryLoaded con data', () async {
       final completer = Completer<InventoryResponse>();
-      when(() => mockRepository.getInventory(testProductId))
-          .thenAnswer((_) => completer.future);
+      when(
+        () => mockRepository.getInventory(testProductId),
+      ).thenAnswer((_) => completer.future);
 
       // Llamar sin await para verificar estado loading intermedio
       final future = provider.loadInventory(testProductId);
@@ -108,8 +109,9 @@ void main() {
 
     test('error: idle → loading → error con ApiException', () async {
       final completer = Completer<InventoryResponse>();
-      when(() => mockRepository.getInventory(testProductId))
-          .thenAnswer((_) => completer.future);
+      when(
+        () => mockRepository.getInventory(testProductId),
+      ).thenAnswer((_) => completer.future);
 
       final future = provider.loadInventory(testProductId);
 
@@ -132,8 +134,9 @@ void main() {
   group('3. loadLowStock', () {
     test('success: idle → loading → lowStockLoaded con lista', () async {
       final completer = Completer<List<InventoryResponse>>();
-      when(() => mockRepository.getLowStock())
-          .thenAnswer((_) => completer.future);
+      when(
+        () => mockRepository.getLowStock(),
+      ).thenAnswer((_) => completer.future);
 
       final future = provider.loadLowStock();
 
@@ -153,16 +156,15 @@ void main() {
 
     test('error: idle → loading → error con ApiException', () async {
       final completer = Completer<List<InventoryResponse>>();
-      when(() => mockRepository.getLowStock())
-          .thenAnswer((_) => completer.future);
+      when(
+        () => mockRepository.getLowStock(),
+      ).thenAnswer((_) => completer.future);
 
       final future = provider.loadLowStock();
 
       expect(provider.status, InventoryStatus.loading);
 
-      completer.completeError(
-        const ApiException('Error del servidor', 500),
-      );
+      completer.completeError(const ApiException('Error del servidor', 500));
       await future;
 
       expect(provider.status, InventoryStatus.error);
@@ -178,16 +180,10 @@ void main() {
     test('success: → loading → success con response', () async {
       final completer = Completer<InventoryResponse>();
       when(
-        () => mockRepository.adjustStock(
-          testProductId,
-          testAdjustmentRequest,
-        ),
+        () => mockRepository.adjustStock(testProductId, testAdjustmentRequest),
       ).thenAnswer((_) => completer.future);
 
-      final future = provider.adjustStock(
-        testProductId,
-        testAdjustmentRequest,
-      );
+      final future = provider.adjustStock(testProductId, testAdjustmentRequest);
 
       expect(provider.status, InventoryStatus.loading);
 
@@ -199,59 +195,57 @@ void main() {
       expect(provider.errorMessage, isNull);
     });
 
-    test('error 400: → loading → error con mensaje (stock insuficiente)',
-        () async {
-      final completer = Completer<InventoryResponse>();
-      when(
-        () => mockRepository.adjustStock(
+    test(
+      'error 400: → loading → error con mensaje (stock insuficiente)',
+      () async {
+        final completer = Completer<InventoryResponse>();
+        when(
+          () =>
+              mockRepository.adjustStock(testProductId, testAdjustmentRequest),
+        ).thenAnswer((_) => completer.future);
+
+        final future = provider.adjustStock(
           testProductId,
           testAdjustmentRequest,
-        ),
-      ).thenAnswer((_) => completer.future);
+        );
 
-      final future = provider.adjustStock(
-        testProductId,
-        testAdjustmentRequest,
-      );
+        expect(provider.status, InventoryStatus.loading);
 
-      expect(provider.status, InventoryStatus.loading);
+        completer.completeError(const ApiException('Stock insuficiente', 400));
+        await future;
 
-      completer.completeError(
-        const ApiException('Stock insuficiente', 400),
-      );
-      await future;
+        expect(provider.status, InventoryStatus.error);
+        expect(provider.errorMessage, 'Stock insuficiente');
+        expect(provider.lastAdjustment, isNull);
+      },
+    );
 
-      expect(provider.status, InventoryStatus.error);
-      expect(provider.errorMessage, 'Stock insuficiente');
-      expect(provider.lastAdjustment, isNull);
-    });
+    test(
+      'error 409: → loading → error con mensaje (conflicto de versión)',
+      () async {
+        final completer = Completer<InventoryResponse>();
+        when(
+          () =>
+              mockRepository.adjustStock(testProductId, testAdjustmentRequest),
+        ).thenAnswer((_) => completer.future);
 
-    test('error 409: → loading → error con mensaje (conflicto de versión)',
-        () async {
-      final completer = Completer<InventoryResponse>();
-      when(
-        () => mockRepository.adjustStock(
+        final future = provider.adjustStock(
           testProductId,
           testAdjustmentRequest,
-        ),
-      ).thenAnswer((_) => completer.future);
+        );
 
-      final future = provider.adjustStock(
-        testProductId,
-        testAdjustmentRequest,
-      );
+        expect(provider.status, InventoryStatus.loading);
 
-      expect(provider.status, InventoryStatus.loading);
+        completer.completeError(
+          const ApiException('Conflicto de versión', 409),
+        );
+        await future;
 
-      completer.completeError(
-        const ApiException('Conflicto de versión', 409),
-      );
-      await future;
-
-      expect(provider.status, InventoryStatus.error);
-      expect(provider.errorMessage, 'Conflicto de versión');
-      expect(provider.lastAdjustment, isNull);
-    });
+        expect(provider.status, InventoryStatus.error);
+        expect(provider.errorMessage, 'Conflicto de versión');
+        expect(provider.lastAdjustment, isNull);
+      },
+    );
   });
 
   // ──────────────────────────────────────────────
@@ -259,8 +253,9 @@ void main() {
   // ──────────────────────────────────────────────
   group('5. reset', () {
     test('tras inventoryLoaded vuelve a idle limpiando datos', () async {
-      when(() => mockRepository.getInventory(testProductId))
-          .thenAnswer((_) async => testInventory);
+      when(
+        () => mockRepository.getInventory(testProductId),
+      ).thenAnswer((_) async => testInventory);
       await provider.loadInventory(testProductId);
 
       expect(provider.status, InventoryStatus.inventoryLoaded);
@@ -276,8 +271,9 @@ void main() {
     });
 
     test('tras error vuelve a idle limpiando errorMessage', () async {
-      when(() => mockRepository.getInventory(testProductId))
-          .thenThrow(const ApiException('Error', 500));
+      when(
+        () => mockRepository.getInventory(testProductId),
+      ).thenThrow(const ApiException('Error', 500));
       await provider.loadInventory(testProductId);
 
       expect(provider.status, InventoryStatus.error);

@@ -29,15 +29,12 @@ class MockInventoryRepository extends Mock implements InventoryRepository {}
 Widget createTestApp(InventoryProvider provider, {required int productId}) {
   return ChangeNotifierProvider<InventoryProvider>.value(
     value: provider,
-    child: MaterialApp(
-      home: InventoryDetailScreen(productId: productId),
-    ),
+    child: MaterialApp(home: InventoryDetailScreen(productId: productId)),
   );
 }
 
 /// Helper para pump repetido hasta que los async tasks resuelven.
-Future<void> pumpUntilSettled(WidgetTester tester,
-    {int maxFrames = 20}) async {
+Future<void> pumpUntilSettled(WidgetTester tester, {int maxFrames = 20}) async {
   for (int i = 0; i < maxFrames; i++) {
     await tester.pump(const Duration(milliseconds: 100));
   }
@@ -64,14 +61,17 @@ void main() {
   // R7.1: Loading spinner
   // ──────────────────────────────────────────────
   group('InventoryDetailScreen — R7.1: Loading', () {
-    testWidgets('debe mostrar spinner mientras carga el detalle',
-        (tester) async {
+    testWidgets('debe mostrar spinner mientras carga el detalle', (
+      tester,
+    ) async {
       final completer = Completer<InventoryResponse>();
-      when(() => mockRepo.getInventory(testProductId))
-          .thenAnswer((_) => completer.future);
+      when(
+        () => mockRepo.getInventory(testProductId),
+      ).thenAnswer((_) => completer.future);
 
       await tester.pumpWidget(
-          createTestApp(provider, productId: testProductId));
+        createTestApp(provider, productId: testProductId),
+      );
       // Un frame para que initState → loadInventory → loading
       await tester.pump();
 
@@ -86,11 +86,13 @@ void main() {
   // ──────────────────────────────────────────────
   group('InventoryDetailScreen — R7.2: Stock detail', () {
     testWidgets('debe mostrar info de stock del producto', (tester) async {
-      when(() => mockRepo.getInventory(testProductId))
-          .thenAnswer((_) async => testInventory);
+      when(
+        () => mockRepo.getInventory(testProductId),
+      ).thenAnswer((_) async => testInventory);
 
       await tester.pumpWidget(
-          createTestApp(provider, productId: testProductId));
+        createTestApp(provider, productId: testProductId),
+      );
       await pumpUntilSettled(tester);
 
       // Debe mostrar el nombre del producto (en AppBar y cuerpo)
@@ -101,8 +103,10 @@ void main() {
       expect(find.textContaining('10.00'), findsAtLeast(1));
 
       // Debe mostrar el botón "Ajustar Stock"
-      expect(find.widgetWithText(ElevatedButton, 'Ajustar Stock'),
-          findsOneWidget);
+      expect(
+        find.widgetWithText(ElevatedButton, 'Ajustar Stock'),
+        findsOneWidget,
+      );
     });
   });
 
@@ -111,19 +115,20 @@ void main() {
   // ──────────────────────────────────────────────
   group('InventoryDetailScreen — R7.3: Error state', () {
     testWidgets('debe mostrar error con botón reintentar', (tester) async {
-      when(() => mockRepo.getInventory(testProductId))
-          .thenThrow(const ApiException('Error de conexión', 500));
+      when(
+        () => mockRepo.getInventory(testProductId),
+      ).thenThrow(const ApiException('Error de conexión', 500));
 
       await tester.pumpWidget(
-          createTestApp(provider, productId: testProductId));
+        createTestApp(provider, productId: testProductId),
+      );
       await pumpUntilSettled(tester);
 
       // Debe mostrar mensaje de error
       expect(find.textContaining('Error de conexión'), findsOneWidget);
 
       // Debe mostrar botón reintentar
-      expect(
-          find.widgetWithText(ElevatedButton, 'Reintentar'), findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton, 'Reintentar'), findsOneWidget);
     });
   });
 
@@ -131,13 +136,16 @@ void main() {
   // R7.4: Botón ajustar abre dialog
   // ──────────────────────────────────────────────
   group('InventoryDetailScreen — R7.4: Adjust button', () {
-    testWidgets('botón Ajustar Stock abre el diálogo de ajuste',
-        (tester) async {
-      when(() => mockRepo.getInventory(testProductId))
-          .thenAnswer((_) async => testInventory);
+    testWidgets('botón Ajustar Stock abre el diálogo de ajuste', (
+      tester,
+    ) async {
+      when(
+        () => mockRepo.getInventory(testProductId),
+      ).thenAnswer((_) async => testInventory);
 
       await tester.pumpWidget(
-          createTestApp(provider, productId: testProductId));
+        createTestApp(provider, productId: testProductId),
+      );
       await pumpUntilSettled(tester);
 
       // Tocar "Ajustar Stock"
@@ -145,7 +153,10 @@ void main() {
       await tester.pumpAndSettle();
 
       // Debe mostrar el diálogo con título "Ajustar Stock"
-      expect(find.text('Ajustar Stock'), findsNWidgets(2)); // botón y título dialog
+      expect(
+        find.text('Ajustar Stock'),
+        findsNWidgets(2),
+      ); // botón y título dialog
       expect(find.text('Cancelar'), findsOneWidget);
       expect(find.text('Confirmar'), findsOneWidget);
     });

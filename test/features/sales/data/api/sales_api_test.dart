@@ -53,12 +53,14 @@ void main() {
         statusCode: 201,
       );
 
-      when(() => mockDio.post(
-            '/api/v1/sales',
-            data: any(named: 'data'),
-          )).thenAnswer((_) async => response);
+      when(
+        () => mockDio.post('/api/v1/sales', data: any(named: 'data')),
+      ).thenAnswer((_) async => response);
 
-      final request = SaleRequest(productId: testProductId, quantity: testQuantity);
+      final request = SaleRequest(
+        productId: testProductId,
+        quantity: testQuantity,
+      );
 
       // Act
       final result = await salesApi.createSale(request);
@@ -71,95 +73,99 @@ void main() {
       expect(result.items[0].batchId, testBatchId);
 
       // Verifica que se llamó al endpoint correcto con el request serializado
-      verify(() => mockDio.post(
-            '/api/v1/sales',
-            data: {
-              'productId': testProductId,
-              'quantity': testQuantity,
-            },
-          )).called(1);
+      verify(
+        () => mockDio.post(
+          '/api/v1/sales',
+          data: {'productId': testProductId, 'quantity': testQuantity},
+        ),
+      ).called(1);
     });
 
     // Error 400: debe lanzar ApiException
-    test('debe lanzar ApiException en createSale con bad request (400)', () async {
-      // Arrange: simula 400 Bad Request
-      when(() => mockDio.post(
-            '/api/v1/sales',
-            data: any(named: 'data'),
-          )).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(path: '/api/v1/sales'),
-          response: Response(
-            statusCode: 400,
+    test(
+      'debe lanzar ApiException en createSale con bad request (400)',
+      () async {
+        // Arrange: simula 400 Bad Request
+        when(
+          () => mockDio.post('/api/v1/sales', data: any(named: 'data')),
+        ).thenThrow(
+          DioException(
             requestOptions: RequestOptions(path: '/api/v1/sales'),
+            response: Response(
+              statusCode: 400,
+              requestOptions: RequestOptions(path: '/api/v1/sales'),
+            ),
+            type: DioExceptionType.badResponse,
           ),
-          type: DioExceptionType.badResponse,
-        ),
-      );
+        );
 
-      // Act & Assert
-      expect(
-        () => salesApi.createSale(
-          SaleRequest(productId: testProductId, quantity: testQuantity),
-        ),
-        throwsA(isA<ApiException>()),
-      );
-    });
+        // Act & Assert
+        expect(
+          () => salesApi.createSale(
+            SaleRequest(productId: testProductId, quantity: testQuantity),
+          ),
+          throwsA(isA<ApiException>()),
+        );
+      },
+    );
 
     // Error 403: debe lanzar AuthException
-    test('debe lanzar AuthException en createSale sin permisos (403)', () async {
-      when(() => mockDio.post(
-            '/api/v1/sales',
-            data: any(named: 'data'),
-          )).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(path: '/api/v1/sales'),
-          response: Response(
-            statusCode: 403,
+    test(
+      'debe lanzar AuthException en createSale sin permisos (403)',
+      () async {
+        when(
+          () => mockDio.post('/api/v1/sales', data: any(named: 'data')),
+        ).thenThrow(
+          DioException(
             requestOptions: RequestOptions(path: '/api/v1/sales'),
+            response: Response(
+              statusCode: 403,
+              requestOptions: RequestOptions(path: '/api/v1/sales'),
+            ),
+            type: DioExceptionType.badResponse,
           ),
-          type: DioExceptionType.badResponse,
-        ),
-      );
+        );
 
-      expect(
-        () => salesApi.createSale(
-          SaleRequest(productId: testProductId, quantity: testQuantity),
-        ),
-        throwsA(isA<AuthException>()),
-      );
-    });
+        expect(
+          () => salesApi.createSale(
+            SaleRequest(productId: testProductId, quantity: testQuantity),
+          ),
+          throwsA(isA<AuthException>()),
+        );
+      },
+    );
 
     // Error 500: debe lanzar ServerException
-    test('debe lanzar ServerException en createSale con error interno (500)', () async {
-      when(() => mockDio.post(
-            '/api/v1/sales',
-            data: any(named: 'data'),
-          )).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(path: '/api/v1/sales'),
-          response: Response(
-            statusCode: 500,
+    test(
+      'debe lanzar ServerException en createSale con error interno (500)',
+      () async {
+        when(
+          () => mockDio.post('/api/v1/sales', data: any(named: 'data')),
+        ).thenThrow(
+          DioException(
             requestOptions: RequestOptions(path: '/api/v1/sales'),
+            response: Response(
+              statusCode: 500,
+              requestOptions: RequestOptions(path: '/api/v1/sales'),
+            ),
+            type: DioExceptionType.badResponse,
           ),
-          type: DioExceptionType.badResponse,
-        ),
-      );
+        );
 
-      expect(
-        () => salesApi.createSale(
-          SaleRequest(productId: testProductId, quantity: testQuantity),
-        ),
-        throwsA(isA<ServerException>()),
-      );
-    });
+        expect(
+          () => salesApi.createSale(
+            SaleRequest(productId: testProductId, quantity: testQuantity),
+          ),
+          throwsA(isA<ServerException>()),
+        );
+      },
+    );
 
     // Error de red: debe lanzar NetworkException
     test('debe lanzar NetworkException en createSale sin conexión', () async {
-      when(() => mockDio.post(
-            '/api/v1/sales',
-            data: any(named: 'data'),
-          )).thenThrow(
+      when(
+        () => mockDio.post('/api/v1/sales', data: any(named: 'data')),
+      ).thenThrow(
         DioException(
           requestOptions: RequestOptions(path: '/api/v1/sales'),
           type: DioExceptionType.connectionTimeout,
@@ -177,244 +183,257 @@ void main() {
 
   group('getProducts', () {
     // Escenario feliz: GET /api/v1/products retorna 200 con lista de ProductResponse
-    test('debe GET /api/v1/products y retornar lista de ProductResponse', () async {
-      // Arrange: respuesta simulada del backend
-      final responseData = [
-        {'id': 1, 'name': 'Producto A'},
-        {'id': 2, 'name': 'Producto B'},
-      ];
-      final response = Response(
-        requestOptions: RequestOptions(path: '/api/v1/products'),
-        data: responseData,
-        statusCode: 200,
-      );
+    test(
+      'debe GET /api/v1/products y retornar lista de ProductResponse',
+      () async {
+        // Arrange: respuesta simulada del backend
+        final responseData = [
+          {'id': 1, 'name': 'Producto A'},
+          {'id': 2, 'name': 'Producto B'},
+        ];
+        final response = Response(
+          requestOptions: RequestOptions(path: '/api/v1/products'),
+          data: responseData,
+          statusCode: 200,
+        );
 
-      when(() => mockDio.get(
-            '/api/v1/products',
-          )).thenAnswer((_) async => response);
+        when(
+          () => mockDio.get('/api/v1/products'),
+        ).thenAnswer((_) async => response);
 
-      // Act
-      final result = await salesApi.getProducts();
+        // Act
+        final result = await salesApi.getProducts();
 
-      // Assert: verifica la lista de productos
-      expect(result, hasLength(2));
-      expect(result[0].id, 1);
-      expect(result[0].name, 'Producto A');
-      expect(result[1].id, 2);
-      expect(result[1].name, 'Producto B');
+        // Assert: verifica la lista de productos
+        expect(result, hasLength(2));
+        expect(result[0].id, 1);
+        expect(result[0].name, 'Producto A');
+        expect(result[1].id, 2);
+        expect(result[1].name, 'Producto B');
 
-      verify(() => mockDio.get('/api/v1/products')).called(1);
-    });
+        verify(() => mockDio.get('/api/v1/products')).called(1);
+      },
+    );
 
     // Error 400: debe lanzar ApiException
-    test('debe lanzar ApiException en getProducts con bad request (400)', () async {
-      when(() => mockDio.get(
-            '/api/v1/products',
-          )).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(path: '/api/v1/products'),
-          response: Response(
-            statusCode: 400,
+    test(
+      'debe lanzar ApiException en getProducts con bad request (400)',
+      () async {
+        when(() => mockDio.get('/api/v1/products')).thenThrow(
+          DioException(
             requestOptions: RequestOptions(path: '/api/v1/products'),
+            response: Response(
+              statusCode: 400,
+              requestOptions: RequestOptions(path: '/api/v1/products'),
+            ),
+            type: DioExceptionType.badResponse,
           ),
-          type: DioExceptionType.badResponse,
-        ),
-      );
+        );
 
-      expect(
-        () => salesApi.getProducts(),
-        throwsA(isA<ApiException>()),
-      );
-    });
+        expect(() => salesApi.getProducts(), throwsA(isA<ApiException>()));
+      },
+    );
 
     // Error 403: debe lanzar AuthException
-    test('debe lanzar AuthException en getProducts sin permisos (403)', () async {
-      when(() => mockDio.get(
-            '/api/v1/products',
-          )).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(path: '/api/v1/products'),
-          response: Response(
-            statusCode: 403,
+    test(
+      'debe lanzar AuthException en getProducts sin permisos (403)',
+      () async {
+        when(() => mockDio.get('/api/v1/products')).thenThrow(
+          DioException(
             requestOptions: RequestOptions(path: '/api/v1/products'),
+            response: Response(
+              statusCode: 403,
+              requestOptions: RequestOptions(path: '/api/v1/products'),
+            ),
+            type: DioExceptionType.badResponse,
           ),
-          type: DioExceptionType.badResponse,
-        ),
-      );
+        );
 
-      expect(
-        () => salesApi.getProducts(),
-        throwsA(isA<AuthException>()),
-      );
-    });
+        expect(() => salesApi.getProducts(), throwsA(isA<AuthException>()));
+      },
+    );
 
     // Error 500: debe lanzar ServerException
-    test('debe lanzar ServerException en getProducts con error interno (500)', () async {
-      when(() => mockDio.get(
-            '/api/v1/products',
-          )).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(path: '/api/v1/products'),
-          response: Response(
-            statusCode: 500,
+    test(
+      'debe lanzar ServerException en getProducts con error interno (500)',
+      () async {
+        when(() => mockDio.get('/api/v1/products')).thenThrow(
+          DioException(
             requestOptions: RequestOptions(path: '/api/v1/products'),
+            response: Response(
+              statusCode: 500,
+              requestOptions: RequestOptions(path: '/api/v1/products'),
+            ),
+            type: DioExceptionType.badResponse,
           ),
-          type: DioExceptionType.badResponse,
-        ),
-      );
+        );
 
-      expect(
-        () => salesApi.getProducts(),
-        throwsA(isA<ServerException>()),
-      );
-    });
+        expect(() => salesApi.getProducts(), throwsA(isA<ServerException>()));
+      },
+    );
 
     // Error de red: debe lanzar NetworkException
     test('debe lanzar NetworkException en getProducts sin conexión', () async {
-      when(() => mockDio.get(
-            '/api/v1/products',
-          )).thenThrow(
+      when(() => mockDio.get('/api/v1/products')).thenThrow(
         DioException(
           requestOptions: RequestOptions(path: '/api/v1/products'),
           type: DioExceptionType.connectionTimeout,
         ),
       );
 
-      expect(
-        () => salesApi.getProducts(),
-        throwsA(isA<NetworkException>()),
-      );
+      expect(() => salesApi.getProducts(), throwsA(isA<NetworkException>()));
     });
   });
 
   group('getBatchesByProduct', () {
     // Escenario feliz: GET /api/v1/production-batches/product/{id} retorna 200
-    test('debe GET /api/v1/production-batches/product/{id} y retornar lista', () async {
-      // Arrange
-      final responseData = [
-        {'id': 1, 'productId': testProductId, 'currentStock': 100.0},
-        {'id': 2, 'productId': testProductId, 'currentStock': 50.0},
-      ];
-      final response = Response(
-        requestOptions: RequestOptions(
-          path: '/api/v1/production-batches/product/$testProductId',
-        ),
-        data: responseData,
-        statusCode: 200,
-      );
+    test(
+      'debe GET /api/v1/production-batches/product/{id} y retornar lista',
+      () async {
+        // Arrange
+        final responseData = [
+          {'id': 1, 'productId': testProductId, 'currentStock': 100.0},
+          {'id': 2, 'productId': testProductId, 'currentStock': 50.0},
+        ];
+        final response = Response(
+          requestOptions: RequestOptions(
+            path: '/api/v1/production-batches/product/$testProductId',
+          ),
+          data: responseData,
+          statusCode: 200,
+        );
 
-      when(() => mockDio.get(
-            '/api/v1/production-batches/product/$testProductId',
-          )).thenAnswer((_) async => response);
+        when(
+          () =>
+              mockDio.get('/api/v1/production-batches/product/$testProductId'),
+        ).thenAnswer((_) async => response);
 
-      // Act
-      final result = await salesApi.getBatchesByProduct(testProductId);
+        // Act
+        final result = await salesApi.getBatchesByProduct(testProductId);
 
-      // Assert
-      expect(result, hasLength(2));
-      expect(result[0].id, 1);
-      expect(result[0].productId, testProductId);
-      expect(result[0].currentStock, 100.0);
-      expect(result[1].id, 2);
-      expect(result[1].currentStock, 50.0);
+        // Assert
+        expect(result, hasLength(2));
+        expect(result[0].id, 1);
+        expect(result[0].productId, testProductId);
+        expect(result[0].currentStock, 100.0);
+        expect(result[1].id, 2);
+        expect(result[1].currentStock, 50.0);
 
-      verify(() => mockDio.get(
-            '/api/v1/production-batches/product/$testProductId',
-          )).called(1);
-    });
+        verify(
+          () =>
+              mockDio.get('/api/v1/production-batches/product/$testProductId'),
+        ).called(1);
+      },
+    );
 
     // Error 400: debe lanzar ApiException
-    test('debe lanzar ApiException en getBatchesByProduct con bad request (400)', () async {
-      when(() => mockDio.get(
-            '/api/v1/production-batches/product/$testProductId',
-          )).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(
-            path: '/api/v1/production-batches/product/$testProductId',
-          ),
-          response: Response(
-            statusCode: 400,
+    test(
+      'debe lanzar ApiException en getBatchesByProduct con bad request (400)',
+      () async {
+        when(
+          () =>
+              mockDio.get('/api/v1/production-batches/product/$testProductId'),
+        ).thenThrow(
+          DioException(
             requestOptions: RequestOptions(
               path: '/api/v1/production-batches/product/$testProductId',
             ),
+            response: Response(
+              statusCode: 400,
+              requestOptions: RequestOptions(
+                path: '/api/v1/production-batches/product/$testProductId',
+              ),
+            ),
+            type: DioExceptionType.badResponse,
           ),
-          type: DioExceptionType.badResponse,
-        ),
-      );
+        );
 
-      expect(
-        () => salesApi.getBatchesByProduct(testProductId),
-        throwsA(isA<ApiException>()),
-      );
-    });
+        expect(
+          () => salesApi.getBatchesByProduct(testProductId),
+          throwsA(isA<ApiException>()),
+        );
+      },
+    );
 
     // Error 403: debe lanzar AuthException
-    test('debe lanzar AuthException en getBatchesByProduct sin permisos (403)', () async {
-      when(() => mockDio.get(
-            '/api/v1/production-batches/product/$testProductId',
-          )).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(
-            path: '/api/v1/production-batches/product/$testProductId',
-          ),
-          response: Response(
-            statusCode: 403,
+    test(
+      'debe lanzar AuthException en getBatchesByProduct sin permisos (403)',
+      () async {
+        when(
+          () =>
+              mockDio.get('/api/v1/production-batches/product/$testProductId'),
+        ).thenThrow(
+          DioException(
             requestOptions: RequestOptions(
               path: '/api/v1/production-batches/product/$testProductId',
             ),
+            response: Response(
+              statusCode: 403,
+              requestOptions: RequestOptions(
+                path: '/api/v1/production-batches/product/$testProductId',
+              ),
+            ),
+            type: DioExceptionType.badResponse,
           ),
-          type: DioExceptionType.badResponse,
-        ),
-      );
+        );
 
-      expect(
-        () => salesApi.getBatchesByProduct(testProductId),
-        throwsA(isA<AuthException>()),
-      );
-    });
+        expect(
+          () => salesApi.getBatchesByProduct(testProductId),
+          throwsA(isA<AuthException>()),
+        );
+      },
+    );
 
     // Error 500: debe lanzar ServerException
-    test('debe lanzar ServerException en getBatchesByProduct con error interno (500)', () async {
-      when(() => mockDio.get(
-            '/api/v1/production-batches/product/$testProductId',
-          )).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(
-            path: '/api/v1/production-batches/product/$testProductId',
-          ),
-          response: Response(
-            statusCode: 500,
+    test(
+      'debe lanzar ServerException en getBatchesByProduct con error interno (500)',
+      () async {
+        when(
+          () =>
+              mockDio.get('/api/v1/production-batches/product/$testProductId'),
+        ).thenThrow(
+          DioException(
             requestOptions: RequestOptions(
               path: '/api/v1/production-batches/product/$testProductId',
             ),
+            response: Response(
+              statusCode: 500,
+              requestOptions: RequestOptions(
+                path: '/api/v1/production-batches/product/$testProductId',
+              ),
+            ),
+            type: DioExceptionType.badResponse,
           ),
-          type: DioExceptionType.badResponse,
-        ),
-      );
+        );
 
-      expect(
-        () => salesApi.getBatchesByProduct(testProductId),
-        throwsA(isA<ServerException>()),
-      );
-    });
+        expect(
+          () => salesApi.getBatchesByProduct(testProductId),
+          throwsA(isA<ServerException>()),
+        );
+      },
+    );
 
     // Error de red: debe lanzar NetworkException
-    test('debe lanzar NetworkException en getBatchesByProduct sin conexión', () async {
-      when(() => mockDio.get(
-            '/api/v1/production-batches/product/$testProductId',
-          )).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(
-            path: '/api/v1/production-batches/product/$testProductId',
+    test(
+      'debe lanzar NetworkException en getBatchesByProduct sin conexión',
+      () async {
+        when(
+          () =>
+              mockDio.get('/api/v1/production-batches/product/$testProductId'),
+        ).thenThrow(
+          DioException(
+            requestOptions: RequestOptions(
+              path: '/api/v1/production-batches/product/$testProductId',
+            ),
+            type: DioExceptionType.connectionTimeout,
           ),
-          type: DioExceptionType.connectionTimeout,
-        ),
-      );
+        );
 
-      expect(
-        () => salesApi.getBatchesByProduct(testProductId),
-        throwsA(isA<NetworkException>()),
-      );
-    });
+        expect(
+          () => salesApi.getBatchesByProduct(testProductId),
+          throwsA(isA<NetworkException>()),
+        );
+      },
+    );
   });
 }

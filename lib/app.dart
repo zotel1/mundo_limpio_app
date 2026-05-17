@@ -29,10 +29,7 @@ class MundoLimpioApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'MundoLimpio',
       routerConfig: createRouter(authProvider),
-      theme: ThemeData(
-        colorSchemeSeed: Colors.green,
-        useMaterial3: true,
-      ),
+      theme: ThemeData(colorSchemeSeed: Colors.green, useMaterial3: true),
     );
   }
 }

@@ -22,10 +22,7 @@ class SaleRequest {
   final double quantity;
 
   /// Crea un [SaleRequest] con todos los campos requeridos.
-  const SaleRequest({
-    required this.productId,
-    required this.quantity,
-  });
+  const SaleRequest({required this.productId, required this.quantity});
 
   /// Construye un [SaleRequest] desde un mapa JSON.
   factory SaleRequest.fromJson(Map<String, dynamic> json) =>

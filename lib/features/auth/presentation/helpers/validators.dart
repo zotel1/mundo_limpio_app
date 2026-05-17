@@ -22,7 +22,9 @@ class AuthValidators {
     }
     // Regex básico: usuario@dominio.extension
     // No es perfecto pero cubre >99% de los casos reales
-    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
     if (!emailRegex.hasMatch(value.trim())) {
       return 'Ingresá un email válido';
     }

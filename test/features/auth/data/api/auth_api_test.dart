@@ -45,10 +45,9 @@ void main() {
         statusCode: 200,
       );
 
-      when(() => mockDio.post(
-            '/api/v1/auth/login',
-            data: any(named: 'data'),
-          )).thenAnswer((_) async => response);
+      when(
+        () => mockDio.post('/api/v1/auth/login', data: any(named: 'data')),
+      ).thenAnswer((_) async => response);
 
       // Act
       final result = await authApi.login(testEmail, testPassword);
@@ -61,46 +60,46 @@ void main() {
       expect(result.createdAt, DateTime(2026, 5, 9));
 
       // Verifica que se llamó al endpoint correcto con email y password
-      verify(() => mockDio.post(
-            '/api/v1/auth/login',
-            data: {
-              'email': testEmail,
-              'password': testPassword,
-            },
-          )).called(1);
+      verify(
+        () => mockDio.post(
+          '/api/v1/auth/login',
+          data: {'email': testEmail, 'password': testPassword},
+        ),
+      ).called(1);
     });
 
     // Error 401: debe lanzar AuthException
-    test('debe lanzar AuthException en login con credenciales inválidas (R3.2)', () async {
-      // Arrange: simula 401 Unauthorized
-      when(() => mockDio.post(
-            '/api/v1/auth/login',
-            data: any(named: 'data'),
-          )).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(path: '/api/v1/auth/login'),
-          response: Response(
-            statusCode: 401,
+    test(
+      'debe lanzar AuthException en login con credenciales inválidas (R3.2)',
+      () async {
+        // Arrange: simula 401 Unauthorized
+        when(
+          () => mockDio.post('/api/v1/auth/login', data: any(named: 'data')),
+        ).thenThrow(
+          DioException(
             requestOptions: RequestOptions(path: '/api/v1/auth/login'),
+            response: Response(
+              statusCode: 401,
+              requestOptions: RequestOptions(path: '/api/v1/auth/login'),
+            ),
+            type: DioExceptionType.badResponse,
           ),
-          type: DioExceptionType.badResponse,
-        ),
-      );
+        );
 
-      // Act & Assert
-      expect(
-        () => authApi.login(testEmail, testPassword),
-        throwsA(isA<AuthException>()),
-      );
-    });
+        // Act & Assert
+        expect(
+          () => authApi.login(testEmail, testPassword),
+          throwsA(isA<AuthException>()),
+        );
+      },
+    );
 
     // Error de red: debe lanzar NetworkException
     test('debe lanzar NetworkException en login sin conexión (R3.3)', () async {
       // Arrange: simula timeout/error de red (sin response)
-      when(() => mockDio.post(
-            '/api/v1/auth/login',
-            data: any(named: 'data'),
-          )).thenThrow(
+      when(
+        () => mockDio.post('/api/v1/auth/login', data: any(named: 'data')),
+      ).thenThrow(
         DioException(
           requestOptions: RequestOptions(path: '/api/v1/auth/login'),
           type: DioExceptionType.connectionTimeout,
@@ -115,26 +114,28 @@ void main() {
     });
 
     // Error 500: debe lanzar ServerException
-    test('debe lanzar ServerException en login con error interno (500)', () async {
-      when(() => mockDio.post(
-            '/api/v1/auth/login',
-            data: any(named: 'data'),
-          )).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(path: '/api/v1/auth/login'),
-          response: Response(
-            statusCode: 500,
+    test(
+      'debe lanzar ServerException en login con error interno (500)',
+      () async {
+        when(
+          () => mockDio.post('/api/v1/auth/login', data: any(named: 'data')),
+        ).thenThrow(
+          DioException(
             requestOptions: RequestOptions(path: '/api/v1/auth/login'),
+            response: Response(
+              statusCode: 500,
+              requestOptions: RequestOptions(path: '/api/v1/auth/login'),
+            ),
+            type: DioExceptionType.badResponse,
           ),
-          type: DioExceptionType.badResponse,
-        ),
-      );
+        );
 
-      expect(
-        () => authApi.login(testEmail, testPassword),
-        throwsA(isA<ServerException>()),
-      );
-    });
+        expect(
+          () => authApi.login(testEmail, testPassword),
+          throwsA(isA<ServerException>()),
+        );
+      },
+    );
   });
 
   group('register', () {
@@ -153,10 +154,9 @@ void main() {
         statusCode: 200,
       );
 
-      when(() => mockDio.post(
-            '/api/v1/auth/register',
-            data: any(named: 'data'),
-          )).thenAnswer((_) async => response);
+      when(
+        () => mockDio.post('/api/v1/auth/register', data: any(named: 'data')),
+      ).thenAnswer((_) async => response);
 
       final result = await authApi.register('new@test.com', 'NewPass123!');
 
@@ -164,36 +164,37 @@ void main() {
       expect(result.role, 'user');
       expect(result.username, 'newuser');
 
-      verify(() => mockDio.post(
-            '/api/v1/auth/register',
-            data: {
-              'email': 'new@test.com',
-              'password': 'NewPass123!',
-            },
-          )).called(1);
+      verify(
+        () => mockDio.post(
+          '/api/v1/auth/register',
+          data: {'email': 'new@test.com', 'password': 'NewPass123!'},
+        ),
+      ).called(1);
     });
 
     // Error 409 (Conflict) para email duplicado
-    test('debe lanzar ApiException en registro con email duplicado (R2.2)', () async {
-      when(() => mockDio.post(
-            '/api/v1/auth/register',
-            data: any(named: 'data'),
-          )).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(path: '/api/v1/auth/register'),
-          response: Response(
-            statusCode: 409,
+    test(
+      'debe lanzar ApiException en registro con email duplicado (R2.2)',
+      () async {
+        when(
+          () => mockDio.post('/api/v1/auth/register', data: any(named: 'data')),
+        ).thenThrow(
+          DioException(
             requestOptions: RequestOptions(path: '/api/v1/auth/register'),
+            response: Response(
+              statusCode: 409,
+              requestOptions: RequestOptions(path: '/api/v1/auth/register'),
+            ),
+            type: DioExceptionType.badResponse,
           ),
-          type: DioExceptionType.badResponse,
-        ),
-      );
+        );
 
-      expect(
-        () => authApi.register('existing@test.com', 'Pass123!'),
-        throwsA(isA<ApiException>()),
-      );
-    });
+        expect(
+          () => authApi.register('existing@test.com', 'Pass123!'),
+          throwsA(isA<ApiException>()),
+        );
+      },
+    );
   });
 
   group('refresh', () {
@@ -212,44 +213,45 @@ void main() {
         statusCode: 200,
       );
 
-      when(() => mockDio.post(
-            '/api/v1/auth/refresh',
-            data: any(named: 'data'),
-          )).thenAnswer((_) async => response);
+      when(
+        () => mockDio.post('/api/v1/auth/refresh', data: any(named: 'data')),
+      ).thenAnswer((_) async => response);
 
       final result = await authApi.refresh(testRefreshToken);
 
       expect(result.accessToken, 'new-access-789');
       expect(result.refreshToken, 'new-refresh-012');
 
-      verify(() => mockDio.post(
-            '/api/v1/auth/refresh',
-            data: {
-              'refreshToken': testRefreshToken,
-            },
-          )).called(1);
+      verify(
+        () => mockDio.post(
+          '/api/v1/auth/refresh',
+          data: {'refreshToken': testRefreshToken},
+        ),
+      ).called(1);
     });
 
     // Error 401 en refresh: tokens expirados
-    test('debe lanzar AuthException en refresh con token expirado (R4.2)', () async {
-      when(() => mockDio.post(
-            '/api/v1/auth/refresh',
-            data: any(named: 'data'),
-          )).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(path: '/api/v1/auth/refresh'),
-          response: Response(
-            statusCode: 401,
+    test(
+      'debe lanzar AuthException en refresh con token expirado (R4.2)',
+      () async {
+        when(
+          () => mockDio.post('/api/v1/auth/refresh', data: any(named: 'data')),
+        ).thenThrow(
+          DioException(
             requestOptions: RequestOptions(path: '/api/v1/auth/refresh'),
+            response: Response(
+              statusCode: 401,
+              requestOptions: RequestOptions(path: '/api/v1/auth/refresh'),
+            ),
+            type: DioExceptionType.badResponse,
           ),
-          type: DioExceptionType.badResponse,
-        ),
-      );
+        );
 
-      expect(
-        () => authApi.refresh('expired-refresh-token'),
-        throwsA(isA<AuthException>()),
-      );
-    });
+        expect(
+          () => authApi.refresh('expired-refresh-token'),
+          throwsA(isA<AuthException>()),
+        );
+      },
+    );
   });
 }

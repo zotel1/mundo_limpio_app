@@ -34,7 +34,7 @@ class TokenStorage {
   /// Si no se provee [storage], usa `const FlutterSecureStorage()`.
   /// En tests se pasa un mock para evitar dependencia del Keychain.
   TokenStorage({FlutterSecureStorage? storage})
-      : _storage = storage ?? const FlutterSecureStorage();
+    : _storage = storage ?? const FlutterSecureStorage();
 
   /// Guarda el [access] token y [refresh] token en el storage seguro.
   ///

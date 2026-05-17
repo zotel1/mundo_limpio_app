@@ -36,11 +36,7 @@ class _SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }
 
@@ -94,26 +90,11 @@ GoRouter createRouter(
       }
     },
     routes: [
-      GoRoute(
-        path: '/splash',
-        builder: (_, _) => const _SplashScreen(),
-      ),
-      GoRoute(
-        path: '/login',
-        builder: (_, _) => const LoginScreen(),
-      ),
-      GoRoute(
-        path: '/register',
-        builder: (_, _) => const RegisterScreen(),
-      ),
-      GoRoute(
-        path: '/',
-        builder: (_, _) => const HomeScreen(),
-      ),
-      GoRoute(
-        path: '/sales/new',
-        builder: (_, _) => const CreateSaleScreen(),
-      ),
+      GoRoute(path: '/splash', builder: (_, _) => const _SplashScreen()),
+      GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
+      GoRoute(path: '/register', builder: (_, _) => const RegisterScreen()),
+      GoRoute(path: '/', builder: (_, _) => const HomeScreen()),
+      GoRoute(path: '/sales/new', builder: (_, _) => const CreateSaleScreen()),
       GoRoute(
         path: '/inventory',
         builder: (_, _) => const InventoryListScreen(),
@@ -136,9 +117,7 @@ GoRouter createRouter(
           final sale = state.extra as SaleResponse?;
           if (sale == null) {
             return const Scaffold(
-              body: Center(
-                child: Text('Error: datos de venta no disponibles'),
-              ),
+              body: Center(child: Text('Error: datos de venta no disponibles')),
             );
           }
           return SaleResultScreen(sale: sale);

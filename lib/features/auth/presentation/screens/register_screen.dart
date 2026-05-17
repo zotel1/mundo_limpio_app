@@ -53,10 +53,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final auth = context.read<AuthProvider>();
-    await auth.register(
-      _emailController.text.trim(),
-      _passwordController.text,
-    );
+    await auth.register(_emailController.text.trim(), _passwordController.text);
 
     if (!mounted) return;
 
@@ -80,9 +77,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final auth = context.watch<AuthProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Crear Cuenta'),
-      ),
+      appBar: AppBar(title: const Text('Crear Cuenta')),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -146,8 +141,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   obscureText: true,
                   textInputAction: TextInputAction.done,
-                  onFieldSubmitted:
-                      auth.isLoading ? null : (_) => _handleRegister(),
+                  onFieldSubmitted: auth.isLoading
+                      ? null
+                      : (_) => _handleRegister(),
                   validator: (value) => AuthValidators.validateConfirmPassword(
                     value,
                     _passwordController.text,

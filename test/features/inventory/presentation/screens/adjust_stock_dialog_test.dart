@@ -25,15 +25,12 @@ class MockInventoryRepository extends Mock implements InventoryRepository {}
 Widget createTestApp(InventoryProvider provider, {required int productId}) {
   return ChangeNotifierProvider<InventoryProvider>.value(
     value: provider,
-    child: const MaterialApp(
-      home: InventoryDetailScreen(productId: 1),
-    ),
+    child: const MaterialApp(home: InventoryDetailScreen(productId: 1)),
   );
 }
 
 /// Helper para pump repetido hasta que los async tasks resuelven.
-Future<void> pumpUntilSettled(WidgetTester tester,
-    {int maxFrames = 20}) async {
+Future<void> pumpUntilSettled(WidgetTester tester, {int maxFrames = 20}) async {
   for (int i = 0; i < maxFrames; i++) {
     await tester.pump(const Duration(milliseconds: 100));
   }
@@ -52,19 +49,22 @@ void main() {
   );
 
   setUpAll(() {
-    registerFallbackValue(AdjustmentRequest(
-      type: AdjustmentType.ADJUSTMENT,
-      quantity: 1,
-      reason: 'fallback',
-    ));
+    registerFallbackValue(
+      AdjustmentRequest(
+        type: AdjustmentType.ADJUSTMENT,
+        quantity: 1,
+        reason: 'fallback',
+      ),
+    );
   });
 
   setUp(() {
     mockRepo = MockInventoryRepository();
     provider = InventoryProvider(repository: mockRepo);
 
-    when(() => mockRepo.getInventory(testProductId))
-        .thenAnswer((_) async => testInventory);
+    when(
+      () => mockRepo.getInventory(testProductId),
+    ).thenAnswer((_) async => testInventory);
   });
 
   /// Helper: abre el diálogo de ajuste de stock.
@@ -81,8 +81,9 @@ void main() {
   // R8.1: Validación del formulario
   // ──────────────────────────────────────────────
   group('AdjustStockDialog — R8.1: Form validation', () {
-    testWidgets('debe mostrar errores de validación al enviar vacío',
-        (tester) async {
+    testWidgets('debe mostrar errores de validación al enviar vacío', (
+      tester,
+    ) async {
       await openDialog(tester);
 
       // Tocar Confirmar sin llenar el formulario
@@ -100,11 +101,13 @@ void main() {
   // R8.2: Confirmación exitosa
   // ──────────────────────────────────────────────
   group('AdjustStockDialog — R8.2: Success', () {
-    testWidgets('confirmación exitosa cierra el diálogo y refresca detalle',
-        (tester) async {
+    testWidgets('confirmación exitosa cierra el diálogo y refresca detalle', (
+      tester,
+    ) async {
       // Stub adjustStock con éxito y getInventory para refresh
-      when(() => mockRepo.adjustStock(any(), any()))
-          .thenAnswer((_) async => testInventory);
+      when(
+        () => mockRepo.adjustStock(any(), any()),
+      ).thenAnswer((_) async => testInventory);
 
       await openDialog(tester);
 
@@ -138,11 +141,13 @@ void main() {
   // R8.3: Error en confirmación
   // ──────────────────────────────────────────────
   group('AdjustStockDialog — R8.3: Error', () {
-    testWidgets('error al ajustar stock muestra mensaje en provider',
-        (tester) async {
+    testWidgets('error al ajustar stock muestra mensaje en provider', (
+      tester,
+    ) async {
       // Stub adjustStock para que falle
-      when(() => mockRepo.adjustStock(any(), any()))
-          .thenThrow(const ApiException('Conflicto de versión', 409));
+      when(
+        () => mockRepo.adjustStock(any(), any()),
+      ).thenThrow(const ApiException('Conflicto de versión', 409));
 
       await openDialog(tester);
 
