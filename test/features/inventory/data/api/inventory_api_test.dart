@@ -12,7 +12,6 @@ import 'package:mocktail/mocktail.dart';
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/features/inventory/data/api/inventory_api.dart';
 import 'package:mundo_limpio_app/features/inventory/data/models/adjustment_request.dart';
-import 'package:mundo_limpio_app/features/inventory/data/models/inventory_response.dart';
 
 // Mock de Dio para aislar las pruebas HTTP de la red real
 class MockDio extends Mock implements Dio {}

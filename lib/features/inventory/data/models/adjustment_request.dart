@@ -5,6 +5,7 @@
 // Se serializa/deserializa con json_serializable.
 //
 // TDD: GREEN — implementación mínima para pasar los tests
+// ignore_for_file: constant_identifier_names — enum values match backend API
 
 import 'package:json_annotation/json_annotation.dart';
 
