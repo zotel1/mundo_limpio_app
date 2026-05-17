@@ -1,17 +1,17 @@
-// Configuraci├│n centralizada de la aplicaci├│n.
+// Configuración centralizada de la aplicación.
 // Usa const String.fromEnvironment para leer --dart-define=BASE_URL
 // y provee valores por defecto para desarrollo local.
 //
 // Constructor privado: esta clase no se instancia,
-// solo expone constantes est├íticas.
+// solo expone constantes estáticas.
 
-/// Configuraci├│n global de conexi├│n con el backend.
+/// Configuración global de conexión con el backend.
 ///
 /// Todas las constantes son `static const` y se resuelven
-/// en tiempo de compilaci├│n. No requiere widgets de Flutter,
+/// en tiempo de compilación. No requiere widgets de Flutter,
 /// solo Dart puro.
 class AppConfig {
-  AppConfig._(); // Constructor privado: solo miembros est├íticos
+  AppConfig._(); // Constructor privado: solo miembros estáticos
 
   /// URL base de la API REST.
   ///
@@ -22,11 +22,11 @@ class AppConfig {
     defaultValue: 'http://localhost:8080/api/v1',
   );
 
-  /// Tiempo m├íximo de espera para establecer conexi├│n TCP.
+  /// Tiempo máximo de espera para establecer conexión TCP.
   /// 10 segundos da margen para redes lentas sin bloquear la UI.
   static const Duration connectTimeout = Duration(seconds: 10);
 
-  /// Tiempo m├íximo de espera para recibir la respuesta completa.
-  /// 10 segundos es suficiente para la mayor├¡a de las APIs REST.
+  /// Tiempo máximo de espera para recibir la respuesta completa.
+  /// 10 segundos es suficiente para la mayoría de las APIs REST.
   static const Duration receiveTimeout = Duration(seconds: 10);
 }
