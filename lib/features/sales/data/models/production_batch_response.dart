@@ -2,13 +2,19 @@
 //
 // Contiene los datos mínimos necesarios para calcular
 // el stock disponible de un lote al crear una venta.
+// Serialización vía json_serializable (fromJson/toJson generados).
 //
-// TDD: GREEN — implementación mínima para pasar los tests
+// TDD: GREEN — conversión a @JsonSerializable, reemplaza fromJson manual
+
+import 'package:json_annotation/json_annotation.dart';
+
+part 'production_batch_response.g.dart';
 
 /// Respuesta del backend con los datos básicos de un lote de producción.
 ///
 /// Mapea el JSON del endpoint:
 /// - `GET /api/v1/production-batches/product/{productId}`
+@JsonSerializable()
 class ProductionBatchResponse {
   /// ID único del lote de producción.
   final int id;
@@ -27,11 +33,9 @@ class ProductionBatchResponse {
   });
 
   /// Construye un [ProductionBatchResponse] desde un mapa JSON.
-  factory ProductionBatchResponse.fromJson(Map<String, dynamic> json) {
-    return ProductionBatchResponse(
-      id: json['id'] as int,
-      productId: json['productId'] as int,
-      currentStock: (json['currentStock'] as num).toDouble(),
-    );
-  }
+  factory ProductionBatchResponse.fromJson(Map<String, dynamic> json) =>
+      _$ProductionBatchResponseFromJson(json);
+
+  /// Serializa a mapa JSON.
+  Map<String, dynamic> toJson() => _$ProductionBatchResponseToJson(this);
 }
