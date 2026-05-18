@@ -12,7 +12,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:mundo_limpio_app/features/production/domain/entities/bulk_product.dart';
 import 'package:mundo_limpio_app/features/production/domain/repositories/i_production_repository.dart';
 import 'package:mundo_limpio_app/features/production/presentation/providers/bulk_product_provider.dart';
 import 'package:mundo_limpio_app/features/production/presentation/providers/production_provider.dart';
@@ -114,7 +113,7 @@ class _ProductionCreateScreenState extends State<ProductionCreateScreen> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<int>(
-                  value: _selectedBulkProductId,
+                  initialValue: _selectedBulkProductId,
                   decoration: const InputDecoration(
                     labelText: 'Materia Prima',
                   ),
