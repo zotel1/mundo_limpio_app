@@ -40,8 +40,10 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
         unitOfMeasure: product.unitOfMeasure,
         stock: product.stock,
       );
-      final response = await _dio.post('/api/v1/bulk-products',
-          data: model.toJson());
+      final response = await _dio.post(
+        '/api/v1/bulk-products',
+        data: model.toJson(),
+      );
       return BulkProductModel.fromJson(response.data).toEntity();
     } catch (e) {
       throw Exception('Failed to create bulk product: $e');
@@ -57,8 +59,10 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
         unitOfMeasure: product.unitOfMeasure,
         stock: product.stock,
       );
-      final response = await _dio.put('/api/v1/bulk-products/${product.id}',
-          data: model.toJson());
+      final response = await _dio.put(
+        '/api/v1/bulk-products/${product.id}',
+        data: model.toJson(),
+      );
       return BulkProductModel.fromJson(response.data).toEntity();
     } catch (e) {
       throw Exception('Failed to update bulk product ${product.id}: $e');

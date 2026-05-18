@@ -37,9 +37,7 @@ class _ProductionBatchListScreenState extends State<ProductionBatchListScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<ProductionProvider>();
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Historial de Producción'),
-      ),
+      appBar: AppBar(title: const Text('Historial de Producción')),
       body: _buildBody(provider),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _navigateToCreate(provider),
@@ -60,9 +58,7 @@ class _ProductionBatchListScreenState extends State<ProductionBatchListScreen> {
 
       case ProductionStatus.loaded:
         if (provider.productionBatches.isEmpty) {
-          return const Center(
-            child: Text('No hay lotes de producción'),
-          );
+          return const Center(child: Text('No hay lotes de producción'));
         }
         return _buildBatchList(provider);
 
@@ -98,8 +94,7 @@ class _ProductionBatchListScreenState extends State<ProductionBatchListScreen> {
   }
 
   Widget _buildBatchCard(ProductionBatch batch) {
-    final dateStr =
-        '${batch.date.day}/${batch.date.month}/${batch.date.year}';
+    final dateStr = '${batch.date.day}/${batch.date.month}/${batch.date.year}';
     return Card(
       child: ListTile(
         title: Text('Lote #${batch.id}'),
@@ -119,9 +114,7 @@ class _ProductionBatchListScreenState extends State<ProductionBatchListScreen> {
   Future<void> _navigateToCreate(ProductionProvider provider) async {
     final result = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(
-        builder: (_) => const ProductionCreateScreen(),
-      ),
+      MaterialPageRoute(builder: (_) => const ProductionCreateScreen()),
     );
     if (result == true && context.mounted) {
       provider.getProductionBatches();

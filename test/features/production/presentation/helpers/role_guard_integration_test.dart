@@ -26,13 +26,9 @@ class MockAuthProvider extends Mock implements AuthProvider {}
 class MockBulkProductRepository extends Mock
     implements IBulkProductRepository {}
 
-class MockProductionRepository extends Mock
-    implements IProductionRepository {}
+class MockProductionRepository extends Mock implements IProductionRepository {}
 
-Future<void> pumpUntilSettled(
-  WidgetTester tester, {
-  int maxFrames = 20,
-}) async {
+Future<void> pumpUntilSettled(WidgetTester tester, {int maxFrames = 20}) async {
   for (int i = 0; i < maxFrames; i++) {
     await tester.pump(const Duration(milliseconds: 100));
   }
@@ -77,14 +73,16 @@ void main() {
       prodProvider = ProductionProvider(mockProdRepo, mockBulkRepo);
 
       // Stubs por defecto
-      when(() => mockBulkRepo.getBulkProducts()).thenAnswer((_) async => [
-            const BulkProduct(
-              id: 1,
-              name: 'Test',
-              unitOfMeasure: 'L',
-              stock: 10.0,
-            ),
-          ]);
+      when(() => mockBulkRepo.getBulkProducts()).thenAnswer(
+        (_) async => [
+          const BulkProduct(
+            id: 1,
+            name: 'Test',
+            unitOfMeasure: 'L',
+            stock: 10.0,
+          ),
+        ],
+      );
       when(() => mockBulkRepo.createBulkProduct(any())).thenAnswer(
         (_) async => const BulkProduct(
           id: 1,
@@ -93,9 +91,9 @@ void main() {
           stock: 10.0,
         ),
       );
-      when(() => mockProdRepo.getProductionBatches()).thenAnswer(
-        (_) async => [],
-      );
+      when(
+        () => mockProdRepo.getProductionBatches(),
+      ).thenAnswer((_) async => []);
       when(() => mockProdRepo.createProductionBatch(any())).thenAnswer(
         (_) async => ProductionBatch(
           id: 1,
@@ -107,41 +105,45 @@ void main() {
         ),
       );
       when(() => mockBulkRepo.getBulkProduct(any())).thenAnswer(
-        (_) async => const BulkProduct(id: 1, name: 'Alcohol', unitOfMeasure: 'L', stock: 100.0),
+        (_) async => const BulkProduct(
+          id: 1,
+          name: 'Alcohol',
+          unitOfMeasure: 'L',
+          stock: 100.0,
+        ),
       );
     });
 
-    testWidgets(
-      'BulkProductListScreen con RoleGuard — ADMIN ve el contenido',
-      (tester) async {
-        // Arrange
-        when(() => mockAuth.role).thenReturn('ADMIN');
-        await bulkProvider.getBulkProducts();
-        await pumpUntilSettled(tester);
+    testWidgets('BulkProductListScreen con RoleGuard — ADMIN ve el contenido', (
+      tester,
+    ) async {
+      // Arrange
+      when(() => mockAuth.role).thenReturn('ADMIN');
+      await bulkProvider.getBulkProducts();
+      await pumpUntilSettled(tester);
 
-        await tester.pumpWidget(
-          MultiProvider(
-            providers: [
-              ChangeNotifierProvider<AuthProvider>.value(value: mockAuth),
-              ChangeNotifierProvider<BulkProductProvider>.value(
-                value: bulkProvider,
-              ),
-            ],
-            child: const MaterialApp(
-              home: RoleGuard(
-                requiredRole: 'ADMIN',
-                child: BulkProductListScreen(),
-              ),
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider<AuthProvider>.value(value: mockAuth),
+            ChangeNotifierProvider<BulkProductProvider>.value(
+              value: bulkProvider,
+            ),
+          ],
+          child: const MaterialApp(
+            home: RoleGuard(
+              requiredRole: 'ADMIN',
+              child: BulkProductListScreen(),
             ),
           ),
-        );
-        await pumpUntilSettled(tester);
+        ),
+      );
+      await pumpUntilSettled(tester);
 
-        // Assert: AppBar visible
-        expect(find.text('Materias Primas'), findsOneWidget);
-        expect(find.textContaining('Access Denied'), findsNothing);
-      },
-    );
+      // Assert: AppBar visible
+      expect(find.text('Materias Primas'), findsOneWidget);
+      expect(find.textContaining('Access Denied'), findsNothing);
+    });
 
     testWidgets(
       'BulkProductListScreen con RoleGuard — OPERATOR ve Access Denied',

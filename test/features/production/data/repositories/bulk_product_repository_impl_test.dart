@@ -23,11 +23,13 @@ void main() {
       final json = [
         {'id': 1, 'name': 'Alcohol', 'unit_of_measure': 'L', 'stock': 10.0},
       ];
-      when(() => mockDio.get(any())).thenAnswer((_) async => Response(
-        data: json,
-        statusCode: 200,
-        requestOptions: RequestOptions(path: '/api/v1/bulk-products'),
-      ));
+      when(() => mockDio.get(any())).thenAnswer(
+        (_) async => Response(
+          data: json,
+          statusCode: 200,
+          requestOptions: RequestOptions(path: '/api/v1/bulk-products'),
+        ),
+      );
 
       // Act
       final result = await repository.getBulkProducts();
@@ -40,20 +42,34 @@ void main() {
 
     test('createBulkProduct debe retornar el BulkProduct creado', () async {
       // Arrange
-      final product = BulkProduct(id: 0, name: 'Nuevo', unitOfMeasure: 'L', stock: 0.0);
-      final json = {'id': 1, 'name': 'Nuevo', 'unit_of_measure': 'L', 'stock': 0.0};
-      when(() => mockDio.post(any(), data: any(named: "data"))).thenAnswer((_) async => Response(
-        data: json,
-        statusCode: 201,
-        requestOptions: RequestOptions(path: '/api/v1/bulk-products'),
-      ));
+      final product = BulkProduct(
+        id: 0,
+        name: 'Nuevo',
+        unitOfMeasure: 'L',
+        stock: 0.0,
+      );
+      final json = {
+        'id': 1,
+        'name': 'Nuevo',
+        'unit_of_measure': 'L',
+        'stock': 0.0,
+      };
+      when(() => mockDio.post(any(), data: any(named: "data"))).thenAnswer(
+        (_) async => Response(
+          data: json,
+          statusCode: 201,
+          requestOptions: RequestOptions(path: '/api/v1/bulk-products'),
+        ),
+      );
 
       // Act
       final result = await repository.createBulkProduct(product);
 
       // Assert
       expect(result.id, 1);
-      verify(() => mockDio.post('/api/v1/bulk-products', data: any(named: "data"))).called(1);
+      verify(
+        () => mockDio.post('/api/v1/bulk-products', data: any(named: "data")),
+      ).called(1);
     });
   });
 }

@@ -19,11 +19,11 @@ class ProductionBatch extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        finishedProductId,
-        bulkProductId,
-        quantityUsed,
-        quantityProduced,
-        date,
-      ];
+    id,
+    finishedProductId,
+    bulkProductId,
+    quantityUsed,
+    quantityProduced,
+    date,
+  ];
 }

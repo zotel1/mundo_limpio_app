@@ -21,22 +21,14 @@ import 'package:mundo_limpio_app/features/production/presentation/screens/bulk/b
 class MockBulkProductRepository extends Mock
     implements IBulkProductRepository {}
 
-Widget createTestApp(
-  BulkProductProvider provider, {
-  BulkProduct? product,
-}) {
+Widget createTestApp(BulkProductProvider provider, {BulkProduct? product}) {
   return ChangeNotifierProvider<BulkProductProvider>.value(
     value: provider,
-    child: MaterialApp(
-      home: BulkProductFormScreen(product: product),
-    ),
+    child: MaterialApp(home: BulkProductFormScreen(product: product)),
   );
 }
 
-Future<void> pumpUntilSettled(
-  WidgetTester tester, {
-  int maxFrames = 20,
-}) async {
+Future<void> pumpUntilSettled(WidgetTester tester, {int maxFrames = 20}) async {
   for (int i = 0; i < maxFrames; i++) {
     await tester.pump(const Duration(milliseconds: 100));
   }
@@ -119,18 +111,9 @@ void main() {
         await pumpUntilSettled(tester);
 
         // Act: llenar campos
-        await tester.enterText(
-          find.byType(TextFormField).at(0),
-          'Alcohol',
-        );
-        await tester.enterText(
-          find.byType(TextFormField).at(1),
-          'L',
-        );
-        await tester.enterText(
-          find.byType(TextFormField).at(2),
-          '10.0',
-        );
+        await tester.enterText(find.byType(TextFormField).at(0), 'Alcohol');
+        await tester.enterText(find.byType(TextFormField).at(1), 'L');
+        await tester.enterText(find.byType(TextFormField).at(2), '10.0');
         await tester.tap(find.widgetWithText(ElevatedButton, 'Guardar'));
         await pumpUntilSettled(tester);
 
@@ -141,36 +124,27 @@ void main() {
       },
     );
 
-    testWidgets(
-      'debe mostrar SnackBar si createBulkProduct falla',
-      (tester) async {
-        // Arrange: createBulkProduct lanza excepción
-        when(() => mockRepo.createBulkProduct(any()))
-            .thenThrow(Exception('Error al crear'));
+    testWidgets('debe mostrar SnackBar si createBulkProduct falla', (
+      tester,
+    ) async {
+      // Arrange: createBulkProduct lanza excepción
+      when(
+        () => mockRepo.createBulkProduct(any()),
+      ).thenThrow(Exception('Error al crear'));
 
-        await tester.pumpWidget(createTestApp(provider));
-        await pumpUntilSettled(tester);
+      await tester.pumpWidget(createTestApp(provider));
+      await pumpUntilSettled(tester);
 
-        // Act: llenar campos y guardar
-        await tester.enterText(
-          find.byType(TextFormField).at(0),
-          'Alcohol',
-        );
-        await tester.enterText(
-          find.byType(TextFormField).at(1),
-          'L',
-        );
-        await tester.enterText(
-          find.byType(TextFormField).at(2),
-          '10.0',
-        );
-        await tester.tap(find.widgetWithText(ElevatedButton, 'Guardar'));
-        await pumpUntilSettled(tester);
+      // Act: llenar campos y guardar
+      await tester.enterText(find.byType(TextFormField).at(0), 'Alcohol');
+      await tester.enterText(find.byType(TextFormField).at(1), 'L');
+      await tester.enterText(find.byType(TextFormField).at(2), '10.0');
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Guardar'));
+      await pumpUntilSettled(tester);
 
-        // Assert: SnackBar visible con mensaje de error
-        expect(find.byType(SnackBar), findsOneWidget);
-      },
-    );
+      // Assert: SnackBar visible con mensaje de error
+      expect(find.byType(SnackBar), findsOneWidget);
+    });
   });
 
   group('BulkProductFormScreen — edit mode', () {
@@ -184,37 +158,30 @@ void main() {
     testWidgets('debe mostrar "Editar Materia Prima" en el AppBar', (
       tester,
     ) async {
-      await tester.pumpWidget(
-        createTestApp(provider, product: editProduct),
-      );
+      await tester.pumpWidget(createTestApp(provider, product: editProduct));
       await pumpUntilSettled(tester);
 
       expect(find.text('Editar Materia Prima'), findsOneWidget);
     });
 
-    testWidgets(
-      'debe pre-llenar los campos con los valores del producto',
-      (tester) async {
-        await tester.pumpWidget(
-          createTestApp(provider, product: editProduct),
-        );
-        await pumpUntilSettled(tester);
+    testWidgets('debe pre-llenar los campos con los valores del producto', (
+      tester,
+    ) async {
+      await tester.pumpWidget(createTestApp(provider, product: editProduct));
+      await pumpUntilSettled(tester);
 
-        // Solo 2 campos en edit mode (sin stock)
-        expect(find.byType(TextFormField), findsNWidgets(2));
+      // Solo 2 campos en edit mode (sin stock)
+      expect(find.byType(TextFormField), findsNWidgets(2));
 
-        // Los campos deben tener los valores pre-cargados
-        expect(find.text('Alcohol'), findsOneWidget);
-        expect(find.text('L'), findsOneWidget);
-      },
-    );
+      // Los campos deben tener los valores pre-cargados
+      expect(find.text('Alcohol'), findsOneWidget);
+      expect(find.text('L'), findsOneWidget);
+    });
 
     testWidgets('debe llamar updateBulkProduct al guardar cambios', (
       tester,
     ) async {
-      await tester.pumpWidget(
-        createTestApp(provider, product: editProduct),
-      );
+      await tester.pumpWidget(createTestApp(provider, product: editProduct));
       await pumpUntilSettled(tester);
 
       // Act: modificar nombre y guardar

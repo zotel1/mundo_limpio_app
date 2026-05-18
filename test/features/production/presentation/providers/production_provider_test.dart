@@ -21,7 +21,8 @@ import 'package:mundo_limpio_app/features/production/presentation/providers/prod
 
 class MockProductionRepository extends Mock implements IProductionRepository {}
 
-class MockBulkProductRepository extends Mock implements IBulkProductRepository {}
+class MockBulkProductRepository extends Mock
+    implements IBulkProductRepository {}
 
 void main() {
   late MockProductionRepository mockRepo;
@@ -30,7 +31,11 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      ProductionBatchRequest(finishedProductId: 0, bulkProductId: 0, quantityUsed: 0.0),
+      ProductionBatchRequest(
+        finishedProductId: 0,
+        bulkProductId: 0,
+        quantityUsed: 0.0,
+      ),
     );
     registerFallbackValue(
       ProductionBatch(
@@ -65,7 +70,12 @@ void main() {
       ),
     );
     when(() => mockBulkRepo.getBulkProduct(any())).thenAnswer(
-      (_) async => const BulkProduct(id: 1, name: 'Alcohol', unitOfMeasure: 'L', stock: 100.0),
+      (_) async => const BulkProduct(
+        id: 1,
+        name: 'Alcohol',
+        unitOfMeasure: 'L',
+        stock: 100.0,
+      ),
     );
   });
 
@@ -103,8 +113,9 @@ void main() {
           date: DateTime(2026, 5, 18),
         ),
       ];
-      when(() => mockRepo.getProductionBatches())
-          .thenAnswer((_) async => batches);
+      when(
+        () => mockRepo.getProductionBatches(),
+      ).thenAnswer((_) async => batches);
 
       await provider.getProductionBatches();
 
@@ -114,9 +125,9 @@ void main() {
     });
 
     test('debe setear error cuando falla', () async {
-      when(() => mockRepo.getProductionBatches()).thenThrow(
-        const ApiException('Error de red', 500),
-      );
+      when(
+        () => mockRepo.getProductionBatches(),
+      ).thenThrow(const ApiException('Error de red', 500));
 
       await provider.getProductionBatches();
 
@@ -141,8 +152,9 @@ void main() {
         quantityProduced: 8.0,
         date: DateTime(2026, 5, 18),
       );
-      when(() => mockRepo.createProductionBatch(request))
-          .thenAnswer((_) async => batch);
+      when(
+        () => mockRepo.createProductionBatch(request),
+      ).thenAnswer((_) async => batch);
 
       await provider.createProductionBatch(request);
 
@@ -157,9 +169,9 @@ void main() {
         bulkProductId: 1,
         quantityUsed: 10.0,
       );
-      when(() => mockRepo.createProductionBatch(request)).thenThrow(
-        const ApiException('Error al crear batch', 500),
-      );
+      when(
+        () => mockRepo.createProductionBatch(request),
+      ).thenThrow(const ApiException('Error al crear batch', 500));
 
       await provider.createProductionBatch(request);
 

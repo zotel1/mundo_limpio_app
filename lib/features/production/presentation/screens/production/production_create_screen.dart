@@ -67,9 +67,7 @@ class _ProductionCreateScreenState extends State<ProductionCreateScreen> {
     if (prodProvider.status == ProductionStatus.error) {
       setState(() => _isSaving = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(prodProvider.error ?? 'Error al guardar'),
-        ),
+        SnackBar(content: Text(prodProvider.error ?? 'Error al guardar')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -86,9 +84,7 @@ class _ProductionCreateScreenState extends State<ProductionCreateScreen> {
     return Stack(
       children: [
         Scaffold(
-          appBar: AppBar(
-            title: const Text('Nueva Producción'),
-          ),
+          appBar: AppBar(title: const Text('Nueva Producción')),
           body: Form(
             key: _formKey,
             child: ListView(
@@ -114,9 +110,7 @@ class _ProductionCreateScreenState extends State<ProductionCreateScreen> {
                 const SizedBox(height: 16),
                 DropdownButtonFormField<int>(
                   initialValue: _selectedBulkProductId,
-                  decoration: const InputDecoration(
-                    labelText: 'Materia Prima',
-                  ),
+                  decoration: const InputDecoration(labelText: 'Materia Prima'),
                   items: bpProvider.bulkProducts
                       .map(
                         (product) => DropdownMenuItem<int>(
@@ -182,8 +176,7 @@ class _ProductionCreateScreenState extends State<ProductionCreateScreen> {
         ),
         if (_isSaving)
           const ModalBarrier(dismissible: false, color: Colors.black26),
-        if (_isSaving)
-          const Center(child: CircularProgressIndicator()),
+        if (_isSaving) const Center(child: CircularProgressIndicator()),
       ],
     );
   }

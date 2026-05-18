@@ -48,13 +48,13 @@ void main() {
             'date': '2026-05-18T11:00:00Z',
           },
         ];
-        when(() => mockDio.get(any())).thenAnswer((_) async => Response(
-          data: json,
-          statusCode: 200,
-          requestOptions: RequestOptions(
-            path: '/api/v1/production-batches',
+        when(() => mockDio.get(any())).thenAnswer(
+          (_) async => Response(
+            data: json,
+            statusCode: 200,
+            requestOptions: RequestOptions(path: '/api/v1/production-batches'),
           ),
-        ));
+        );
 
         // Act
         final result = await repository.getProductionBatches();
@@ -102,13 +102,15 @@ void main() {
           'quantity_produced': 4.0,
           'date': '2026-05-18T10:00:00Z',
         };
-        when(() => mockDio.get(any())).thenAnswer((_) async => Response(
-          data: json,
-          statusCode: 200,
-          requestOptions: RequestOptions(
-            path: '/api/v1/production-batches/1',
+        when(() => mockDio.get(any())).thenAnswer(
+          (_) async => Response(
+            data: json,
+            statusCode: 200,
+            requestOptions: RequestOptions(
+              path: '/api/v1/production-batches/1',
+            ),
           ),
-        ));
+        );
 
         // Act
         final result = await repository.getProductionBatch(1);
@@ -141,14 +143,13 @@ void main() {
           'quantity_produced': 4.0,
           'date': '2026-05-18T10:00:00Z',
         };
-        when(() => mockDio.post(any(), data: any(named: 'data')))
-            .thenAnswer((_) async => Response(
-                  data: responseJson,
-                  statusCode: 201,
-                  requestOptions: RequestOptions(
-                    path: '/api/v1/production-batches',
-                  ),
-                ));
+        when(() => mockDio.post(any(), data: any(named: 'data'))).thenAnswer(
+          (_) async => Response(
+            data: responseJson,
+            statusCode: 201,
+            requestOptions: RequestOptions(path: '/api/v1/production-batches'),
+          ),
+        );
 
         // Act
         final result = await repository.createProductionBatch(request);

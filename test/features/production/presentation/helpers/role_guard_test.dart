@@ -37,36 +37,35 @@ void main() {
     testWidgets('debe mostrar child cuando el role coincide', (tester) async {
       when(() => mockAuthProvider.role).thenReturn('ADMIN');
 
-      await tester.pumpWidget(buildTestApp(
-        requiredRole: 'ADMIN',
-        child: const Text('Admin content'),
-      ));
+      await tester.pumpWidget(
+        buildTestApp(requiredRole: 'ADMIN', child: const Text('Admin content')),
+      );
 
       expect(find.text('Admin content'), findsOneWidget);
       expect(find.textContaining('Access Denied'), findsNothing);
     });
 
-    testWidgets('debe mostrar denied screen cuando el role no coincide',
-        (tester) async {
+    testWidgets('debe mostrar denied screen cuando el role no coincide', (
+      tester,
+    ) async {
       when(() => mockAuthProvider.role).thenReturn('OPERATOR');
 
-      await tester.pumpWidget(buildTestApp(
-        requiredRole: 'ADMIN',
-        child: const Text('Admin content'),
-      ));
+      await tester.pumpWidget(
+        buildTestApp(requiredRole: 'ADMIN', child: const Text('Admin content')),
+      );
 
       expect(find.text('Admin content'), findsNothing);
       expect(find.textContaining('Access Denied'), findsOneWidget);
     });
 
-    testWidgets('debe mostrar denied screen cuando role es null',
-        (tester) async {
+    testWidgets('debe mostrar denied screen cuando role es null', (
+      tester,
+    ) async {
       when(() => mockAuthProvider.role).thenReturn(null);
 
-      await tester.pumpWidget(buildTestApp(
-        requiredRole: 'ADMIN',
-        child: const Text('Admin content'),
-      ));
+      await tester.pumpWidget(
+        buildTestApp(requiredRole: 'ADMIN', child: const Text('Admin content')),
+      );
 
       expect(find.text('Admin content'), findsNothing);
       expect(find.textContaining('Access Denied'), findsOneWidget);
