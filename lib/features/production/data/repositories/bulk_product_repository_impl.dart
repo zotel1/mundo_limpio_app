@@ -1,0 +1,76 @@
+import 'package:dio/dio.dart';
+import 'package:mundo_limpio_app/features/production/domain/entities/bulk_product.dart';
+import 'package:mundo_limpio_app/features/production/domain/repositories/i_bulk_product_repository.dart';
+import 'package:mundo_limpio_app/features/production/data/models/bulk_product_model.dart';
+
+class BulkProductRepositoryImpl implements IBulkProductRepository {
+  final Dio _dio;
+
+  BulkProductRepositoryImpl(this._dio);
+
+  @override
+  Future<List<BulkProduct>> getBulkProducts() async {
+    try {
+      final response = await _dio.get('/api/v1/bulk-products');
+      final List<dynamic> data = response.data;
+      return data
+          .map((json) => BulkProductModel.fromJson(json).toEntity())
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to fetch bulk products: $e');
+    }
+  }
+
+  @override
+  Future<BulkProduct> getBulkProduct(int id) async {
+    try {
+      final response = await _dio.get('/api/v1/bulk-products/$id');
+      return BulkProductModel.fromJson(response.data).toEntity();
+    } catch (e) {
+      throw Exception('Failed to fetch bulk product $id: $e');
+    }
+  }
+
+  @override
+  Future<BulkProduct> createBulkProduct(BulkProduct product) async {
+    try {
+      final model = BulkProductModel(
+        id: product.id,
+        name: product.name,
+        unitOfMeasure: product.unitOfMeasure,
+        stock: product.stock,
+      );
+      final response = await _dio.post('/api/v1/bulk-products',
+          data: model.toJson());
+      return BulkProductModel.fromJson(response.data).toEntity();
+    } catch (e) {
+      throw Exception('Failed to create bulk product: $e');
+    }
+  }
+
+  @override
+  Future<BulkProduct> updateBulkProduct(BulkProduct product) async {
+    try {
+      final model = BulkProductModel(
+        id: product.id,
+        name: product.name,
+        unitOfMeasure: product.unitOfMeasure,
+        stock: product.stock,
+      );
+      final response = await _dio.put('/api/v1/bulk-products/${product.id}',
+          data: model.toJson());
+      return BulkProductModel.fromJson(response.data).toEntity();
+    } catch (e) {
+      throw Exception('Failed to update bulk product ${product.id}: $e');
+    }
+  }
+
+  @override
+  Future<void> deleteBulkProduct(int id) async {
+    try {
+      await _dio.delete('/api/v1/bulk-products/$id');
+    } catch (e) {
+      throw Exception('Failed to delete bulk product $id: $e');
+    }
+  }
+}
