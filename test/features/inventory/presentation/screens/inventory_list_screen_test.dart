@@ -40,7 +40,7 @@ Widget createTestApp(
     routes: [
       GoRoute(
         path: '/',
-        builder: (_, __) => ChangeNotifierProvider<InventoryProvider>.value(
+        builder: (_, _) => ChangeNotifierProvider<InventoryProvider>.value(
           value: provider,
           child: const InventoryListScreen(),
         ),
