@@ -21,6 +21,9 @@ import 'package:mundo_limpio_app/features/inventory/presentation/screens/invento
 import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/screens/create_sale_screen.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/screens/sale_result_screen.dart';
+import 'package:mundo_limpio_app/features/production/presentation/screens/bulk/bulk_product_list_screen.dart';
+import 'package:mundo_limpio_app/features/production/presentation/screens/production/production_batch_list_screen.dart';
+import 'package:mundo_limpio_app/features/production/presentation/screens/production/production_create_screen.dart';
 
 // ---------------------------------------------------------------------------
 // Pantalla de splash / carga
@@ -68,6 +71,13 @@ GoRouter createRouter(
       final status = authProvider.status;
       final location = state.matchedLocation;
 
+      // Proteger rutas de producción: solo ADMIN puede acceder
+      if (status == AuthStatus.authenticated &&
+          location.startsWith('/production/') &&
+          authProvider.role != 'ADMIN') {
+        return '/';
+      }
+
       switch (status) {
         case AuthStatus.loading:
           // Mostrar splash mientras se resuelve el estado
@@ -105,6 +115,18 @@ GoRouter createRouter(
           final productId = int.parse(state.pathParameters['productId']!);
           return InventoryDetailScreen(productId: productId);
         },
+      ),
+      GoRoute(
+        path: '/production/bulk-products',
+        builder: (_, _) => const BulkProductListScreen(),
+      ),
+      GoRoute(
+        path: '/production/batches',
+        builder: (_, _) => const ProductionBatchListScreen(),
+      ),
+      GoRoute(
+        path: '/production/batches/new',
+        builder: (_, _) => const ProductionCreateScreen(),
       ),
       GoRoute(
         path: '/sales/result',
