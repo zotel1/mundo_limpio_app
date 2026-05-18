@@ -71,6 +71,36 @@ class HomeScreen extends StatelessWidget {
                   label: const Text('Inventario'),
                 ),
               ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: 200,
+                height: 48,
+                child: ElevatedButton.icon(
+                  onPressed: () => context.push('/production/bulk-products'),
+                  icon: const Icon(Icons.category),
+                  label: const Text('Materias Primas'),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: 200,
+                height: 48,
+                child: ElevatedButton.icon(
+                  onPressed: () => context.push('/production/batches/new'),
+                  icon: const Icon(Icons.precision_manufacturing),
+                  label: const Text('Nueva Producción'),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: 200,
+                height: 48,
+                child: ElevatedButton.icon(
+                  onPressed: () => context.push('/production/batches'),
+                  icon: const Icon(Icons.history),
+                  label: const Text('Historial Producción'),
+                ),
+              ),
             ],
           ],
         ),
