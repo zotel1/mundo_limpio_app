@@ -277,7 +277,7 @@ class _AdjustStockDialogState extends State<_AdjustStockDialog> {
             children: [
               // Tipo de ajuste
               DropdownButtonFormField<AdjustmentType>(
-                value: _selectedType,
+                initialValue: _selectedType,
                 hint: const Text('Seleccioná un tipo'),
                 decoration: const InputDecoration(
                   labelText: 'Tipo de ajuste',
