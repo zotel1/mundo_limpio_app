@@ -38,33 +38,35 @@ class InventoryPendingDao {
   ///
   /// [errorMessage] es opcional — se usa cuando el status es 'failed'.
   Future<void> updateStatus(int id, String status, [String? errorMessage]) {
-    return (_db.update(_db.inventoryPendingQueue)
-          ..where((t) => t.id.equals(id)))
-        .write(InventoryPendingQueueCompanion(
-      status: Value(status),
-      errorMessage: Value(errorMessage),
-    ));
+    return (_db.update(
+      _db.inventoryPendingQueue,
+    )..where((t) => t.id.equals(id))).write(
+      InventoryPendingQueueCompanion(
+        status: Value(status),
+        errorMessage: Value(errorMessage),
+      ),
+    );
   }
 
   /// Incrementa el contador de reintentos de una operación.
   ///
   /// Usado por SyncService antes de reintentar una operación fallida.
   Future<void> incrementRetry(int id) async {
-    final current = await (_db.select(_db.inventoryPendingQueue)
-          ..where((t) => t.id.equals(id)))
-        .getSingle();
-    await (_db.update(_db.inventoryPendingQueue)
-          ..where((t) => t.id.equals(id)))
-        .write(InventoryPendingQueueCompanion(
-      retryCount: Value(current.retryCount + 1),
-    ));
+    final current = await (_db.select(
+      _db.inventoryPendingQueue,
+    )..where((t) => t.id.equals(id))).getSingle();
+    await (_db.update(
+      _db.inventoryPendingQueue,
+    )..where((t) => t.id.equals(id))).write(
+      InventoryPendingQueueCompanion(retryCount: Value(current.retryCount + 1)),
+    );
   }
 
   /// Elimina una operación por su ID.
   Future<void> delete(int id) {
-    return (_db.delete(_db.inventoryPendingQueue)
-          ..where((t) => t.id.equals(id)))
-        .go();
+    return (_db.delete(
+      _db.inventoryPendingQueue,
+    )..where((t) => t.id.equals(id))).go();
   }
 
   /// Cuenta operaciones por status.

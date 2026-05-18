@@ -120,15 +120,17 @@ class SyncService {
     // Productos
     final products = await _salesApi.getProducts();
     final now = DateTime.now();
-    await _productCacheDao.upsertAll(products.map<ProductCacheData>((p) =>
-      _productToCache(p, now),
-    ).toList());
+    await _productCacheDao.upsertAll(
+      products.map<ProductCacheData>((p) => _productToCache(p, now)).toList(),
+    );
 
     // Inventario (low stock)
     final lowStock = await _inventoryApi.getLowStock();
-    await _inventoryCacheDao.upsertAll(lowStock.map<InventoryCacheData>((i) =>
-      _inventoryToCache(i, now),
-    ).toList());
+    await _inventoryCacheDao.upsertAll(
+      lowStock
+          .map<InventoryCacheData>((i) => _inventoryToCache(i, now))
+          .toList(),
+    );
   }
 
   /// Actualiza el contador de drafts pendientes.
@@ -151,8 +153,7 @@ ProductCacheData _productToCache(ProductResponse product, DateTime now) {
   return ProductCacheData(id: product.id, name: product.name, updatedAt: now);
 }
 
-InventoryCacheData _inventoryToCache(
-    InventoryResponse inv, DateTime now) {
+InventoryCacheData _inventoryToCache(InventoryResponse inv, DateTime now) {
   return InventoryCacheData(
     productId: inv.productId,
     productName: inv.productName,

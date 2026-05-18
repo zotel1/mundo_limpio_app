@@ -27,13 +27,14 @@ void main() {
     connectivityController = StreamController<List<ConnectivityResult>>();
 
     // Mock: onConnectivityChanged retorna nuestro stream controlado
-    when(() => mockConnectivity.onConnectivityChanged)
-        .thenAnswer((_) => connectivityController.stream);
+    when(
+      () => mockConnectivity.onConnectivityChanged,
+    ).thenAnswer((_) => connectivityController.stream);
 
     // Mock: checkConnectivity retorna conectado por defecto
-    when(() => mockConnectivity.checkConnectivity()).thenAnswer(
-      (_) async => [ConnectivityResult.wifi],
-    );
+    when(
+      () => mockConnectivity.checkConnectivity(),
+    ).thenAnswer((_) async => [ConnectivityResult.wifi]);
   });
 
   tearDown(() async {
@@ -50,9 +51,9 @@ void main() {
       });
 
       test('debe inicializar isOnline como false si no hay conexión', () async {
-        when(() => mockConnectivity.checkConnectivity()).thenAnswer(
-          (_) async => [ConnectivityResult.none],
-        );
+        when(
+          () => mockConnectivity.checkConnectivity(),
+        ).thenAnswer((_) async => [ConnectivityResult.none]);
         service = ConnectivityService(connectivity: mockConnectivity);
         await service.initialize();
 
@@ -75,9 +76,9 @@ void main() {
       });
 
       test('debe cambiar isOnline a true cuando la red vuelve', () async {
-        when(() => mockConnectivity.checkConnectivity()).thenAnswer(
-          (_) async => [ConnectivityResult.none],
-        );
+        when(
+          () => mockConnectivity.checkConnectivity(),
+        ).thenAnswer((_) async => [ConnectivityResult.none]);
         service = ConnectivityService(connectivity: mockConnectivity);
         await service.initialize();
 

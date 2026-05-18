@@ -9,20 +9,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/production_batch_response.dart';
 
 void main() {
-  final jsonValid = {
-    'id': 1,
-    'productId': 42,
-    'currentStock': 150.5,
-  };
+  final jsonValid = {'id': 1, 'productId': 42, 'currentStock': 150.5};
 
   group('ProductionBatchResponse', () {
-    test('fromJson debe crear ProductionBatchResponse con todos los campos', () {
-      final result = ProductionBatchResponse.fromJson(jsonValid);
+    test(
+      'fromJson debe crear ProductionBatchResponse con todos los campos',
+      () {
+        final result = ProductionBatchResponse.fromJson(jsonValid);
 
-      expect(result.id, 1);
-      expect(result.productId, 42);
-      expect(result.currentStock, 150.5);
-    });
+        expect(result.id, 1);
+        expect(result.productId, 42);
+        expect(result.currentStock, 150.5);
+      },
+    );
 
     test('toJson debe producir el mapa JSON correcto', () {
       const response = ProductionBatchResponse(

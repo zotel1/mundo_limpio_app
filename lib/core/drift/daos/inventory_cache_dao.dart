@@ -33,9 +33,9 @@ class InventoryCacheDao {
 
   /// Obtiene el inventario cacheado de un producto, o null si no existe.
   Future<InventoryCacheData?> getByProductId(int productId) {
-    return (_db.select(_db.inventoryCache)
-          ..where((t) => t.productId.equals(productId)))
-        .getSingleOrNull();
+    return (_db.select(
+      _db.inventoryCache,
+    )..where((t) => t.productId.equals(productId))).getSingleOrNull();
   }
 
   /// Elimina todos los registros de inventario.

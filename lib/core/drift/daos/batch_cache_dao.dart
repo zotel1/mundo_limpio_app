@@ -28,16 +28,16 @@ class BatchCacheDao {
 
   /// Obtiene todos los lotes cacheados para un producto dado.
   Future<List<BatchCacheData>> getByProductId(int productId) {
-    return (_db.select(_db.batchCache)
-          ..where((t) => t.productId.equals(productId)))
-        .get();
+    return (_db.select(
+      _db.batchCache,
+    )..where((t) => t.productId.equals(productId))).get();
   }
 
   /// Elimina todos los lotes cacheados de un producto específico.
   Future<void> deleteByProductId(int productId) {
-    return (_db.delete(_db.batchCache)
-          ..where((t) => t.productId.equals(productId)))
-        .go();
+    return (_db.delete(
+      _db.batchCache,
+    )..where((t) => t.productId.equals(productId))).go();
   }
 
   /// Obtiene todos los lotes cacheados (para deleteAll + tests).

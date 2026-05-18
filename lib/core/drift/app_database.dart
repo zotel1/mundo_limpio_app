@@ -78,8 +78,7 @@ class DraftSales extends Table {
   RealColumn get quantity => real()();
   RealColumn get unitPrice => real()();
   TextColumn get status => text().withDefault(const Constant('draft'))();
-  DateTimeColumn get createdAt =>
-      dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get confirmedAt => dateTime().nullable()();
 }
 
@@ -93,23 +92,23 @@ class InventoryPendingQueue extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get productId => integer()();
   TextColumn get payload => text()();
-  TextColumn get status =>
-      text().withDefault(const Constant('pending'))();
-  DateTimeColumn get createdAt =>
-      dateTime().withDefault(currentDateAndTime)();
+  TextColumn get status => text().withDefault(const Constant('pending'))();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   TextColumn get errorMessage => text().nullable()();
   IntColumn get retryCount => integer().withDefault(const Constant(0))();
 }
 
 // ─── Database ──────────────────────────────────────────────────
 
-@DriftDatabase(tables: [
-  ProductCache,
-  BatchCache,
-  InventoryCache,
-  DraftSales,
-  InventoryPendingQueue,
-])
+@DriftDatabase(
+  tables: [
+    ProductCache,
+    BatchCache,
+    InventoryCache,
+    DraftSales,
+    InventoryPendingQueue,
+  ],
+)
 class AppDatabase extends _$AppDatabase {
   /// Crea la base de datos.
   ///
