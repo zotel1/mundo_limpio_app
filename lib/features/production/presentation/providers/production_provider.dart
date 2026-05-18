@@ -16,7 +16,9 @@ import 'package:flutter/foundation.dart';
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/core/network/error_handler.dart';
 import 'package:mundo_limpio_app/features/production/domain/entities/production_batch.dart';
+import 'package:mundo_limpio_app/features/production/domain/repositories/i_bulk_product_repository.dart';
 import 'package:mundo_limpio_app/features/production/domain/repositories/i_production_repository.dart';
+import 'package:mundo_limpio_app/features/production/domain/usecases/execute_production.dart';
 
 /// Estados posibles del flujo de Production Batches.
 ///
@@ -37,6 +39,8 @@ enum ProductionStatus { initial, loading, loaded, error }
 /// 3. Setea status/error y notifica
 class ProductionProvider extends ChangeNotifier {
   final IProductionRepository _repository;
+  final IBulkProductRepository _bulkProductRepository;
+  late final ExecuteProduction _executeProduction;
 
   ProductionStatus _status = ProductionStatus.initial;
   String? _error;
@@ -61,8 +65,10 @@ class ProductionProvider extends ChangeNotifier {
   /// Último lote de producción creado (null si no se ha creado ninguno).
   ProductionBatch? get lastCreatedBatch => _lastCreatedBatch;
 
-  /// Crea un [ProductionProvider] con el [repository] inyectado.
-  ProductionProvider(this._repository);
+  /// Crea un [ProductionProvider] con los repositorios inyectados.
+  ProductionProvider(this._repository, this._bulkProductRepository) {
+    _executeProduction = ExecuteProduction(_repository, _bulkProductRepository);
+  }
 
   /// Obtiene todos los lotes de producción.
   ///
@@ -91,7 +97,7 @@ class ProductionProvider extends ChangeNotifier {
   Future<void> createProductionBatch(ProductionBatchRequest request) async {
     _setLoading();
     try {
-      _lastCreatedBatch = await _repository.createProductionBatch(request);
+      _lastCreatedBatch = await _executeProduction.execute(request);
       _status = ProductionStatus.loaded;
       _error = null;
     } on ApiException catch (e) {

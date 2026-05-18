@@ -13,14 +13,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
+import 'package:mundo_limpio_app/features/production/domain/entities/bulk_product.dart';
 import 'package:mundo_limpio_app/features/production/domain/entities/production_batch.dart';
+import 'package:mundo_limpio_app/features/production/domain/repositories/i_bulk_product_repository.dart';
 import 'package:mundo_limpio_app/features/production/domain/repositories/i_production_repository.dart';
 import 'package:mundo_limpio_app/features/production/presentation/providers/production_provider.dart';
 
 class MockProductionRepository extends Mock implements IProductionRepository {}
 
+class MockBulkProductRepository extends Mock implements IBulkProductRepository {}
+
 void main() {
   late MockProductionRepository mockRepo;
+  late MockBulkProductRepository mockBulkRepo;
   late ProductionProvider provider;
 
   setUpAll(() {
@@ -37,11 +42,15 @@ void main() {
         date: DateTime(2026, 1, 1),
       ),
     );
+    registerFallbackValue(
+      const BulkProduct(id: 0, name: '', unitOfMeasure: '', stock: 0.0),
+    );
   });
 
   setUp(() {
     mockRepo = MockProductionRepository();
-    provider = ProductionProvider(mockRepo);
+    mockBulkRepo = MockBulkProductRepository();
+    provider = ProductionProvider(mockRepo, mockBulkRepo);
 
     // Stubs por defecto
     when(() => mockRepo.getProductionBatches()).thenAnswer((_) async => []);
@@ -54,6 +63,9 @@ void main() {
         quantityProduced: 8.0,
         date: DateTime(2026, 5, 18),
       ),
+    );
+    when(() => mockBulkRepo.getBulkProduct(any())).thenAnswer(
+      (_) async => const BulkProduct(id: 1, name: 'Alcohol', unitOfMeasure: 'L', stock: 100.0),
     );
   });
 

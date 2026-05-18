@@ -88,7 +88,7 @@ void main() {
   setUp(() {
     mockProdRepo = MockProductionRepository();
     mockBulkRepo = MockBulkProductRepository();
-    prodProvider = ProductionProvider(mockProdRepo);
+    prodProvider = ProductionProvider(mockProdRepo, mockBulkRepo);
     bpProvider = BulkProductProvider(mockBulkRepo);
 
     // Stubs por defecto para ProductionRepository
@@ -132,6 +132,9 @@ void main() {
       ),
     );
     when(() => mockBulkRepo.deleteBulkProduct(any())).thenAnswer((_) async {});
+    when(() => mockBulkRepo.getBulkProduct(any())).thenAnswer(
+      (_) async => const BulkProduct(id: 1, name: 'Alcohol', unitOfMeasure: 'L', stock: 100.0),
+    );
   });
 
   group('ProductionBatchListScreen', () {
