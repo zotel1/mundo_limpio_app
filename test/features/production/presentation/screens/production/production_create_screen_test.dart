@@ -12,8 +12,6 @@
 // Usa BulkProductProvider y ProductionProvider reales con mocks
 // de repositorio, siguiendo el patrón de login_screen_test.dart.
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';

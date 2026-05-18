@@ -3,7 +3,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dio/dio.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:mundo_limpio_app/features/production/data/models/bulk_product_model.dart';
 import 'package:mundo_limpio_app/features/production/data/repositories/bulk_product_repository_impl.dart';
 import 'package:mundo_limpio_app/features/production/domain/entities/bulk_product.dart';
 
