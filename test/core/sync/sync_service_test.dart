@@ -75,7 +75,7 @@ void main() {
 
   // ── Helpers ──────────────────────────────────────────────
 
-  InventoryPendingQueueData _fakeOp(int id, int productId) {
+  InventoryPendingQueueData fakeOp(int id, int productId) {
     return InventoryPendingQueueData(
       id: id,
       productId: productId,
@@ -87,7 +87,7 @@ void main() {
   }
 
   /// Crea un ConnectivityService con un stream controlado.
-  Future<ConnectivityService> _createConnectivityService({
+  Future<ConnectivityService> createConnectivityService({
     bool startOffline = true,
   }) async {
     final mockConnectivity = MockConnectivity();
@@ -107,7 +107,7 @@ void main() {
     return service;
   }
 
-  void _setupMocksForSync({
+  void setupMocksForSync({
     List<InventoryPendingQueueData>? pendingOps,
     int draftCount = 0,
     List<ProductResponse> products = const [],
@@ -138,7 +138,7 @@ void main() {
     );
   }
 
-  Future<void> _triggerOnlineAndWait() async {
+  Future<void> triggerOnlineAndWait() async {
     connectivityController.add([ConnectivityResult.wifi]);
     for (var i = 0; i < 5; i++) {
       await Future<void>.delayed(Duration.zero);
@@ -148,9 +148,9 @@ void main() {
   group('SyncService', () {
     group('inventory queue processing', () {
       test('debe procesar operaciones pendientes en orden FIFO', () async {
-        connectivityService = await _createConnectivityService();
-        _setupMocksForSync(
-          pendingOps: [_fakeOp(1, 1), _fakeOp(2, 2), _fakeOp(3, 3)],
+        connectivityService = await createConnectivityService();
+        setupMocksForSync(
+          pendingOps: [fakeOp(1, 1), fakeOp(2, 2), fakeOp(3, 3)],
         );
 
         final syncService = SyncService(
@@ -164,7 +164,7 @@ void main() {
         );
         syncService.initialize();
 
-        await _triggerOnlineAndWait();
+        await triggerOnlineAndWait();
 
         verify(() => inventoryApi.adjustStock(1, any())).called(1);
         verify(() => inventoryApi.adjustStock(2, any())).called(1);
@@ -175,15 +175,15 @@ void main() {
       });
 
       test('debe marcar operación fallida sin bloquear la cola', () async {
-        connectivityService = await _createConnectivityService();
+        connectivityService = await createConnectivityService();
 
-        _setupMocksForSync(pendingOps: [_fakeOp(1, 1), _fakeOp(2, 2)]);
+        setupMocksForSync(pendingOps: [fakeOp(1, 1), fakeOp(2, 2)]);
 
         // Override: op 1 falla con stock insuficiente
         when(
           () => inventoryApi.adjustStock(1, any()),
         ).thenThrow(const ApiException('Stock insuficiente', 400));
-        // Op 2 sigue usando el default de _setupMocksForSync (éxito)
+        // Op 2 sigue usando el default de setupMocksForSync (éxito)
 
         final syncService = SyncService(
           connectivity: connectivityService,
@@ -196,7 +196,7 @@ void main() {
         );
         syncService.initialize();
 
-        await _triggerOnlineAndWait();
+        await triggerOnlineAndWait();
 
         verify(
           () => pendingDao.updateStatus(1, 'failed', '400: Stock insuficiente'),
@@ -208,8 +208,8 @@ void main() {
 
     group('draft count', () {
       test('debe actualizar draftCount después del sync', () async {
-        connectivityService = await _createConnectivityService();
-        _setupMocksForSync(draftCount: 3);
+        connectivityService = await createConnectivityService();
+        setupMocksForSync(draftCount: 3);
 
         final syncService = SyncService(
           connectivity: connectivityService,
@@ -222,7 +222,7 @@ void main() {
         );
         syncService.initialize();
 
-        await _triggerOnlineAndWait();
+        await triggerOnlineAndWait();
 
         expect(syncService.draftCount.value, 3);
       });
@@ -230,8 +230,8 @@ void main() {
 
     group('lastSync', () {
       test('debe actualizar lastSync después del sync exitoso', () async {
-        connectivityService = await _createConnectivityService();
-        _setupMocksForSync();
+        connectivityService = await createConnectivityService();
+        setupMocksForSync();
 
         final syncService = SyncService(
           connectivity: connectivityService,
@@ -246,7 +246,7 @@ void main() {
 
         expect(syncService.lastSync.value, isNull);
 
-        await _triggerOnlineAndWait();
+        await triggerOnlineAndWait();
 
         expect(syncService.lastSync.value, isNotNull);
       });
