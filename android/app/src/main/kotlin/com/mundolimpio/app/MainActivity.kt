@@ -1,4 +1,4 @@
-package com.example.mundo_limpio_app
+package com.mundolimpio.app
 
 import io.flutter.embedding.android.FlutterActivity
 
