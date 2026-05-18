@@ -54,7 +54,7 @@ dependencies:
   equatable: ^2.0.0
 
   # Anotaciones para generar código de serialización JSON.
-  json_annotation: ^4.8.0
+  json_annotation: ^4.11.0
 
 dev_dependencies:
   flutter_test:
@@ -71,7 +71,7 @@ dev_dependencies:
   build_runner: ^2.4.0
 
   # Genera fromJson/toJson a partir de anotaciones @JsonSerializable.
-  json_serializable: ^6.7.0
+  json_serializable: ^6.13.0
 
   # Mocking para tests unitarios. Similar a Mockito pero sin boilerplate
   # (no requiere generar código ni archivos .g.dart para mocks).
