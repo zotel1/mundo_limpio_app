@@ -8,7 +8,6 @@
 //
 // TDD: RED — test escrito antes que la implementación del DAO
 
-import 'package:drift/drift.dart' hide isNotNull, isNull;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:drift/native.dart';
 
@@ -34,12 +33,18 @@ void main() {
         final now = DateTime(2026, 5, 18);
         final items = [
           InventoryCacheData(
-            productId: 1, productName: 'Jabón', currentStock: 50.0,
-            minStockThreshold: 10.0, updatedAt: now,
+            productId: 1,
+            productName: 'Jabón',
+            currentStock: 50.0,
+            minStockThreshold: 10.0,
+            updatedAt: now,
           ),
           InventoryCacheData(
-            productId: 2, productName: 'Cloro', currentStock: 30.0,
-            minStockThreshold: 5.0, updatedAt: now,
+            productId: 2,
+            productName: 'Cloro',
+            currentStock: 30.0,
+            minStockThreshold: 5.0,
+            updatedAt: now,
           ),
         ];
 
@@ -54,16 +59,22 @@ void main() {
         final now = DateTime(2026, 5, 18);
         await dao.upsertAll([
           InventoryCacheData(
-            productId: 1, productName: 'Jabón', currentStock: 50.0,
-            minStockThreshold: 10.0, updatedAt: now,
+            productId: 1,
+            productName: 'Jabón',
+            currentStock: 50.0,
+            minStockThreshold: 10.0,
+            updatedAt: now,
           ),
         ]);
 
         // Mismo productId, stock actualizado
         await dao.upsertAll([
           InventoryCacheData(
-            productId: 1, productName: 'Jabón', currentStock: 25.0,
-            minStockThreshold: 10.0, updatedAt: now,
+            productId: 1,
+            productName: 'Jabón',
+            currentStock: 25.0,
+            minStockThreshold: 10.0,
+            updatedAt: now,
           ),
         ]);
 
@@ -85,12 +96,18 @@ void main() {
         final now = DateTime(2026, 5, 18);
         await dao.upsertAll([
           InventoryCacheData(
-            productId: 1, productName: 'Jabón', currentStock: 50.0,
-            minStockThreshold: 10.0, updatedAt: now,
+            productId: 1,
+            productName: 'Jabón',
+            currentStock: 50.0,
+            minStockThreshold: 10.0,
+            updatedAt: now,
           ),
           InventoryCacheData(
-            productId: 2, productName: 'Cloro', currentStock: 30.0,
-            minStockThreshold: 5.0, updatedAt: now,
+            productId: 2,
+            productName: 'Cloro',
+            currentStock: 30.0,
+            minStockThreshold: 5.0,
+            updatedAt: now,
           ),
         ]);
 
@@ -111,8 +128,11 @@ void main() {
         final now = DateTime(2026, 5, 18);
         await dao.upsertAll([
           InventoryCacheData(
-            productId: 1, productName: 'Jabón', currentStock: 50.0,
-            minStockThreshold: 10.0, updatedAt: now,
+            productId: 1,
+            productName: 'Jabón',
+            currentStock: 50.0,
+            minStockThreshold: 10.0,
+            updatedAt: now,
           ),
         ]);
 
@@ -127,12 +147,18 @@ void main() {
         final now = DateTime(2026, 5, 18);
         await dao.upsertAll([
           InventoryCacheData(
-            productId: 1, productName: 'P1', currentStock: 10.0,
-            minStockThreshold: 5.0, updatedAt: now,
+            productId: 1,
+            productName: 'P1',
+            currentStock: 10.0,
+            minStockThreshold: 5.0,
+            updatedAt: now,
           ),
           InventoryCacheData(
-            productId: 2, productName: 'P2', currentStock: 20.0,
-            minStockThreshold: 5.0, updatedAt: now,
+            productId: 2,
+            productName: 'P2',
+            currentStock: 20.0,
+            minStockThreshold: 5.0,
+            updatedAt: now,
           ),
         ]);
 

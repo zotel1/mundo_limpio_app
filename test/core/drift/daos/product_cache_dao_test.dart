@@ -7,7 +7,6 @@
 //
 // TDD: RED — test escrito antes que la implementación del DAO
 
-import 'package:drift/drift.dart' hide isNotNull;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:drift/native.dart';
 
@@ -43,18 +42,29 @@ void main() {
         // Assert
         final all = await dao.getAll();
         expect(all, hasLength(2));
-        expect(all.map((p) => p.name), containsAll(['Producto A', 'Producto B']));
+        expect(
+          all.map((p) => p.name),
+          containsAll(['Producto A', 'Producto B']),
+        );
       });
 
       test('debe actualizar productos existentes por PK', () async {
         // Arrange: insertar un producto primero
         await dao.upsertAll([
-          ProductCacheData(id: 1, name: 'Original', updatedAt: DateTime(2026, 5, 18)),
+          ProductCacheData(
+            id: 1,
+            name: 'Original',
+            updatedAt: DateTime(2026, 5, 18),
+          ),
         ]);
 
         // Act: upsert con nuevo nombre (mismo id)
         await dao.upsertAll([
-          ProductCacheData(id: 1, name: 'Actualizado', updatedAt: DateTime(2026, 5, 18)),
+          ProductCacheData(
+            id: 1,
+            name: 'Actualizado',
+            updatedAt: DateTime(2026, 5, 18),
+          ),
         ]);
 
         // Assert: solo 1 registro, con el nombre nuevo

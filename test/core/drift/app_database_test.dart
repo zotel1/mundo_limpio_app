@@ -28,7 +28,9 @@ void main() {
 
     test('debe tener las 5 tablas del esquema de diseño', () async {
       // ProductCache — id es Value (opcional, PK), name/updatedAt son raw
-      await db.into(db.productCache).insert(
+      await db
+          .into(db.productCache)
+          .insert(
             ProductCacheCompanion.insert(
               id: const Value(1),
               name: 'Test',
@@ -40,7 +42,9 @@ void main() {
       expect(products.first.name, 'Test');
 
       // BatchCache
-      await db.into(db.batchCache).insert(
+      await db
+          .into(db.batchCache)
+          .insert(
             BatchCacheCompanion.insert(
               id: const Value(1),
               productId: 1,
@@ -53,7 +57,9 @@ void main() {
       expect(batches.first.currentStock, 100.0);
 
       // InventoryCache — productId es Value (PK, opcional)
-      await db.into(db.inventoryCache).insert(
+      await db
+          .into(db.inventoryCache)
+          .insert(
             InventoryCacheCompanion.insert(
               productId: const Value(2),
               productName: 'Test Product',
@@ -67,7 +73,9 @@ void main() {
       expect(inventory.first.productName, 'Test Product');
 
       // DraftSales — id, status, createdAt, confirmedAt tienen defaults
-      final draftId = await db.into(db.draftSales).insert(
+      final draftId = await db
+          .into(db.draftSales)
+          .insert(
             DraftSalesCompanion.insert(
               productId: 1,
               productName: 'Draft Product',
@@ -83,7 +91,9 @@ void main() {
       expect(drafts.first.status, 'draft');
 
       // InventoryPendingQueue — id, status, createdAt, etc. con defaults
-      final pendingId = await db.into(db.inventoryPendingQueue).insert(
+      final pendingId = await db
+          .into(db.inventoryPendingQueue)
+          .insert(
             InventoryPendingQueueCompanion.insert(
               productId: 1,
               payload: '{"type":"add","quantity":5}',
@@ -103,7 +113,9 @@ void main() {
     test('debe permitir insertar múltiples registros en cada tabla', () async {
       // ProductCache: 3 registros
       for (var i = 1; i <= 3; i++) {
-        await db.into(db.productCache).insert(
+        await db
+            .into(db.productCache)
+            .insert(
               ProductCacheCompanion.insert(
                 id: Value(i),
                 name: 'Product $i',
@@ -116,7 +128,9 @@ void main() {
 
       // BatchCache: 2 registros mismo productId
       for (var i = 1; i <= 2; i++) {
-        await db.into(db.batchCache).insert(
+        await db
+            .into(db.batchCache)
+            .insert(
               BatchCacheCompanion.insert(
                 id: Value(i),
                 productId: 1,

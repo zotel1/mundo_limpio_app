@@ -8,7 +8,6 @@
 //
 // TDD: RED — test escrito antes que la implementación del DAO
 
-import 'package:drift/drift.dart' hide isNotNull;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:drift/native.dart';
 
@@ -33,8 +32,18 @@ void main() {
       test('debe insertar lotes nuevos en el caché', () async {
         final now = DateTime(2026, 5, 18);
         final batches = [
-          BatchCacheData(id: 1, productId: 10, currentStock: 100.0, updatedAt: now),
-          BatchCacheData(id: 2, productId: 10, currentStock: 50.0, updatedAt: now),
+          BatchCacheData(
+            id: 1,
+            productId: 10,
+            currentStock: 100.0,
+            updatedAt: now,
+          ),
+          BatchCacheData(
+            id: 2,
+            productId: 10,
+            currentStock: 50.0,
+            updatedAt: now,
+          ),
         ];
 
         await dao.upsertAll(batches);
@@ -46,12 +55,22 @@ void main() {
       test('debe actualizar lotes existentes por PK', () async {
         final now = DateTime(2026, 5, 18);
         await dao.upsertAll([
-          BatchCacheData(id: 1, productId: 10, currentStock: 100.0, updatedAt: now),
+          BatchCacheData(
+            id: 1,
+            productId: 10,
+            currentStock: 100.0,
+            updatedAt: now,
+          ),
         ]);
 
         // Mismo id, nuevo stock
         await dao.upsertAll([
-          BatchCacheData(id: 1, productId: 10, currentStock: 75.0, updatedAt: now),
+          BatchCacheData(
+            id: 1,
+            productId: 10,
+            currentStock: 75.0,
+            updatedAt: now,
+          ),
         ]);
 
         final all = await dao.getAll();
@@ -69,9 +88,24 @@ void main() {
       test('debe retornar solo los lotes del producto especificado', () async {
         final now = DateTime(2026, 5, 18);
         await dao.upsertAll([
-          BatchCacheData(id: 1, productId: 10, currentStock: 100.0, updatedAt: now),
-          BatchCacheData(id: 2, productId: 10, currentStock: 50.0, updatedAt: now),
-          BatchCacheData(id: 3, productId: 20, currentStock: 30.0, updatedAt: now),
+          BatchCacheData(
+            id: 1,
+            productId: 10,
+            currentStock: 100.0,
+            updatedAt: now,
+          ),
+          BatchCacheData(
+            id: 2,
+            productId: 10,
+            currentStock: 50.0,
+            updatedAt: now,
+          ),
+          BatchCacheData(
+            id: 3,
+            productId: 20,
+            currentStock: 30.0,
+            updatedAt: now,
+          ),
         ]);
 
         final result = await dao.getByProductId(10);
@@ -84,9 +118,24 @@ void main() {
       test('debe eliminar solo los lotes del producto especificado', () async {
         final now = DateTime(2026, 5, 18);
         await dao.upsertAll([
-          BatchCacheData(id: 1, productId: 10, currentStock: 100.0, updatedAt: now),
-          BatchCacheData(id: 2, productId: 10, currentStock: 50.0, updatedAt: now),
-          BatchCacheData(id: 3, productId: 20, currentStock: 30.0, updatedAt: now),
+          BatchCacheData(
+            id: 1,
+            productId: 10,
+            currentStock: 100.0,
+            updatedAt: now,
+          ),
+          BatchCacheData(
+            id: 2,
+            productId: 10,
+            currentStock: 50.0,
+            updatedAt: now,
+          ),
+          BatchCacheData(
+            id: 3,
+            productId: 20,
+            currentStock: 30.0,
+            updatedAt: now,
+          ),
         ]);
 
         await dao.deleteByProductId(10);
@@ -106,8 +155,18 @@ void main() {
       test('debe eliminar todos los lotes del caché', () async {
         final now = DateTime(2026, 5, 18);
         await dao.upsertAll([
-          BatchCacheData(id: 1, productId: 10, currentStock: 100.0, updatedAt: now),
-          BatchCacheData(id: 2, productId: 20, currentStock: 50.0, updatedAt: now),
+          BatchCacheData(
+            id: 1,
+            productId: 10,
+            currentStock: 100.0,
+            updatedAt: now,
+          ),
+          BatchCacheData(
+            id: 2,
+            productId: 20,
+            currentStock: 50.0,
+            updatedAt: now,
+          ),
         ]);
 
         await dao.deleteAll();
@@ -120,9 +179,24 @@ void main() {
       test('debe retornar la cantidad de lotes cacheados', () async {
         final now = DateTime(2026, 5, 18);
         await dao.upsertAll([
-          BatchCacheData(id: 1, productId: 10, currentStock: 100.0, updatedAt: now),
-          BatchCacheData(id: 2, productId: 20, currentStock: 50.0, updatedAt: now),
-          BatchCacheData(id: 3, productId: 30, currentStock: 30.0, updatedAt: now),
+          BatchCacheData(
+            id: 1,
+            productId: 10,
+            currentStock: 100.0,
+            updatedAt: now,
+          ),
+          BatchCacheData(
+            id: 2,
+            productId: 20,
+            currentStock: 50.0,
+            updatedAt: now,
+          ),
+          BatchCacheData(
+            id: 3,
+            productId: 30,
+            currentStock: 30.0,
+            updatedAt: now,
+          ),
         ]);
 
         expect(await dao.count(), 3);

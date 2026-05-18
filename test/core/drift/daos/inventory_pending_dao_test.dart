@@ -31,20 +31,24 @@ void main() {
   group('InventoryPendingDao', () {
     group('insert', () {
       test('debe encolar un ajuste y retornar ID > 0', () async {
-        final id = await dao.insert(InventoryPendingQueueCompanion.insert(
-          productId: 1,
-          payload: '{"type":"add","quantity":5}',
-          status: const Value('pending'),
-        ));
+        final id = await dao.insert(
+          InventoryPendingQueueCompanion.insert(
+            productId: 1,
+            payload: '{"type":"add","quantity":5}',
+            status: const Value('pending'),
+          ),
+        );
 
         expect(id, greaterThan(0));
       });
 
       test('debe guardar status pending por defecto', () async {
-        final id = await dao.insert(InventoryPendingQueueCompanion.insert(
-          productId: 1,
-          payload: '{"type":"add","quantity":5}',
-        ));
+        await dao.insert(
+          InventoryPendingQueueCompanion.insert(
+            productId: 1,
+            payload: '{"type":"add","quantity":5}',
+          ),
+        );
 
         final all = await dao.getAllByStatus('pending');
         expect(all, hasLength(1));
@@ -52,10 +56,12 @@ void main() {
       });
 
       test('debe inicializar retryCount en 0 por defecto', () async {
-        final id = await dao.insert(InventoryPendingQueueCompanion.insert(
-          productId: 1,
-          payload: '{"type":"add","quantity":5}',
-        ));
+        await dao.insert(
+          InventoryPendingQueueCompanion.insert(
+            productId: 1,
+            payload: '{"type":"add","quantity":5}',
+          ),
+        );
 
         final all = await dao.getAllByStatus('pending');
         expect(all.first.retryCount, 0);
@@ -63,10 +69,13 @@ void main() {
     });
 
     group('getAllByStatus', () {
-      test('debe retornar vacío si no hay operaciones con ese status', () async {
-        final result = await dao.getAllByStatus('failed');
-        expect(result, isEmpty);
-      });
+      test(
+        'debe retornar vacío si no hay operaciones con ese status',
+        () async {
+          final result = await dao.getAllByStatus('failed');
+          expect(result, isEmpty);
+        },
+      );
 
       test('debe retornar operaciones filtradas por status', () async {
         await _insert(dao, 1, 'pending');
@@ -78,10 +87,8 @@ void main() {
       });
 
       test('debe retornar orden FIFO (más antiguas primero)', () async {
-        final id1 = await _insertWithCreatedAt(
-            dao, 1, DateTime(2026, 5, 1));
-        final id2 = await _insertWithCreatedAt(
-            dao, 2, DateTime(2026, 5, 18));
+        final id1 = await _insertWithCreatedAt(dao, 1, DateTime(2026, 5, 1));
+        final id2 = await _insertWithCreatedAt(dao, 2, DateTime(2026, 5, 18));
 
         final result = await dao.getAllByStatus('pending');
         // FIFO: más antiguo primero
@@ -91,15 +98,18 @@ void main() {
     });
 
     group('updateStatus', () {
-      test('debe cambiar status de pending a failed con mensaje de error', () async {
-        final id = await _insert(dao, 1, 'pending');
+      test(
+        'debe cambiar status de pending a failed con mensaje de error',
+        () async {
+          final id = await _insert(dao, 1, 'pending');
 
-        await dao.updateStatus(id, 'failed', 'Stock insuficiente');
+          await dao.updateStatus(id, 'failed', 'Stock insuficiente');
 
-        final all = await dao.getAllByStatus('failed');
-        expect(all, hasLength(1));
-        expect(all.first.errorMessage, 'Stock insuficiente');
-      });
+          final all = await dao.getAllByStatus('failed');
+          expect(all, hasLength(1));
+          expect(all.first.errorMessage, 'Stock insuficiente');
+        },
+      );
 
       test('debe incrementar retryCount al reintentar', () async {
         final id = await _insert(dao, 1, 'pending');
@@ -137,20 +147,27 @@ void main() {
 
 /// Helper: inserta una operación pendiente y retorna su ID.
 Future<int> _insert(InventoryPendingDao dao, int productId, String status) {
-  return dao.insert(InventoryPendingQueueCompanion.insert(
-    productId: productId,
-    payload: '{"type":"add","quantity":5}',
-    status: Value(status),
-  ));
+  return dao.insert(
+    InventoryPendingQueueCompanion.insert(
+      productId: productId,
+      payload: '{"type":"add","quantity":5}',
+      status: Value(status),
+    ),
+  );
 }
 
 /// Helper: inserta con createdAt explícito para pruebas FIFO.
 Future<int> _insertWithCreatedAt(
-    InventoryPendingDao dao, int productId, DateTime createdAt) {
-  return dao.insert(InventoryPendingQueueCompanion.insert(
-    productId: productId,
-    payload: '{"type":"add","quantity":5}',
-    status: const Value('pending'),
-    createdAt: Value(createdAt),
-  ));
+  InventoryPendingDao dao,
+  int productId,
+  DateTime createdAt,
+) {
+  return dao.insert(
+    InventoryPendingQueueCompanion.insert(
+      productId: productId,
+      payload: '{"type":"add","quantity":5}',
+      status: const Value('pending'),
+      createdAt: Value(createdAt),
+    ),
+  );
 }

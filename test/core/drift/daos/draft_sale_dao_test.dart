@@ -32,26 +32,30 @@ void main() {
   group('DraftSaleDao', () {
     group('insert', () {
       test('debe insertar un borrador y retornar ID > 0', () async {
-        final id = await dao.insert(DraftSalesCompanion.insert(
-          productId: 1,
-          productName: 'Producto Test',
-          batchId: 42,
-          quantity: 10.0,
-          unitPrice: 150.0,
-          status: const Value('draft'),
-        ));
+        final id = await dao.insert(
+          DraftSalesCompanion.insert(
+            productId: 1,
+            productName: 'Producto Test',
+            batchId: 42,
+            quantity: 10.0,
+            unitPrice: 150.0,
+            status: const Value('draft'),
+          ),
+        );
 
         expect(id, greaterThan(0));
       });
 
       test('debe guardar el status por defecto como draft', () async {
-        final id = await dao.insert(DraftSalesCompanion.insert(
-          productId: 1,
-          productName: 'Producto Test',
-          batchId: 42,
-          quantity: 10.0,
-          unitPrice: 150.0,
-        ));
+        final id = await dao.insert(
+          DraftSalesCompanion.insert(
+            productId: 1,
+            productName: 'Producto Test',
+            batchId: 42,
+            quantity: 10.0,
+            unitPrice: 150.0,
+          ),
+        );
 
         final draft = await dao.getById(id);
         expect(draft, isNotNull);
@@ -61,13 +65,15 @@ void main() {
 
     group('getById', () {
       test('debe retornar el borrador por ID', () async {
-        final id = await dao.insert(DraftSalesCompanion.insert(
-          productId: 1,
-          productName: 'Test',
-          batchId: 1,
-          quantity: 5.0,
-          unitPrice: 100.0,
-        ));
+        final id = await dao.insert(
+          DraftSalesCompanion.insert(
+            productId: 1,
+            productName: 'Test',
+            batchId: 1,
+            quantity: 5.0,
+            unitPrice: 100.0,
+          ),
+        );
 
         final draft = await dao.getById(id);
         expect(draft, isNotNull);
@@ -83,7 +89,6 @@ void main() {
 
     group('getAllByStatus', () {
       test('debe retornar borradores filtrados por status', () async {
-        final now = DateTime(2026, 5, 18);
         await _insertDraft(dao, 1, 'P1', 'draft');
         await _insertDraft(dao, 2, 'P2', 'confirmed');
         await _insertDraft(dao, 3, 'P3', 'draft');
@@ -94,10 +99,18 @@ void main() {
       });
 
       test('debe retornar ordenados por createdAt DESC', () async {
-        final id1 = await _insertDraftWithCreatedAt(dao, 1, 'Primero',
-            DateTime(2026, 5, 1, 10, 0, 0));
-        final id2 = await _insertDraftWithCreatedAt(dao, 2, 'Segundo',
-            DateTime(2026, 5, 18, 10, 0, 0));
+        final id1 = await _insertDraftWithCreatedAt(
+          dao,
+          1,
+          'Primero',
+          DateTime(2026, 5, 1, 10, 0, 0),
+        );
+        final id2 = await _insertDraftWithCreatedAt(
+          dao,
+          2,
+          'Segundo',
+          DateTime(2026, 5, 18, 10, 0, 0),
+        );
 
         final drafts = await dao.getAllByStatus('draft');
         expect(drafts, hasLength(2));
@@ -164,14 +177,16 @@ Future<int> _insertDraft(
   String productName,
   String status,
 ) {
-  return dao.insert(DraftSalesCompanion.insert(
-    productId: productId,
-    productName: productName,
-    batchId: 1,
-    quantity: 10.0,
-    unitPrice: 100.0,
-    status: Value(status),
-  ));
+  return dao.insert(
+    DraftSalesCompanion.insert(
+      productId: productId,
+      productName: productName,
+      batchId: 1,
+      quantity: 10.0,
+      unitPrice: 100.0,
+      status: Value(status),
+    ),
+  );
 }
 
 /// Helper: inserta un borrador con createdAt explícito.
@@ -181,13 +196,15 @@ Future<int> _insertDraftWithCreatedAt(
   String productName,
   DateTime createdAt,
 ) {
-  return dao.insert(DraftSalesCompanion.insert(
-    productId: productId,
-    productName: productName,
-    batchId: 1,
-    quantity: 10.0,
-    unitPrice: 100.0,
-    status: const Value('draft'),
-    createdAt: Value(createdAt),
-  ));
+  return dao.insert(
+    DraftSalesCompanion.insert(
+      productId: productId,
+      productName: productName,
+      batchId: 1,
+      quantity: 10.0,
+      unitPrice: 100.0,
+      status: const Value('draft'),
+      createdAt: Value(createdAt),
+    ),
+  );
 }

@@ -9,10 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/product_response.dart';
 
 void main() {
-  final jsonValid = {
-    'id': 1,
-    'name': 'Jabón Líquido',
-  };
+  final jsonValid = {'id': 1, 'name': 'Jabón Líquido'};
 
   group('ProductResponse', () {
     test('fromJson debe crear ProductResponse con todos los campos', () {

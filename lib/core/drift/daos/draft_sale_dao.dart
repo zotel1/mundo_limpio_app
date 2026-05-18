@@ -27,8 +27,9 @@ class DraftSaleDao {
 
   /// Obtiene un borrador por su ID, o null si no existe.
   Future<DraftSale?> getById(int id) {
-    return (_db.select(_db.draftSales)..where((t) => t.id.equals(id)))
-        .getSingleOrNull();
+    return (_db.select(
+      _db.draftSales,
+    )..where((t) => t.id.equals(id))).getSingleOrNull();
   }
 
   /// Obtiene todos los borradores con un status dado,
@@ -42,8 +43,9 @@ class DraftSaleDao {
 
   /// Actualiza el status de un borrador.
   Future<void> updateStatus(int id, String status) {
-    return (_db.update(_db.draftSales)..where((t) => t.id.equals(id)))
-        .write(DraftSalesCompanion(status: Value(status)));
+    return (_db.update(_db.draftSales)..where((t) => t.id.equals(id))).write(
+      DraftSalesCompanion(status: Value(status)),
+    );
   }
 
   /// Cuenta borradores por status.

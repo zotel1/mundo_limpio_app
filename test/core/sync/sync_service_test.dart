@@ -30,20 +30,28 @@ import 'package:mundo_limpio_app/features/sales/data/models/product_response.dar
 // ─── Mocks ────────────────────────────────────────────────────
 
 class MockConnectivity extends Mock implements Connectivity {}
+
 class MockInventoryPendingDao extends Mock implements InventoryPendingDao {}
+
 class MockInventoryApi extends Mock implements InventoryApi {}
+
 class MockProductCacheDao extends Mock implements ProductCacheDao {}
+
 class MockInventoryCacheDao extends Mock implements InventoryCacheDao {}
+
 class MockDraftSaleDao extends Mock implements DraftSaleDao {}
+
 class MockSalesApi extends Mock implements SalesApi {}
 
 void main() {
   setUpAll(() {
-    registerFallbackValue(AdjustmentRequest(
-      type: AdjustmentType.ADJUSTMENT,
-      quantity: 1.0,
-      reason: 'test',
-    ));
+    registerFallbackValue(
+      AdjustmentRequest(
+        type: AdjustmentType.ADJUSTMENT,
+        quantity: 1.0,
+        reason: 'test',
+      ),
+    );
   });
 
   late ConnectivityService connectivityService;
@@ -69,7 +77,8 @@ void main() {
 
   InventoryPendingQueueData _fakeOp(int id, int productId) {
     return InventoryPendingQueueData(
-      id: id, productId: productId,
+      id: id,
+      productId: productId,
       payload: '{"type":"ADJUSTMENT","quantity":5.0,"reason":"test"}',
       status: 'pending',
       createdAt: DateTime(2026, 5, 18),
@@ -82,14 +91,15 @@ void main() {
     bool startOffline = true,
   }) async {
     final mockConnectivity = MockConnectivity();
-    connectivityController = StreamController<List<ConnectivityResult>>.broadcast();
+    connectivityController =
+        StreamController<List<ConnectivityResult>>.broadcast();
 
-    when(() => mockConnectivity.onConnectivityChanged)
-        .thenAnswer((_) => connectivityController.stream);
+    when(
+      () => mockConnectivity.onConnectivityChanged,
+    ).thenAnswer((_) => connectivityController.stream);
     when(() => mockConnectivity.checkConnectivity()).thenAnswer(
-      (_) async => startOffline
-          ? [ConnectivityResult.none]
-          : [ConnectivityResult.wifi],
+      (_) async =>
+          startOffline ? [ConnectivityResult.none] : [ConnectivityResult.wifi],
     );
 
     final service = ConnectivityService(connectivity: mockConnectivity);
@@ -103,28 +113,29 @@ void main() {
     List<ProductResponse> products = const [],
     List<InventoryResponse> inventory = const [],
   }) {
-    when(() => pendingDao.getAllByStatus('pending'))
-        .thenAnswer((_) async => pendingOps ?? []);
+    when(
+      () => pendingDao.getAllByStatus('pending'),
+    ).thenAnswer((_) async => pendingOps ?? []);
     when(() => pendingDao.delete(any())).thenAnswer((_) async {});
-    when(() => pendingDao.updateStatus(any(), any(), any()))
-        .thenAnswer((_) async {});
-    when(() => pendingDao.countByStatus(any()))
-        .thenAnswer((_) async => 0);
-    when(() => draftSaleDao.countByStatus('draft'))
-        .thenAnswer((_) async => draftCount);
-    when(() => salesApi.getProducts())
-        .thenAnswer((_) async => products);
-    when(() => productCacheDao.upsertAll(any()))
-        .thenAnswer((_) async {});
-    when(() => inventoryApi.getLowStock())
-        .thenAnswer((_) async => inventory);
-    when(() => inventoryCacheDao.upsertAll(any()))
-        .thenAnswer((_) async {});
-    when(() => inventoryApi.adjustStock(any(), any()))
-        .thenAnswer((_) async => const InventoryResponse(
-          productId: 1, productName: 'Test',
-          currentStock: 10.0, minStockThreshold: 5.0,
-        ));
+    when(
+      () => pendingDao.updateStatus(any(), any(), any()),
+    ).thenAnswer((_) async {});
+    when(() => pendingDao.countByStatus(any())).thenAnswer((_) async => 0);
+    when(
+      () => draftSaleDao.countByStatus('draft'),
+    ).thenAnswer((_) async => draftCount);
+    when(() => salesApi.getProducts()).thenAnswer((_) async => products);
+    when(() => productCacheDao.upsertAll(any())).thenAnswer((_) async {});
+    when(() => inventoryApi.getLowStock()).thenAnswer((_) async => inventory);
+    when(() => inventoryCacheDao.upsertAll(any())).thenAnswer((_) async {});
+    when(() => inventoryApi.adjustStock(any(), any())).thenAnswer(
+      (_) async => const InventoryResponse(
+        productId: 1,
+        productName: 'Test',
+        currentStock: 10.0,
+        minStockThreshold: 5.0,
+      ),
+    );
   }
 
   Future<void> _triggerOnlineAndWait() async {
@@ -138,11 +149,9 @@ void main() {
     group('inventory queue processing', () {
       test('debe procesar operaciones pendientes en orden FIFO', () async {
         connectivityService = await _createConnectivityService();
-        _setupMocksForSync(pendingOps: [
-          _fakeOp(1, 1),
-          _fakeOp(2, 2),
-          _fakeOp(3, 3),
-        ]);
+        _setupMocksForSync(
+          pendingOps: [_fakeOp(1, 1), _fakeOp(2, 2), _fakeOp(3, 3)],
+        );
 
         final syncService = SyncService(
           connectivity: connectivityService,
@@ -168,14 +177,12 @@ void main() {
       test('debe marcar operación fallida sin bloquear la cola', () async {
         connectivityService = await _createConnectivityService();
 
-        _setupMocksForSync(pendingOps: [
-          _fakeOp(1, 1),
-          _fakeOp(2, 2),
-        ]);
+        _setupMocksForSync(pendingOps: [_fakeOp(1, 1), _fakeOp(2, 2)]);
 
         // Override: op 1 falla con stock insuficiente
-        when(() => inventoryApi.adjustStock(1, any()))
-            .thenThrow(const ApiException('Stock insuficiente', 400));
+        when(
+          () => inventoryApi.adjustStock(1, any()),
+        ).thenThrow(const ApiException('Stock insuficiente', 400));
         // Op 2 sigue usando el default de _setupMocksForSync (éxito)
 
         final syncService = SyncService(
@@ -191,8 +198,9 @@ void main() {
 
         await _triggerOnlineAndWait();
 
-        verify(() => pendingDao.updateStatus(1, 'failed', '400: Stock insuficiente'))
-            .called(1);
+        verify(
+          () => pendingDao.updateStatus(1, 'failed', '400: Stock insuficiente'),
+        ).called(1);
         verify(() => pendingDao.delete(2)).called(1);
         verifyNever(() => pendingDao.delete(1));
       });
