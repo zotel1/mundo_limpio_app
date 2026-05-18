@@ -33,13 +33,17 @@ class ProductionRepositoryImpl implements IProductionRepository {
 
   @override
   Future<ProductionBatch> createProductionBatch(
-      ProductionBatchRequest request) async {
+    ProductionBatchRequest request,
+  ) async {
     try {
-      final response = await _dio.post('/api/v1/production-batches', data: {
-        'finished_product_id': request.finishedProductId,
-        'bulk_product_id': request.bulkProductId,
-        'quantity_used': request.quantityUsed,
-      });
+      final response = await _dio.post(
+        '/api/v1/production-batches',
+        data: {
+          'finished_product_id': request.finishedProductId,
+          'bulk_product_id': request.bulkProductId,
+          'quantity_used': request.quantityUsed,
+        },
+      );
       return ProductionBatchModel.fromJson(response.data).toEntity();
     } catch (e) {
       throw Exception('Failed to create production batch: $e');

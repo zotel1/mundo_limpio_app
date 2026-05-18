@@ -6,7 +6,8 @@ import 'package:mundo_limpio_app/features/production/domain/entities/bulk_produc
 import 'package:mundo_limpio_app/features/production/domain/repositories/i_bulk_product_repository.dart';
 import 'package:mundo_limpio_app/features/production/domain/usecases/create_bulk_product.dart';
 
-class MockBulkProductRepository extends Mock implements IBulkProductRepository {}
+class MockBulkProductRepository extends Mock
+    implements IBulkProductRepository {}
 
 void main() {
   setUpAll(() {
@@ -26,8 +27,15 @@ void main() {
   group('CreateBulkProduct Use Case', () {
     test('debe crear un BulkProduct correctamente', () async {
       // Arrange
-      final bulkProduct = BulkProduct(id: 1, name: 'Alcohol', unitOfMeasure: 'L', stock: 10.0);
-      when(() => mockRepository.createBulkProduct(any())).thenAnswer((_) async => bulkProduct);
+      final bulkProduct = BulkProduct(
+        id: 1,
+        name: 'Alcohol',
+        unitOfMeasure: 'L',
+        stock: 10.0,
+      );
+      when(
+        () => mockRepository.createBulkProduct(any()),
+      ).thenAnswer((_) async => bulkProduct);
 
       // Act
       final result = await createBulkProduct.execute(bulkProduct);

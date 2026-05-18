@@ -28,8 +28,7 @@ import 'package:mundo_limpio_app/features/production/presentation/screens/produc
 class MockBulkProductRepository extends Mock
     implements IBulkProductRepository {}
 
-class MockProductionRepository extends Mock
-    implements IProductionRepository {}
+class MockProductionRepository extends Mock implements IProductionRepository {}
 
 Widget createTestApp(
   BulkProductProvider bpProvider,
@@ -44,10 +43,7 @@ Widget createTestApp(
   );
 }
 
-Future<void> pumpUntilSettled(
-  WidgetTester tester, {
-  int maxFrames = 20,
-}) async {
+Future<void> pumpUntilSettled(WidgetTester tester, {int maxFrames = 20}) async {
   for (int i = 0; i < maxFrames; i++) {
     await tester.pump(const Duration(milliseconds: 100));
   }
@@ -89,20 +85,22 @@ void main() {
     prodProvider = ProductionProvider(mockProdRepo, mockBulkRepo);
 
     // Stubs por defecto
-    when(() => mockBulkRepo.getBulkProducts()).thenAnswer((_) async => [
-          const BulkProduct(
-            id: 1,
-            name: 'Alcohol',
-            unitOfMeasure: 'L',
-            stock: 100,
-          ),
-          const BulkProduct(
-            id: 2,
-            name: 'Esencia',
-            unitOfMeasure: 'L',
-            stock: 50,
-          ),
-        ]);
+    when(() => mockBulkRepo.getBulkProducts()).thenAnswer(
+      (_) async => [
+        const BulkProduct(
+          id: 1,
+          name: 'Alcohol',
+          unitOfMeasure: 'L',
+          stock: 100,
+        ),
+        const BulkProduct(
+          id: 2,
+          name: 'Esencia',
+          unitOfMeasure: 'L',
+          stock: 50,
+        ),
+      ],
+    );
     when(() => mockProdRepo.createProductionBatch(any())).thenAnswer(
       (_) async => ProductionBatch(
         id: 1,
@@ -114,7 +112,12 @@ void main() {
       ),
     );
     when(() => mockBulkRepo.getBulkProduct(any())).thenAnswer(
-      (_) async => const BulkProduct(id: 1, name: 'Alcohol', unitOfMeasure: 'L', stock: 100.0),
+      (_) async => const BulkProduct(
+        id: 1,
+        name: 'Alcohol',
+        unitOfMeasure: 'L',
+        stock: 100.0,
+      ),
     );
   });
 
@@ -130,128 +133,97 @@ void main() {
       expect(find.byType(DropdownButtonFormField<int>), findsOneWidget);
     });
 
-    testWidgets(
-      'debe cargar las materias primas en el dropdown',
-      (tester) async {
-        await tester.pumpWidget(createTestApp(bpProvider, prodProvider));
-        await pumpUntilSettled(tester);
+    testWidgets('debe cargar las materias primas en el dropdown', (
+      tester,
+    ) async {
+      await tester.pumpWidget(createTestApp(bpProvider, prodProvider));
+      await pumpUntilSettled(tester);
 
-        // Tap to open dropdown
-        await tester.tap(find.byType(DropdownButtonFormField<int>));
-        await pumpUntilSettled(tester);
+      // Tap to open dropdown
+      await tester.tap(find.byType(DropdownButtonFormField<int>));
+      await pumpUntilSettled(tester);
 
-        // Items should be visible in the overlay
-        expect(find.text('Alcohol'), findsWidgets);
-        expect(find.text('Esencia'), findsWidgets);
-      },
-    );
+      // Items should be visible in the overlay
+      expect(find.text('Alcohol'), findsWidgets);
+      expect(find.text('Esencia'), findsWidgets);
+    });
 
-    testWidgets(
-      'debe mostrar errores de validación al enviar vacío',
-      (tester) async {
-        await tester.pumpWidget(createTestApp(bpProvider, prodProvider));
-        await pumpUntilSettled(tester);
+    testWidgets('debe mostrar errores de validación al enviar vacío', (
+      tester,
+    ) async {
+      await tester.pumpWidget(createTestApp(bpProvider, prodProvider));
+      await pumpUntilSettled(tester);
 
-        // Tap guardar sin llenar campos
-        await tester.tap(find.widgetWithText(ElevatedButton, 'Guardar'));
-        await pumpUntilSettled(tester);
+      // Tap guardar sin llenar campos
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Guardar'));
+      await pumpUntilSettled(tester);
 
-        // Validation messages should appear
-        expect(find.text('El ID del producto es requerido'), findsOneWidget);
-        expect(
-          find.text('Seleccione una materia prima'),
-          findsOneWidget,
-        );
-        // Two quantity fields (used + produced) — both show "requerida" when empty
-        expect(
-          find.text('La cantidad es requerida'),
-          findsAtLeast(1),
-        );
-      },
-    );
+      // Validation messages should appear
+      expect(find.text('El ID del producto es requerido'), findsOneWidget);
+      expect(find.text('Seleccione una materia prima'), findsOneWidget);
+      // Two quantity fields (used + produced) — both show "requerida" when empty
+      expect(find.text('La cantidad es requerida'), findsAtLeast(1));
+    });
 
-    testWidgets(
-      'debe crear un batch exitosamente',
-      (tester) async {
-        await tester.pumpWidget(createTestApp(bpProvider, prodProvider));
-        await pumpUntilSettled(tester);
+    testWidgets('debe crear un batch exitosamente', (tester) async {
+      await tester.pumpWidget(createTestApp(bpProvider, prodProvider));
+      await pumpUntilSettled(tester);
 
-        // Fill finishedProductId
-        await tester.enterText(
-          find.byType(TextFormField).at(0),
-          '10',
-        );
+      // Fill finishedProductId
+      await tester.enterText(find.byType(TextFormField).at(0), '10');
 
-        // Open dropdown and select first item
-        await tester.tap(find.byType(DropdownButtonFormField<int>));
-        await pumpUntilSettled(tester);
-        await tester.tap(find.text('Alcohol').last);
-        await pumpUntilSettled(tester);
+      // Open dropdown and select first item
+      await tester.tap(find.byType(DropdownButtonFormField<int>));
+      await pumpUntilSettled(tester);
+      await tester.tap(find.text('Alcohol').last);
+      await pumpUntilSettled(tester);
 
-        // Fill quantityUsed
-        await tester.enterText(
-          find.byType(TextFormField).at(1),
-          '5.0',
-        );
+      // Fill quantityUsed
+      await tester.enterText(find.byType(TextFormField).at(1), '5.0');
 
-        // Fill quantityProduced
-        await tester.enterText(
-          find.byType(TextFormField).at(2),
-          '4.0',
-        );
+      // Fill quantityProduced
+      await tester.enterText(find.byType(TextFormField).at(2), '4.0');
 
-        // Tap guardar
-        await tester.tap(find.widgetWithText(ElevatedButton, 'Guardar'));
-        await pumpUntilSettled(tester);
+      // Tap guardar
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Guardar'));
+      await pumpUntilSettled(tester);
 
-        // Verify repo was called
-        verify(() => mockProdRepo.createProductionBatch(any())).called(1);
-        // Screen should have popped
-        expect(find.byType(ProductionCreateScreen), findsNothing);
-      },
-    );
+      // Verify repo was called
+      verify(() => mockProdRepo.createProductionBatch(any())).called(1);
+      // Screen should have popped
+      expect(find.byType(ProductionCreateScreen), findsNothing);
+    });
 
-    testWidgets(
-      'debe mostrar SnackBar en caso de error',
-      (tester) async {
-        // Arrange: repo throws
-        when(() => mockProdRepo.createProductionBatch(any()))
-            .thenThrow(Exception('Error de conexión'));
+    testWidgets('debe mostrar SnackBar en caso de error', (tester) async {
+      // Arrange: repo throws
+      when(
+        () => mockProdRepo.createProductionBatch(any()),
+      ).thenThrow(Exception('Error de conexión'));
 
-        await tester.pumpWidget(createTestApp(bpProvider, prodProvider));
-        await pumpUntilSettled(tester);
+      await tester.pumpWidget(createTestApp(bpProvider, prodProvider));
+      await pumpUntilSettled(tester);
 
-        // Fill finishedProductId
-        await tester.enterText(
-          find.byType(TextFormField).at(0),
-          '10',
-        );
+      // Fill finishedProductId
+      await tester.enterText(find.byType(TextFormField).at(0), '10');
 
-        // Open dropdown and select first item
-        await tester.tap(find.byType(DropdownButtonFormField<int>));
-        await pumpUntilSettled(tester);
-        await tester.tap(find.text('Alcohol').last);
-        await pumpUntilSettled(tester);
+      // Open dropdown and select first item
+      await tester.tap(find.byType(DropdownButtonFormField<int>));
+      await pumpUntilSettled(tester);
+      await tester.tap(find.text('Alcohol').last);
+      await pumpUntilSettled(tester);
 
-        // Fill quantityUsed
-        await tester.enterText(
-          find.byType(TextFormField).at(1),
-          '5.0',
-        );
+      // Fill quantityUsed
+      await tester.enterText(find.byType(TextFormField).at(1), '5.0');
 
-        // Fill quantityProduced
-        await tester.enterText(
-          find.byType(TextFormField).at(2),
-          '4.0',
-        );
+      // Fill quantityProduced
+      await tester.enterText(find.byType(TextFormField).at(2), '4.0');
 
-        // Tap guardar
-        await tester.tap(find.widgetWithText(ElevatedButton, 'Guardar'));
-        await pumpUntilSettled(tester);
+      // Tap guardar
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Guardar'));
+      await pumpUntilSettled(tester);
 
-        // Assert: SnackBar visible with error
-        expect(find.byType(SnackBar), findsOneWidget);
-      },
-    );
+      // Assert: SnackBar visible with error
+      expect(find.byType(SnackBar), findsOneWidget);
+    });
   });
 }

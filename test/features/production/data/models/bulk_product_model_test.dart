@@ -13,14 +13,17 @@ void main() {
       'stock': 100.0,
     };
 
-    test('debe crear una instancia de BulkProductModel desde JSON correctamente', () {
-      final model = BulkProductModel.fromJson(json);
+    test(
+      'debe crear una instancia de BulkProductModel desde JSON correctamente',
+      () {
+        final model = BulkProductModel.fromJson(json);
 
-      expect(model.id, 1);
-      expect(model.name, 'Alcohol Etílico');
-      expect(model.unitOfMeasure, 'Litros');
-      expect(model.stock, 100.0);
-    });
+        expect(model.id, 1);
+        expect(model.name, 'Alcohol Etílico');
+        expect(model.unitOfMeasure, 'Litros');
+        expect(model.stock, 100.0);
+      },
+    );
 
     test('debe convertir un BulkProductModel a JSON correctamente', () {
       final model = BulkProductModel(
@@ -37,20 +40,23 @@ void main() {
       expect(result['stock'], 100.0);
     });
 
-    test('debe convertir un BulkProductModel a la entidad BulkProduct correctamente', () {
-      final model = BulkProductModel(
-        id: 1,
-        name: 'Alcohol Etílico',
-        unitOfMeasure: 'Litros',
-        stock: 100.0,
-      );
-      final entity = model.toEntity();
+    test(
+      'debe convertir un BulkProductModel a la entidad BulkProduct correctamente',
+      () {
+        final model = BulkProductModel(
+          id: 1,
+          name: 'Alcohol Etílico',
+          unitOfMeasure: 'Litros',
+          stock: 100.0,
+        );
+        final entity = model.toEntity();
 
-      expect(entity, isA<BulkProduct>());
-      expect(entity.id, 1);
-      expect(entity.name, 'Alcohol Etílico');
-      expect(entity.unitOfMeasure, 'Litros');
-      expect(entity.stock, 100.0);
-    });
+        expect(entity, isA<BulkProduct>());
+        expect(entity.id, 1);
+        expect(entity.name, 'Alcohol Etílico');
+        expect(entity.unitOfMeasure, 'Litros');
+        expect(entity.stock, 100.0);
+      },
+    );
   });
 }

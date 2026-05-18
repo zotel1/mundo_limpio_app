@@ -17,7 +17,8 @@ import 'package:mundo_limpio_app/features/production/domain/entities/bulk_produc
 import 'package:mundo_limpio_app/features/production/domain/repositories/i_bulk_product_repository.dart';
 import 'package:mundo_limpio_app/features/production/presentation/providers/bulk_product_provider.dart';
 
-class MockBulkProductRepository extends Mock implements IBulkProductRepository {}
+class MockBulkProductRepository extends Mock
+    implements IBulkProductRepository {}
 
 void main() {
   late MockBulkProductRepository mockRepo;
@@ -36,12 +37,20 @@ void main() {
     // Stubs por defecto
     when(() => mockRepo.getBulkProducts()).thenAnswer((_) async => []);
     when(() => mockRepo.createBulkProduct(any())).thenAnswer(
-      (_) async =>
-          const BulkProduct(id: 1, name: 'Test', unitOfMeasure: 'L', stock: 10.0),
+      (_) async => const BulkProduct(
+        id: 1,
+        name: 'Test',
+        unitOfMeasure: 'L',
+        stock: 10.0,
+      ),
     );
     when(() => mockRepo.updateBulkProduct(any())).thenAnswer(
-      (_) async =>
-          const BulkProduct(id: 1, name: 'Updated', unitOfMeasure: 'L', stock: 20.0),
+      (_) async => const BulkProduct(
+        id: 1,
+        name: 'Updated',
+        unitOfMeasure: 'L',
+        stock: 20.0,
+      ),
     );
     when(() => mockRepo.deleteBulkProduct(any())).thenAnswer((_) async {});
   });
@@ -67,7 +76,12 @@ void main() {
   group('getBulkProducts', () {
     test('debe cargar lista y setear status loaded', () async {
       final products = [
-        const BulkProduct(id: 1, name: 'Alcohol', unitOfMeasure: 'L', stock: 10.0),
+        const BulkProduct(
+          id: 1,
+          name: 'Alcohol',
+          unitOfMeasure: 'L',
+          stock: 10.0,
+        ),
         const BulkProduct(id: 2, name: 'Agua', unitOfMeasure: 'L', stock: 20.0),
       ];
       when(() => mockRepo.getBulkProducts()).thenAnswer((_) async => products);
@@ -89,9 +103,9 @@ void main() {
     });
 
     test('debe setear error cuando falla con ApiException', () async {
-      when(() => mockRepo.getBulkProducts()).thenThrow(
-        const ApiException('Error de red', 500),
-      );
+      when(
+        () => mockRepo.getBulkProducts(),
+      ).thenThrow(const ApiException('Error de red', 500));
 
       await provider.getBulkProducts();
 
@@ -103,12 +117,21 @@ void main() {
 
   group('createBulkProduct', () {
     test('debe crear producto exitosamente', () async {
-      final newProduct =
-          const BulkProduct(id: 0, name: 'Nuevo', unitOfMeasure: 'kg', stock: 5.0);
-      final created =
-          const BulkProduct(id: 3, name: 'Nuevo', unitOfMeasure: 'kg', stock: 5.0);
-      when(() => mockRepo.createBulkProduct(newProduct))
-          .thenAnswer((_) async => created);
+      final newProduct = const BulkProduct(
+        id: 0,
+        name: 'Nuevo',
+        unitOfMeasure: 'kg',
+        stock: 5.0,
+      );
+      final created = const BulkProduct(
+        id: 3,
+        name: 'Nuevo',
+        unitOfMeasure: 'kg',
+        stock: 5.0,
+      );
+      when(
+        () => mockRepo.createBulkProduct(newProduct),
+      ).thenAnswer((_) async => created);
 
       await provider.createBulkProduct(newProduct);
 
@@ -119,8 +142,12 @@ void main() {
 
   group('updateBulkProduct', () {
     test('debe actualizar producto exitosamente', () async {
-      final product =
-          const BulkProduct(id: 1, name: 'Editado', unitOfMeasure: 'L', stock: 15.0);
+      final product = const BulkProduct(
+        id: 1,
+        name: 'Editado',
+        unitOfMeasure: 'L',
+        stock: 15.0,
+      );
 
       await provider.updateBulkProduct(product);
 

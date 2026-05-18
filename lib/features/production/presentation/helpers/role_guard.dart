@@ -19,11 +19,7 @@ class AccessDeniedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text('Access Denied'),
-      ),
-    );
+    return const Scaffold(body: Center(child: Text('Access Denied')));
   }
 }
 
@@ -36,11 +32,7 @@ class RoleGuard extends StatelessWidget {
   final Widget child;
   final String requiredRole;
 
-  const RoleGuard({
-    super.key,
-    required this.child,
-    required this.requiredRole,
-  });
+  const RoleGuard({super.key, required this.child, required this.requiredRole});
 
   @override
   Widget build(BuildContext context) {

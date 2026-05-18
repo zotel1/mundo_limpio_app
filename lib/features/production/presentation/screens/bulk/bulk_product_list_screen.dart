@@ -37,9 +37,7 @@ class _BulkProductListScreenState extends State<BulkProductListScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<BulkProductProvider>();
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Materias Primas'),
-      ),
+      appBar: AppBar(title: const Text('Materias Primas')),
       body: _buildBody(provider),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _navigateToForm(provider),
@@ -60,9 +58,7 @@ class _BulkProductListScreenState extends State<BulkProductListScreen> {
 
       case BulkProductStatus.loaded:
         if (provider.bulkProducts.isEmpty) {
-          return const Center(
-            child: Text('No hay materias primas'),
-          );
+          return const Center(child: Text('No hay materias primas'));
         }
         return _buildProductList(provider);
 

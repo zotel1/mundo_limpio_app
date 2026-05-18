@@ -21,8 +21,7 @@ import 'package:mundo_limpio_app/features/production/presentation/providers/prod
 class MockBulkProductRepository extends Mock
     implements IBulkProductRepository {}
 
-class MockProductionRepository extends Mock
-    implements IProductionRepository {}
+class MockProductionRepository extends Mock implements IProductionRepository {}
 
 void main() {
   setUpAll(() {
@@ -70,9 +69,9 @@ void main() {
           stock: 100.0,
         ),
       );
-      when(() => mockProdRepo.getProductionBatches()).thenAnswer(
-        (_) async => [],
-      );
+      when(
+        () => mockProdRepo.getProductionBatches(),
+      ).thenAnswer((_) async => []);
       when(() => mockProdRepo.createProductionBatch(any())).thenAnswer(
         (_) async => ProductionBatch(
           id: 1,
@@ -84,7 +83,12 @@ void main() {
         ),
       );
       when(() => mockBulkRepo.getBulkProduct(any())).thenAnswer(
-        (_) async => const BulkProduct(id: 1, name: 'Alcohol', unitOfMeasure: 'L', stock: 100.0),
+        (_) async => const BulkProduct(
+          id: 1,
+          name: 'Alcohol',
+          unitOfMeasure: 'L',
+          stock: 100.0,
+        ),
       );
     });
 
@@ -137,29 +141,26 @@ void main() {
       },
     );
 
-    test(
-      'Error flow: crear batch cuando el repositorio falla',
-      () async {
-        // Arrange
-        when(() => mockProdRepo.createProductionBatch(any())).thenThrow(
-          Exception('Error al crear batch'),
-        );
+    test('Error flow: crear batch cuando el repositorio falla', () async {
+      // Arrange
+      when(
+        () => mockProdRepo.createProductionBatch(any()),
+      ).thenThrow(Exception('Error al crear batch'));
 
-        // Act
-        await prodProvider.createProductionBatch(
-          ProductionBatchRequest(
-            finishedProductId: 10,
-            bulkProductId: 1,
-            quantityUsed: 5.0,
-          ),
-        );
+      // Act
+      await prodProvider.createProductionBatch(
+        ProductionBatchRequest(
+          finishedProductId: 10,
+          bulkProductId: 1,
+          quantityUsed: 5.0,
+        ),
+      );
 
-        // Assert
-        expect(prodProvider.status, ProductionStatus.error);
-        expect(prodProvider.error, isNotNull);
-        expect(prodProvider.lastCreatedBatch, isNull);
-      },
-    );
+      // Assert
+      expect(prodProvider.status, ProductionStatus.error);
+      expect(prodProvider.error, isNotNull);
+      expect(prodProvider.lastCreatedBatch, isNull);
+    });
 
     test(
       'Flujo con ChangeNotifier listeners — ambos providers notifican',

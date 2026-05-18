@@ -10,7 +10,8 @@ import 'package:mundo_limpio_app/features/production/domain/usecases/execute_pro
 
 class MockProductionRepository extends Mock implements IProductionRepository {}
 
-class MockBulkProductRepository extends Mock implements IBulkProductRepository {}
+class MockBulkProductRepository extends Mock
+    implements IBulkProductRepository {}
 
 // TDD: RED — test escrito antes que la implementación
 // TDD: GREEN — implementación mínima para pasar el test
@@ -40,7 +41,12 @@ void main() {
 
     // Stub por defecto: stock suficiente
     when(() => mockBulkRepo.getBulkProduct(any())).thenAnswer(
-      (_) async => const BulkProduct(id: 1, name: 'Alcohol', unitOfMeasure: 'L', stock: 100.0),
+      (_) async => const BulkProduct(
+        id: 1,
+        name: 'Alcohol',
+        unitOfMeasure: 'L',
+        stock: 100.0,
+      ),
     );
   });
 
@@ -60,7 +66,9 @@ void main() {
         quantityProduced: 4.0,
         date: DateTime.now(),
       );
-      when(() => mockRepository.createProductionBatch(any())).thenAnswer((_) async => productionBatch);
+      when(
+        () => mockRepository.createProductionBatch(any()),
+      ).thenAnswer((_) async => productionBatch);
 
       // Act
       final result = await executeProduction.execute(request);
@@ -70,73 +78,61 @@ void main() {
       verify(() => mockRepository.createProductionBatch(request)).called(1);
     });
 
-    test(
-      'debe lanzar Exception cuando finishedProductId es 0',
-      () async {
-        final request = ProductionBatchRequest(
-          finishedProductId: 0,
-          bulkProductId: 20,
-          quantityUsed: 5.0,
-        );
+    test('debe lanzar Exception cuando finishedProductId es 0', () async {
+      final request = ProductionBatchRequest(
+        finishedProductId: 0,
+        bulkProductId: 20,
+        quantityUsed: 5.0,
+      );
 
-        await expectLater(
-          executeProduction.execute(request),
-          throwsA(isA<Exception>()),
-        );
-        verifyNever(() => mockRepository.createProductionBatch(any()));
-      },
-    );
+      await expectLater(
+        executeProduction.execute(request),
+        throwsA(isA<Exception>()),
+      );
+      verifyNever(() => mockRepository.createProductionBatch(any()));
+    });
 
-    test(
-      'debe lanzar Exception cuando bulkProductId es 0',
-      () async {
-        final request = ProductionBatchRequest(
-          finishedProductId: 10,
-          bulkProductId: 0,
-          quantityUsed: 5.0,
-        );
+    test('debe lanzar Exception cuando bulkProductId es 0', () async {
+      final request = ProductionBatchRequest(
+        finishedProductId: 10,
+        bulkProductId: 0,
+        quantityUsed: 5.0,
+      );
 
-        await expectLater(
-          executeProduction.execute(request),
-          throwsA(isA<Exception>()),
-        );
-        verifyNever(() => mockRepository.createProductionBatch(any()));
-      },
-    );
+      await expectLater(
+        executeProduction.execute(request),
+        throwsA(isA<Exception>()),
+      );
+      verifyNever(() => mockRepository.createProductionBatch(any()));
+    });
 
-    test(
-      'debe lanzar Exception cuando quantityUsed es 0',
-      () async {
-        final request = ProductionBatchRequest(
-          finishedProductId: 10,
-          bulkProductId: 20,
-          quantityUsed: 0,
-        );
+    test('debe lanzar Exception cuando quantityUsed es 0', () async {
+      final request = ProductionBatchRequest(
+        finishedProductId: 10,
+        bulkProductId: 20,
+        quantityUsed: 0,
+      );
 
-        await expectLater(
-          executeProduction.execute(request),
-          throwsA(isA<Exception>()),
-        );
-        verifyNever(() => mockRepository.createProductionBatch(any()));
-      },
-    );
+      await expectLater(
+        executeProduction.execute(request),
+        throwsA(isA<Exception>()),
+      );
+      verifyNever(() => mockRepository.createProductionBatch(any()));
+    });
 
-    test(
-      'debe lanzar Exception cuando quantityUsed es negativo',
-      () async {
-        final request = ProductionBatchRequest(
-          finishedProductId: 10,
-          bulkProductId: 20,
-          quantityUsed: -1,
-        );
+    test('debe lanzar Exception cuando quantityUsed es negativo', () async {
+      final request = ProductionBatchRequest(
+        finishedProductId: 10,
+        bulkProductId: 20,
+        quantityUsed: -1,
+      );
 
-        await expectLater(
-          executeProduction.execute(request),
-          throwsA(isA<Exception>()),
-        );
-        verifyNever(() => mockRepository.createProductionBatch(any()));
-      },
-    );
+      await expectLater(
+        executeProduction.execute(request),
+        throwsA(isA<Exception>()),
+      );
+      verifyNever(() => mockRepository.createProductionBatch(any()));
+    });
 
     // TDD: RED — test escrito antes que la implementación
     test(
@@ -149,7 +145,12 @@ void main() {
           quantityUsed: 5.0,
         );
         when(() => mockBulkRepo.getBulkProduct(20)).thenAnswer(
-          (_) async => const BulkProduct(id: 20, name: 'Alcohol', unitOfMeasure: 'L', stock: 2.0),
+          (_) async => const BulkProduct(
+            id: 20,
+            name: 'Alcohol',
+            unitOfMeasure: 'L',
+            stock: 2.0,
+          ),
         );
 
         // Act & Assert

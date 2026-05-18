@@ -24,48 +24,54 @@ void main() {
       expect(productionBatch.date, date);
     });
 
-    test('debe considerar dos ProductionBatches con los mismos valores como iguales', () {
-      final date = DateTime(2026, 5, 18);
-      final productionBatch1 = ProductionBatch(
-        id: 1,
-        finishedProductId: 10,
-        bulkProductId: 20,
-        quantityUsed: 5.0,
-        quantityProduced: 4.0,
-        date: date,
-      );
-      final productionBatch2 = ProductionBatch(
-        id: 1,
-        finishedProductId: 10,
-        bulkProductId: 20,
-        quantityUsed: 5.0,
-        quantityProduced: 4.0,
-        date: date,
-      );
+    test(
+      'debe considerar dos ProductionBatches con los mismos valores como iguales',
+      () {
+        final date = DateTime(2026, 5, 18);
+        final productionBatch1 = ProductionBatch(
+          id: 1,
+          finishedProductId: 10,
+          bulkProductId: 20,
+          quantityUsed: 5.0,
+          quantityProduced: 4.0,
+          date: date,
+        );
+        final productionBatch2 = ProductionBatch(
+          id: 1,
+          finishedProductId: 10,
+          bulkProductId: 20,
+          quantityUsed: 5.0,
+          quantityProduced: 4.0,
+          date: date,
+        );
 
-      expect(productionBatch1, equals(productionBatch2));
-    });
+        expect(productionBatch1, equals(productionBatch2));
+      },
+    );
 
-    test('debe considerar dos ProductionBatches con diferentes valores como distintos', () {
-      final date = DateTime(2026, 5, 18);
-      final productionBatch1 = ProductionBatch(
-        id: 1,
-        finishedProductId: 10,
-        bulkProductId: 20,
-        quantityUsed: 5.0,
-        quantityProduced: 4.0,
-        date: date,
-      );
-      final productionBatch2 = ProductionBatch(
-        id: 2,
-        finishedProductId: 10,
-        bulkProductId: 20,
-        quantityUsed: 5.0,
-        quantityProduced: 4.0,
-        date: date,
-      );
+    test(
+      'debe considerar dos ProductionBatches con diferentes valores como distintos',
+      () {
+        final date = DateTime(2026, 5, 18);
+        final productionBatch1 = ProductionBatch(
+          id: 1,
+          finishedProductId: 10,
+          bulkProductId: 20,
+          quantityUsed: 5.0,
+          quantityProduced: 4.0,
+          date: date,
+        );
+        final productionBatch2 = ProductionBatch(
+          id: 2,
+          finishedProductId: 10,
+          bulkProductId: 20,
+          quantityUsed: 5.0,
+          quantityProduced: 4.0,
+          date: date,
+        );
 
-      expect(productionBatch1, isNot(equals(productionBatch2)));
-    });
+        expect(productionBatch1, isNot(equals(productionBatch2)));
+      },
+    );
   });
 }

@@ -20,7 +20,9 @@ class ExecuteProduction {
     }
 
     // TDD: GREEN — stock validation against raw material repository
-    final bulkProduct = await bulkProductRepository.getBulkProduct(request.bulkProductId);
+    final bulkProduct = await bulkProductRepository.getBulkProduct(
+      request.bulkProductId,
+    );
     if (bulkProduct.stock < request.quantityUsed) {
       throw Exception(
         'Stock insuficiente de ${bulkProduct.name}. '

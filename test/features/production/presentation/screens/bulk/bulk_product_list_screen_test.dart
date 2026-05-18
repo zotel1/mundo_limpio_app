@@ -32,16 +32,11 @@ class MockBulkProductRepository extends Mock
 Widget createTestApp(BulkProductProvider provider) {
   return ChangeNotifierProvider<BulkProductProvider>.value(
     value: provider,
-    child: const MaterialApp(
-      home: BulkProductListScreen(),
-    ),
+    child: const MaterialApp(home: BulkProductListScreen()),
   );
 }
 
-Future<void> pumpUntilSettled(
-  WidgetTester tester, {
-  int maxFrames = 20,
-}) async {
+Future<void> pumpUntilSettled(WidgetTester tester, {int maxFrames = 20}) async {
   for (int i = 0; i < maxFrames; i++) {
     await tester.pump(const Duration(milliseconds: 100));
   }
@@ -87,8 +82,9 @@ void main() {
       'debe mostrar indicador de carga cuando status es initial/loading',
       (tester) async {
         // Arrange: repo nunca completa (status se queda en initial)
-        when(() => mockRepo.getBulkProducts())
-            .thenAnswer((_) => Completer<List<BulkProduct>>().future);
+        when(
+          () => mockRepo.getBulkProducts(),
+        ).thenAnswer((_) => Completer<List<BulkProduct>>().future);
 
         await tester.pumpWidget(createTestApp(provider));
         await pumpUntilSettled(tester);
@@ -116,8 +112,7 @@ void main() {
           stock: 5.0,
         ),
       ];
-      when(() => mockRepo.getBulkProducts())
-          .thenAnswer((_) async => products);
+      when(() => mockRepo.getBulkProducts()).thenAnswer((_) async => products);
 
       await tester.pumpWidget(createTestApp(provider));
       await pumpUntilSettled(tester);
@@ -139,38 +134,39 @@ void main() {
       expect(find.text('No hay materias primas'), findsOneWidget);
     });
 
-    testWidgets(
-      'debe mostrar error y botón de reintentar cuando falla carga',
-      (tester) async {
-        // Arrange: repo lanza excepción
-        when(() => mockRepo.getBulkProducts())
-            .thenThrow(Exception('Error de red'));
+    testWidgets('debe mostrar error y botón de reintentar cuando falla carga', (
+      tester,
+    ) async {
+      // Arrange: repo lanza excepción
+      when(
+        () => mockRepo.getBulkProducts(),
+      ).thenThrow(Exception('Error de red'));
 
-        await tester.pumpWidget(createTestApp(provider));
-        await pumpUntilSettled(tester);
+      await tester.pumpWidget(createTestApp(provider));
+      await pumpUntilSettled(tester);
 
-        // Assert: muestra error + botón Reintentar
-        expect(find.text('Reintentar'), findsOneWidget);
+      // Assert: muestra error + botón Reintentar
+      expect(find.text('Reintentar'), findsOneWidget);
 
-        // Ahora stub repo para que funcione y tocar Reintentar
-        when(() => mockRepo.getBulkProducts())
-            .thenAnswer((_) async => [
-              const BulkProduct(
-                id: 1,
-                name: 'Alcohol',
-                unitOfMeasure: 'L',
-                stock: 10.0,
-              ),
-            ]);
+      // Ahora stub repo para que funcione y tocar Reintentar
+      when(() => mockRepo.getBulkProducts()).thenAnswer(
+        (_) async => [
+          const BulkProduct(
+            id: 1,
+            name: 'Alcohol',
+            unitOfMeasure: 'L',
+            stock: 10.0,
+          ),
+        ],
+      );
 
-        await tester.tap(find.text('Reintentar'));
-        await pumpUntilSettled(tester);
+      await tester.tap(find.text('Reintentar'));
+      await pumpUntilSettled(tester);
 
-        // Assert: ahora muestra la lista
-        expect(find.text('Alcohol'), findsOneWidget);
-        expect(find.byType(ListTile), findsOneWidget);
-      },
-    );
+      // Assert: ahora muestra la lista
+      expect(find.text('Alcohol'), findsOneWidget);
+      expect(find.byType(ListTile), findsOneWidget);
+    });
 
     testWidgets('debe navegar al formulario al tocar FAB', (tester) async {
       // Arrange: repo retorna lista vacía
@@ -187,13 +183,16 @@ void main() {
 
     testWidgets('debe refrescar al hacer pull-to-refresh', (tester) async {
       // Arrange: repo retorna varios productos para que RefreshIndicator se muestre
-      when(() => mockRepo.getBulkProducts()).thenAnswer((_) async =>
-        List.generate(10, (i) => BulkProduct(
-          id: i + 1,
-          name: 'Producto ${i + 1}',
-          unitOfMeasure: 'L',
-          stock: 10.0,
-        )),
+      when(() => mockRepo.getBulkProducts()).thenAnswer(
+        (_) async => List.generate(
+          10,
+          (i) => BulkProduct(
+            id: i + 1,
+            name: 'Producto ${i + 1}',
+            unitOfMeasure: 'L',
+            stock: 10.0,
+          ),
+        ),
       );
 
       await tester.pumpWidget(createTestApp(provider));

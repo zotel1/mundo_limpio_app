@@ -154,8 +154,7 @@ class _BulkProductFormScreenState extends State<BulkProductFormScreen> {
         ),
         if (_isSaving)
           const ModalBarrier(dismissible: false, color: Colors.black26),
-        if (_isSaving)
-          const Center(child: CircularProgressIndicator()),
+        if (_isSaving) const Center(child: CircularProgressIndicator()),
       ],
     );
   }

@@ -28,8 +28,7 @@ import 'package:mundo_limpio_app/features/production/presentation/providers/prod
 import 'package:mundo_limpio_app/features/production/presentation/screens/production/production_batch_list_screen.dart';
 import 'package:mundo_limpio_app/features/production/presentation/screens/production/production_create_screen.dart';
 
-class MockProductionRepository extends Mock
-    implements IProductionRepository {}
+class MockProductionRepository extends Mock implements IProductionRepository {}
 
 class MockBulkProductRepository extends Mock
     implements IBulkProductRepository {}
@@ -47,10 +46,7 @@ Widget createTestApp(
   );
 }
 
-Future<void> pumpUntilSettled(
-  WidgetTester tester, {
-  int maxFrames = 20,
-}) async {
+Future<void> pumpUntilSettled(WidgetTester tester, {int maxFrames = 20}) async {
   for (int i = 0; i < maxFrames; i++) {
     await tester.pump(const Duration(milliseconds: 100));
   }
@@ -133,91 +129,76 @@ void main() {
     );
     when(() => mockBulkRepo.deleteBulkProduct(any())).thenAnswer((_) async {});
     when(() => mockBulkRepo.getBulkProduct(any())).thenAnswer(
-      (_) async => const BulkProduct(id: 1, name: 'Alcohol', unitOfMeasure: 'L', stock: 100.0),
+      (_) async => const BulkProduct(
+        id: 1,
+        name: 'Alcohol',
+        unitOfMeasure: 'L',
+        stock: 100.0,
+      ),
     );
   });
 
   group('ProductionBatchListScreen', () {
-    testWidgets(
-      'debe mostrar indicador de carga al iniciar',
-      (tester) async {
-        // Arrange: repo nunca completa (status se queda en initial)
-        when(() => mockProdRepo.getProductionBatches())
-            .thenAnswer((_) => Completer<List<ProductionBatch>>().future);
+    testWidgets('debe mostrar indicador de carga al iniciar', (tester) async {
+      // Arrange: repo nunca completa (status se queda en initial)
+      when(
+        () => mockProdRepo.getProductionBatches(),
+      ).thenAnswer((_) => Completer<List<ProductionBatch>>().future);
 
-        await tester.pumpWidget(
-          createTestApp(prodProvider, bpProvider),
-        );
-        await pumpUntilSettled(tester);
+      await tester.pumpWidget(createTestApp(prodProvider, bpProvider));
+      await pumpUntilSettled(tester);
 
-        // Assert: spinner visible
-        expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      },
-    );
+      // Assert: spinner visible
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    });
 
-    testWidgets(
-      'debe mostrar lista de lotes cuando hay datos',
-      (tester) async {
-        await tester.pumpWidget(
-          createTestApp(prodProvider, bpProvider),
-        );
-        await pumpUntilSettled(tester);
+    testWidgets('debe mostrar lista de lotes cuando hay datos', (tester) async {
+      await tester.pumpWidget(createTestApp(prodProvider, bpProvider));
+      await pumpUntilSettled(tester);
 
-        // Assert: títulos de lote visibles
-        expect(find.text('Lote #1'), findsOneWidget);
-        expect(find.text('Lote #2'), findsOneWidget);
-      },
-    );
+      // Assert: títulos de lote visibles
+      expect(find.text('Lote #1'), findsOneWidget);
+      expect(find.text('Lote #2'), findsOneWidget);
+    });
 
-    testWidgets(
-      'debe mostrar mensaje vacío cuando no hay lotes',
-      (tester) async {
-        // Arrange: repo retorna lista vacía
-        when(() => mockProdRepo.getProductionBatches())
-            .thenAnswer((_) async => []);
+    testWidgets('debe mostrar mensaje vacío cuando no hay lotes', (
+      tester,
+    ) async {
+      // Arrange: repo retorna lista vacía
+      when(
+        () => mockProdRepo.getProductionBatches(),
+      ).thenAnswer((_) async => []);
 
-        await tester.pumpWidget(
-          createTestApp(prodProvider, bpProvider),
-        );
-        await pumpUntilSettled(tester);
+      await tester.pumpWidget(createTestApp(prodProvider, bpProvider));
+      await pumpUntilSettled(tester);
 
-        // Assert: mensaje de lista vacía
-        expect(find.text('No hay lotes de producción'), findsOneWidget);
-      },
-    );
+      // Assert: mensaje de lista vacía
+      expect(find.text('No hay lotes de producción'), findsOneWidget);
+    });
 
-    testWidgets(
-      'debe mostrar error y botón reintentar',
-      (tester) async {
-        // Arrange: repo lanza excepción
-        when(() => mockProdRepo.getProductionBatches())
-            .thenThrow(Exception('Error de red'));
+    testWidgets('debe mostrar error y botón reintentar', (tester) async {
+      // Arrange: repo lanza excepción
+      when(
+        () => mockProdRepo.getProductionBatches(),
+      ).thenThrow(Exception('Error de red'));
 
-        await tester.pumpWidget(
-          createTestApp(prodProvider, bpProvider),
-        );
-        await pumpUntilSettled(tester);
+      await tester.pumpWidget(createTestApp(prodProvider, bpProvider));
+      await pumpUntilSettled(tester);
 
-        // Assert: botón Reintentar visible
-        expect(find.text('Reintentar'), findsOneWidget);
-      },
-    );
+      // Assert: botón Reintentar visible
+      expect(find.text('Reintentar'), findsOneWidget);
+    });
 
-    testWidgets(
-      'debe navegar a creación al tocar FAB',
-      (tester) async {
-        await tester.pumpWidget(
-          createTestApp(prodProvider, bpProvider),
-        );
-        await pumpUntilSettled(tester);
+    testWidgets('debe navegar a creación al tocar FAB', (tester) async {
+      await tester.pumpWidget(createTestApp(prodProvider, bpProvider));
+      await pumpUntilSettled(tester);
 
-        // Act: tocar FAB
-        await tester.tap(find.byType(FloatingActionButton));
-        await pumpUntilSettled(tester);
+      // Act: tocar FAB
+      await tester.tap(find.byType(FloatingActionButton));
+      await pumpUntilSettled(tester);
 
-        // Assert: ProductionCreateScreen visible
-        expect(find.byType(ProductionCreateScreen), findsOneWidget);
-      },
-    );
+      // Assert: ProductionCreateScreen visible
+      expect(find.byType(ProductionCreateScreen), findsOneWidget);
+    });
   });
 }
