@@ -1,122 +1,148 @@
+// Punto de entrada de la aplicación MundoLimpio.
+//
+// Configura el árbol de dependencias via MultiProvider:
+// 1. TokenStorage — almacenamiento seguro de tokens JWT
+// 2. Dio compartido — instancia única con AuthInterceptor para toda la app
+// 3. AuthRepository — capa de datos de autenticación
+// 4. AuthProvider — estado global de autenticación (ChangeNotifier)
+// 5. SalesApi — cliente HTTP para el módulo de ventas
+// 6. SalesRepository — capa de datos de ventas
+// 7. SalesProvider — estado del flujo de venta (ChangeNotifier)
+//
+// Luego renderiza MundoLimpioApp con MaterialApp.router.
+//
+// TDD: GREEN — implementación con MultiProvider + MaterialApp.router
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'app.dart';
+import 'core/network/api_client.dart';
+import 'core/network/auth_interceptor.dart';
+import 'core/storage/token_storage.dart';
+import 'features/auth/data/api/auth_api.dart';
+import 'features/auth/data/repository/auth_repository_impl.dart';
+import 'features/auth/domain/repository/auth_repository.dart';
+import 'features/auth/presentation/provider/auth_provider.dart';
+import 'features/inventory/data/api/inventory_api.dart';
+import 'features/inventory/data/repository/inventory_repository_impl.dart';
+import 'features/inventory/domain/repository/inventory_repository.dart';
+import 'features/inventory/presentation/provider/inventory_provider.dart';
+import 'features/sales/data/api/sales_api.dart';
+import 'features/sales/data/repository/sales_repository_impl.dart';
+import 'features/sales/domain/repository/sales_repository.dart';
+import 'features/sales/presentation/provider/sales_provider.dart';
 
 void main() {
-  runApp(const MyApp());
-}
+  WidgetsFlutterBinding.ensureInitialized();
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  runApp(
+    MultiProvider(
+      providers: [
+        // ------------------------------------------------------------------
+        // Almacenamiento seguro de tokens
+        // ------------------------------------------------------------------
+        Provider<TokenStorage>(create: (_) => TokenStorage()),
 
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
+        // ------------------------------------------------------------------
+        // Dio compartido con AuthInterceptor (T-5.2)
         //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
+        // Crea una única instancia de Dio con el interceptor de auth
+        // para que AuthApi y SalesApi compartan la misma conexión,
+        // cookies y lógica de refresh automático.
+        // ------------------------------------------------------------------
+        Provider<Dio>(
+          create: (ctx) {
+            final tokenStorage = ctx.read<TokenStorage>();
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+            // Dio para refresh — SIN AuthInterceptor (evita loops infinitos)
+            final tokenDio = ApiClient.create();
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
+            // Interceptor de autenticación JWT
+            final authInterceptor = AuthInterceptor(
+              dio: ApiClient.create(),
+              tokenDio: tokenDio,
+              tokenStorage: tokenStorage,
+            );
 
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
-          children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+            // Dio principal — CON AuthInterceptor para requests autenticados
+            return ApiClient.create(extraInterceptors: [authInterceptor]);
+          },
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
+
+        // ------------------------------------------------------------------
+        // Repositorio de autenticación (usa el Dio compartido)
+        // ------------------------------------------------------------------
+        Provider<AuthRepository>(
+          create: (ctx) {
+            final dio = ctx.read<Dio>();
+            final tokenStorage = ctx.read<TokenStorage>();
+
+            return AuthRepositoryImpl(
+              authApi: AuthApi(dio: dio),
+              tokenStorage: tokenStorage,
+            );
+          },
+        ),
+
+        // ------------------------------------------------------------------
+        // Provider de autenticación (ChangeNotifier para UI reactiva)
+        // ------------------------------------------------------------------
+        ChangeNotifierProvider<AuthProvider>(
+          create: (ctx) {
+            final authProvider = AuthProvider(ctx.read<AuthRepository>());
+
+            // Iniciar verificación de autenticación al arrancar
+            authProvider.checkAuth();
+
+            return authProvider;
+          },
+        ),
+
+        // ------------------------------------------------------------------
+        // Sales API (usa el Dio compartido)
+        // ------------------------------------------------------------------
+        Provider<SalesApi>(create: (ctx) => SalesApi(dio: ctx.read<Dio>())),
+
+        // ------------------------------------------------------------------
+        // Sales Repository
+        // ------------------------------------------------------------------
+        Provider<SalesRepository>(
+          create: (ctx) => SalesRepositoryImpl(salesApi: ctx.read<SalesApi>()),
+        ),
+
+        // ------------------------------------------------------------------
+        // Sales Provider (ChangeNotifier para UI reactiva)
+        // ------------------------------------------------------------------
+        ChangeNotifierProvider<SalesProvider>(
+          create: (ctx) => SalesProvider(ctx.read<SalesRepository>()),
+        ),
+
+        // ------------------------------------------------------------------
+        // Inventory API (usa el Dio compartido)
+        // ------------------------------------------------------------------
+        Provider<InventoryApi>(
+          create: (ctx) => InventoryApi(dio: ctx.read<Dio>()),
+        ),
+
+        // ------------------------------------------------------------------
+        // Inventory Repository
+        // ------------------------------------------------------------------
+        Provider<InventoryRepository>(
+          create: (ctx) =>
+              InventoryRepositoryImpl(inventoryApi: ctx.read<InventoryApi>()),
+        ),
+
+        // ------------------------------------------------------------------
+        // Inventory Provider (ChangeNotifier para UI reactiva)
+        // ------------------------------------------------------------------
+        ChangeNotifierProvider<InventoryProvider>(
+          create: (ctx) =>
+              InventoryProvider(repository: ctx.read<InventoryRepository>()),
+        ),
+      ],
+      child: const MundoLimpioApp(),
+    ),
+  );
 }
