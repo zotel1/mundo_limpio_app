@@ -71,6 +71,13 @@ GoRouter createRouter(
       final status = authProvider.status;
       final location = state.matchedLocation;
 
+      // Proteger rutas de producción: solo ADMIN puede acceder
+      if (status == AuthStatus.authenticated &&
+          location.startsWith('/production/') &&
+          authProvider.role != 'ADMIN') {
+        return '/';
+      }
+
       switch (status) {
         case AuthStatus.loading:
           // Mostrar splash mientras se resuelve el estado

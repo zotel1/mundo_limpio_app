@@ -58,7 +58,7 @@ void main() {
       mockBulkRepo = MockBulkProductRepository();
       mockProdRepo = MockProductionRepository();
       bulkProvider = BulkProductProvider(mockBulkRepo);
-      prodProvider = ProductionProvider(mockProdRepo);
+      prodProvider = ProductionProvider(mockProdRepo, mockBulkRepo);
 
       // Default stubs
       when(() => mockBulkRepo.getBulkProducts()).thenAnswer((_) async => []);
@@ -82,6 +82,9 @@ void main() {
           quantityProduced: 4.0,
           date: DateTime.now(),
         ),
+      );
+      when(() => mockBulkRepo.getBulkProduct(any())).thenAnswer(
+        (_) async => const BulkProduct(id: 1, name: 'Alcohol', unitOfMeasure: 'L', stock: 100.0),
       );
     });
 
