@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "311078437594",
+    "project_id": "mundo-limpio-38e53",
+    "storage_bucket": "mundo-limpio-38e53.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:311078437594:android:3c5ee2846bb3c763869be3",
+        "android_client_info": {
+          "package_name": "com.mundolimpio.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8gDutzF-evj6mkHspHk64MHL51skOFgs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
