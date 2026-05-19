@@ -1,5 +1,3 @@
-import java.util.Properties
-
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -9,17 +7,38 @@ plugins {
     id("com.google.firebase.crashlytics")
 }
 
+// Lee key.properties (generado por CI) como mapa de strings
+// En desarrollo local (sin key.properties) usa debug signing como fallback
+fun readKeystoreProperties(file: File): Map<String, String> {
+    val props = mutableMapOf<String, String>()
+    if (file.exists()) {
+        file.readLines().forEach { line ->
+            val trimmed = line.trim()
+            if (trimmed.isNotEmpty() && trimmed.contains("=")) {
+                val (key, value) = trimmed.split("=", limit = 2)
+                props[key.trim()] = value.trim()
+            }
+        }
+    }
+    return props
+}
+
 android {
     namespace = "com.mundolimpio.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
-    // Signing config para release — lee key.properties generado por CI
-    // En desarrollo local (sin key.properties) usa debug signing como fallback
-    val keyPropertiesFile = rootProject.file("key.properties")
-    val keyProperties = java.util.Properties()
-    if (keyPropertiesFile.exists()) {
-        keyProperties.load(keyPropertiesFile.inputStream())
+    val keystoreProperties = readKeystoreProperties(rootProject.file("key.properties"))
+
+    if (keystoreProperties.isNotEmpty()) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(keystoreProperties["storeFile"]!!)
+                storePassword = keystoreProperties["storePassword"]
+                keyPassword = keystoreProperties["keyPassword"]
+                keyAlias = keystoreProperties["keyAlias"]
+            }
+        }
     }
 
     compileOptions {
@@ -33,8 +52,6 @@ android {
 
     defaultConfig {
         applicationId = "com.mundolimpio.app"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -43,15 +60,10 @@ android {
 
     buildTypes {
         release {
-            signingConfig = if (keyPropertiesFile.exists()) {
-                signingConfigs.create("release") {
-                    storeFile = file(keyProperties.getProperty("storeFile"))
-                    storePassword = keyProperties.getProperty("storePassword")
-                    keyPassword = keyProperties.getProperty("keyPassword")
-                    keyAlias = keyProperties.getProperty("keyAlias")
-                }
+            signingConfig = if (keystoreProperties.isNotEmpty()) {
+                signingConfigs.getByName("release")
             } else {
-                signingConfigs.getByName("debug") // fallback para desarrollo local
+                signingConfigs.getByName("debug")
             }
         }
     }
