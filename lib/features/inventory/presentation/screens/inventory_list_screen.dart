@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/features/inventory/data/models/inventory_response.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/provider/inventory_provider.dart';
 
@@ -48,7 +49,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
     final provider = context.watch<InventoryProvider>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Inventario')),
+      appBar: const BrandedAppBar(title: 'Inventario'),
       body: _buildBody(provider),
     );
   }

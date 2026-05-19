@@ -17,6 +17,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
+import 'package:mundo_limpio_app/core/widgets/branded_error_banner.dart';
+import 'package:mundo_limpio_app/core/widgets/logo_widget.dart';
+
 import '../helpers/validators.dart';
 import '../provider/auth_provider.dart';
 import 'home_screen.dart';
@@ -68,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final auth = context.watch<AuthProvider>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Iniciar Sesión')),
+      appBar: const BrandedAppBar(title: 'Iniciar Sesión'),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -77,20 +81,17 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Mensaje de error (inline, visible mientras exista)
+                // Logo de la marca arriba del formulario
+                const LogoWidget(),
+                const SizedBox(height: 16),
+
+                // Mensaje de error (inline, usa BrandedErrorBanner)
                 if (auth.error != null)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    margin: const EdgeInsets.only(bottom: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade50,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.red.shade200),
-                    ),
-                    child: Text(
-                      auth.error!,
-                      style: TextStyle(color: Colors.red.shade800),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: BrandedErrorBanner(
+                      message: auth.error!,
+                      onDismiss: () => auth.clearError(),
                     ),
                   ),
 

@@ -15,6 +15,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/features/inventory/data/models/adjustment_request.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/provider/inventory_provider.dart';
 
@@ -51,10 +52,9 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
     final provider = context.watch<InventoryProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          provider.currentInventory?.productName ?? 'Detalle de Inventario',
-        ),
+      appBar: BrandedAppBar(
+        title:
+            provider.currentInventory?.productName ?? 'Detalle de Inventario',
       ),
       body: _buildBody(provider),
     );
