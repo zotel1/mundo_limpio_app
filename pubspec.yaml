@@ -56,6 +56,24 @@ dependencies:
   # Anotaciones para generar código de serialización JSON.
   json_annotation: ^4.11.0
 
+  # SQLite local con tipado fuerte — offline-first.
+  # Drift genera el código de la DB y DAOs a partir de anotaciones Dart.
+  drift: ^2.23.1
+
+  # Binarios nativos de SQLite para Android/iOS empaquetados con la app.
+  sqlite3_flutter_libs: ^0.5.30
+
+  # Resuelve el directorio de documentos para guardar la DB local.
+  path_provider: ^2.1.0
+
+  # Utilidades de path multiplataforma para construir rutas de archivos.
+  path: ^1.9.0
+
+  # Monitoreo de conectividad de red (online/offline) con stream reactivo.
+  connectivity_plus: ^6.1.0
+  firebase_core: ^4.9.0
+  firebase_crashlytics: ^5.2.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -76,6 +94,9 @@ dev_dependencies:
   # Mocking para tests unitarios. Similar a Mockito pero sin boilerplate
   # (no requiere generar código ni archivos .g.dart para mocks).
   mocktail: ^1.0.0
+
+  # Generador de código para Drift (base de datos y DAOs tipados).
+  drift_dev: ^2.23.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

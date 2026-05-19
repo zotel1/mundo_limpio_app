@@ -3,12 +3,44 @@ plugins {
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+    // Firebase plugins — descomentar cuando google-services.json esté en CI vía GitHub Secret
+    // id("com.google.gms.google-services")
+    // id("com.google.firebase.crashlytics")
+}
+
+// Lee key.properties (generado por CI) como mapa de strings
+// En desarrollo local (sin key.properties) usa debug signing como fallback
+fun readKeystoreProperties(file: File): Map<String, String> {
+    val props = mutableMapOf<String, String>()
+    if (file.exists()) {
+        file.readLines().forEach { line ->
+            val trimmed = line.trim()
+            if (trimmed.isNotEmpty() && trimmed.contains("=")) {
+                val (key, value) = trimmed.split("=", limit = 2)
+                props[key.trim()] = value.trim()
+            }
+        }
+    }
+    return props
 }
 
 android {
-    namespace = "com.example.mundo_limpio_app"
+    namespace = "com.mundolimpio.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
+
+    val keystoreProperties = readKeystoreProperties(rootProject.file("key.properties"))
+
+    if (keystoreProperties.isNotEmpty()) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(keystoreProperties["storeFile"]!!)
+                storePassword = keystoreProperties["storePassword"]
+                keyPassword = keystoreProperties["keyPassword"]
+                keyAlias = keystoreProperties["keyAlias"]
+            }
+        }
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -16,14 +48,11 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+        jvmTarget = "17"
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.mundo_limpio_app"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
+        applicationId = "com.mundolimpio.app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -32,9 +61,11 @@ android {
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (keystoreProperties.isNotEmpty()) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }

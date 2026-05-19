@@ -44,5 +44,10 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Firebase secrets — NEVER commit
+android/app/google-services.json
+android/app/mundolimpio.keystore
+android/key.properties
+
 # SDD Artifacts (internal tooling, not part of the app)
 .atl/
