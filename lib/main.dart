@@ -144,8 +144,12 @@ void main() async {
         ),
 
         Provider<InventoryRepository>(
-          create: (ctx) =>
-              InventoryRepositoryImpl(inventoryApi: ctx.read<InventoryApi>()),
+          create: (ctx) => InventoryRepositoryImpl(
+            inventoryApi: ctx.read<InventoryApi>(),
+            connectivity: ctx.read<ConnectivityService>(),
+            inventoryCacheDao: ctx.read<InventoryCacheDao>(),
+            inventoryPendingDao: ctx.read<InventoryPendingDao>(),
+          ),
         ),
 
         ChangeNotifierProvider<InventoryProvider>(
