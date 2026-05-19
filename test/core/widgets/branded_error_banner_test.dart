@@ -32,9 +32,7 @@ void main() {
     testWidgets('debe mostrar un icono de error', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: BrandedErrorBanner(message: 'Algo salió mal'),
-          ),
+          home: Scaffold(body: BrandedErrorBanner(message: 'Algo salió mal')),
         ),
       );
 
@@ -47,9 +45,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: BrandedErrorBanner(message: 'Error'),
-          ),
+          home: Scaffold(body: BrandedErrorBanner(message: 'Error')),
         ),
       );
 
@@ -61,9 +57,7 @@ void main() {
     testWidgets('debe tener fondo surface (blanco)', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: BrandedErrorBanner(message: 'Error'),
-          ),
+          home: Scaffold(body: BrandedErrorBanner(message: 'Error')),
         ),
       );
 
@@ -98,45 +92,35 @@ void main() {
       expect(dismissed, isTrue);
     });
 
-    testWidgets(
-      'no debe crashear cuando onDismiss es null',
-      (tester) async {
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: Scaffold(
-              body: BrandedErrorBanner(message: 'Sin dismiss'),
-            ),
-          ),
-        );
+    testWidgets('no debe crashear cuando onDismiss es null', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: BrandedErrorBanner(message: 'Sin dismiss')),
+        ),
+      );
 
-        expect(tester.takeException(), isNull);
-      },
-    );
+      expect(tester.takeException(), isNull);
+    });
 
-    testWidgets(
-      'no debe mostrar botón de cierre cuando onDismiss es null',
-      (tester) async {
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: Scaffold(
-              body: BrandedErrorBanner(message: 'Sin botón'),
-            ),
-          ),
-        );
+    testWidgets('no debe mostrar botón de cierre cuando onDismiss es null', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: BrandedErrorBanner(message: 'Sin botón')),
+        ),
+      );
 
-        // Si onDismiss es null, no debería haber IconButton
-        expect(find.byIcon(Icons.close), findsNothing);
-      },
-    );
+      // Si onDismiss es null, no debería haber IconButton
+      expect(find.byIcon(Icons.close), findsNothing);
+    });
   });
 
   group('BrandedErrorBanner — accesibilidad', () {
     testWidgets('debe tener un Semantics label descriptivo', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: BrandedErrorBanner(message: 'Timeout de red'),
-          ),
+          home: Scaffold(body: BrandedErrorBanner(message: 'Timeout de red')),
         ),
       );
 
@@ -150,11 +134,7 @@ void main() {
   group('BrandedErrorBanner — estructura', () {
     testWidgets('debe ser const-constructible', (tester) async {
       const banner = BrandedErrorBanner(message: 'Test');
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(body: banner),
-        ),
-      );
+      await tester.pumpWidget(MaterialApp(home: Scaffold(body: banner)));
       expect(tester.takeException(), isNull);
     });
   });

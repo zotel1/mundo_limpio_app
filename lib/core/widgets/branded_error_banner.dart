@@ -34,11 +34,7 @@ class BrandedErrorBanner extends StatelessWidget {
   /// Si es `null`, el botón de cierre no se renderiza.
   final VoidCallback? onDismiss;
 
-  const BrandedErrorBanner({
-    super.key,
-    required this.message,
-    this.onDismiss,
-  });
+  const BrandedErrorBanner({super.key, required this.message, this.onDismiss});
 
   @override
   Widget build(BuildContext context) {
@@ -48,9 +44,7 @@ class BrandedErrorBanner extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: const BoxDecoration(
           color: AppColors.surface,
-          border: Border(
-            left: BorderSide(color: AppColors.error, width: 4),
-          ),
+          border: Border(left: BorderSide(color: AppColors.error, width: 4)),
         ),
         child: Row(
           children: [
@@ -59,9 +53,9 @@ class BrandedErrorBanner extends StatelessWidget {
             Expanded(
               child: Text(
                 message,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.primary,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: AppColors.primary),
               ),
             ),
             if (onDismiss != null)

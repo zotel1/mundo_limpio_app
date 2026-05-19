@@ -42,11 +42,7 @@ class LogoWidget extends StatelessWidget {
           return SizedBox(
             width: size,
             height: size,
-            child: const Icon(
-              Icons.eco,
-              color: AppColors.primary,
-              size: 60,
-            ),
+            child: const Icon(Icons.eco, color: AppColors.primary, size: 60),
           );
         },
       ),

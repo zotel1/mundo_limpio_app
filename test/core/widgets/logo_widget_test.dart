@@ -20,9 +20,7 @@ void main() {
       // Si esto compila, el constructor es const
       // ignore: unused_local_variable
       const logo = LogoWidget();
-      await tester.pumpWidget(
-        const MaterialApp(home: Scaffold(body: logo)),
-      );
+      await tester.pumpWidget(const MaterialApp(home: Scaffold(body: logo)));
       expect(tester.takeException(), isNull);
     });
 
@@ -48,57 +46,51 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets(
-      'debe renderizar un Image.asset apuntando al logo',
-      (tester) async {
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: Scaffold(body: Center(child: LogoWidget())),
-          ),
-        );
+    testWidgets('debe renderizar un Image.asset apuntando al logo', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: Center(child: LogoWidget())),
+        ),
+      );
 
-        // Debe haber un Image widget (aunque el asset falte al no
-        // estar en assets todavía, el widget se construye igual)
-        final imageFinder = find.byType(Image);
-        expect(imageFinder, findsOneWidget);
-      },
-    );
+      // Debe haber un Image widget (aunque el asset falte al no
+      // estar en assets todavía, el widget se construye igual)
+      final imageFinder = find.byType(Image);
+      expect(imageFinder, findsOneWidget);
+    });
 
-    testWidgets(
-      'debe mostrar un SizedBox fallback cuando el asset no existe',
-      (tester) async {
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: Scaffold(body: Center(child: LogoWidget())),
-          ),
-        );
+    testWidgets('debe mostrar un SizedBox fallback cuando el asset no existe', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: Center(child: LogoWidget())),
+        ),
+      );
 
-        // Aunque el asset falle en runtime, no debería haber
-        // una excepción durante el pump
-        expect(tester.takeException(), isNull);
+      // Aunque el asset falle en runtime, no debería haber
+      // una excepción durante el pump
+      expect(tester.takeException(), isNull);
 
-        // El Image widget existe (se construyó con errorBuilder)
-        expect(find.byType(Image), findsOneWidget);
-      },
-    );
+      // El Image widget existe (se construyó con errorBuilder)
+      expect(find.byType(Image), findsOneWidget);
+    });
   });
 
   group('LogoWidget — semántica', () {
-    testWidgets(
-      'debe incluir un Semantics label para accesibilidad',
-      (tester) async {
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: Scaffold(body: Center(child: LogoWidget())),
-          ),
-        );
+    testWidgets('debe incluir un Semantics label para accesibilidad', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: Center(child: LogoWidget())),
+        ),
+      );
 
-        // El Semantics label debe ser accesible desde el árbol
-        expect(
-          find.bySemanticsLabel('Logo de Mundo Limpio'),
-          findsOneWidget,
-        );
-      },
-    );
+      // El Semantics label debe ser accesible desde el árbol
+      expect(find.bySemanticsLabel('Logo de Mundo Limpio'), findsOneWidget);
+    });
   });
 }

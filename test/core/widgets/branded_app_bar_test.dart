@@ -19,9 +19,7 @@ import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 /// Helper para envolver un widget en MaterialApp y Scaffold
 /// evitando errores de contexto Material.
 Widget wrapWithMaterial({required Widget child}) {
-  return MaterialApp(
-    home: Scaffold(body: child),
-  );
+  return MaterialApp(home: Scaffold(body: child));
 }
 
 void main() {
@@ -29,9 +27,7 @@ void main() {
     testWidgets('debe tener fondo navy (AppColors.primary)', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(
-            appBar: const BrandedAppBar(title: 'Test'),
-          ),
+          home: Scaffold(appBar: const BrandedAppBar(title: 'Test')),
         ),
       );
 
@@ -44,9 +40,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(
-            appBar: const BrandedAppBar(title: 'Login'),
-          ),
+          home: Scaffold(appBar: const BrandedAppBar(title: 'Login')),
         ),
       );
 
@@ -64,9 +58,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(
-            appBar: const BrandedAppBar(title: 'Home'),
-          ),
+          home: Scaffold(appBar: const BrandedAppBar(title: 'Home')),
         ),
       );
 
@@ -79,9 +71,7 @@ void main() {
     testWidgets('debe tener elevación 0 (flat)', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(
-            appBar: const BrandedAppBar(title: 'Flat'),
-          ),
+          home: Scaffold(appBar: const BrandedAppBar(title: 'Flat')),
         ),
       );
 
@@ -114,21 +104,18 @@ void main() {
       },
     );
 
-    testWidgets(
-      'automaticallyImplyLeading debe ser true por defecto',
-      (tester) async {
-        await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              appBar: const BrandedAppBar(title: 'Back'),
-            ),
-          ),
-        );
+    testWidgets('automaticallyImplyLeading debe ser true por defecto', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(appBar: const BrandedAppBar(title: 'Back')),
+        ),
+      );
 
-        final appBar = tester.widget<AppBar>(find.byType(AppBar));
-        expect(appBar.automaticallyImplyLeading, true);
-      },
-    );
+      final appBar = tester.widget<AppBar>(find.byType(AppBar));
+      expect(appBar.automaticallyImplyLeading, true);
+    });
 
     testWidgets(
       'automaticallyImplyLeading debe ser false cuando se pasa false',
@@ -159,30 +146,23 @@ void main() {
     testWidgets('debe ser const-constructible', (tester) async {
       // Si esto compila, el constructor es const
       const appBar = BrandedAppBar(title: 'Const');
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(appBar: appBar),
-        ),
-      );
+      await tester.pumpWidget(MaterialApp(home: Scaffold(appBar: appBar)));
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets(
-      'sin actions debe renderizar correctamente (null actions)',
-      (tester) async {
-        await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              appBar: const BrandedAppBar(title: 'Solo'),
-            ),
-          ),
-        );
+    testWidgets('sin actions debe renderizar correctamente (null actions)', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(appBar: const BrandedAppBar(title: 'Solo')),
+        ),
+      );
 
-        expect(find.text('Solo'), findsOneWidget);
-        final appBar = tester.widget<AppBar>(find.byType(AppBar));
-        // actions debe estar vacío o ser null
-        expect(appBar.actions, isNull);
-      },
-    );
+      expect(find.text('Solo'), findsOneWidget);
+      final appBar = tester.widget<AppBar>(find.byType(AppBar));
+      // actions debe estar vacío o ser null
+      expect(appBar.actions, isNull);
+    });
   });
 }
