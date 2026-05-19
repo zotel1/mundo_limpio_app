@@ -8,6 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/features/production/domain/entities/production_batch.dart';
 import 'package:mundo_limpio_app/features/production/presentation/providers/production_provider.dart';
 import 'package:mundo_limpio_app/features/production/presentation/screens/production/production_create_screen.dart';
@@ -37,7 +38,7 @@ class _ProductionBatchListScreenState extends State<ProductionBatchListScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<ProductionProvider>();
     return Scaffold(
-      appBar: AppBar(title: const Text('Historial de Producción')),
+      appBar: const BrandedAppBar(title: 'Historial de Producción'),
       body: _buildBody(provider),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _navigateToCreate(provider),

@@ -16,6 +16,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/provider/sales_provider.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/screens/sale_result_screen.dart';
 
@@ -86,7 +87,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen> {
     final provider = context.watch<SalesProvider>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Nueva Venta')),
+      appBar: const BrandedAppBar(title: 'Nueva Venta'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: _buildBody(provider),

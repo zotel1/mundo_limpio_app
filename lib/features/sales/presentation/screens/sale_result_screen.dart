@@ -8,6 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/provider/sales_provider.dart';
 
@@ -23,7 +24,7 @@ class SaleResultScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Venta Creada')),
+      appBar: const BrandedAppBar(title: 'Venta Creada'),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),

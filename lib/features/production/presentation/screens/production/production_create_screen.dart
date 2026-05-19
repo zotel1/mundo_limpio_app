@@ -12,6 +12,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/features/production/domain/repositories/i_production_repository.dart';
 import 'package:mundo_limpio_app/features/production/presentation/providers/bulk_product_provider.dart';
 import 'package:mundo_limpio_app/features/production/presentation/providers/production_provider.dart';
@@ -84,7 +85,7 @@ class _ProductionCreateScreenState extends State<ProductionCreateScreen> {
     return Stack(
       children: [
         Scaffold(
-          appBar: AppBar(title: const Text('Nueva Producción')),
+          appBar: const BrandedAppBar(title: 'Nueva Producción'),
           body: Form(
             key: _formKey,
             child: ListView(
