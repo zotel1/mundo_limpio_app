@@ -12,6 +12,14 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
+    // Signing config para release — lee key.properties generado por CI
+    // En desarrollo local (sin key.properties) usa debug signing como fallback
+    val keyPropertiesFile = rootProject.file("key.properties")
+    val keyProperties = java.util.Properties()
+    if (keyPropertiesFile.exists()) {
+        keyProperties.load(keyPropertiesFile.inputStream())
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -33,9 +41,16 @@ android {
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (keyPropertiesFile.exists()) {
+                signingConfigs.create("release") {
+                    storeFile = file(keyProperties.getProperty("storeFile"))
+                    storePassword = keyProperties.getProperty("storePassword")
+                    keyPassword = keyProperties.getProperty("keyPassword")
+                    keyAlias = keyProperties.getProperty("keyAlias")
+                }
+            } else {
+                signingConfigs.getByName("debug") // fallback para desarrollo local
+            }
         }
     }
 }
