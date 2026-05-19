@@ -38,6 +38,21 @@ class InventoryResponse {
     required this.minStockThreshold,
   });
 
+  /// Crea un [InventoryResponse] que representa un ajuste pendiente
+  /// (encolado offline, aún no sincronizado con el backend).
+  ///
+  /// Retorna productId=-1 como marcador para que el Provider pueda
+  /// detectar que este ajuste NO fue confirmado en el backend.
+  /// Es análogo a [SaleResponse.draft()] del módulo de Ventas.
+  factory InventoryResponse.pending() {
+    return const InventoryResponse(
+      productId: -1,
+      productName: '',
+      currentStock: 0,
+      minStockThreshold: 0,
+    );
+  }
+
   /// Construye un [InventoryResponse] desde un mapa JSON.
   factory InventoryResponse.fromJson(Map<String, dynamic> json) =>
       _$InventoryResponseFromJson(json);
