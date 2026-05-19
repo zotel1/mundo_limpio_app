@@ -18,9 +18,10 @@ void main() {
   group('LogoWidget — estructura', () {
     testWidgets('debe ser const-constructible', (tester) async {
       // Si esto compila, el constructor es const
+      // ignore: unused_local_variable
       const logo = LogoWidget();
       await tester.pumpWidget(
-        const MaterialApp(home: Scaffold(body: LogoWidget())),
+        const MaterialApp(home: Scaffold(body: logo)),
       );
       expect(tester.takeException(), isNull);
     });
