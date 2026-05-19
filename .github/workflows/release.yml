@@ -1,16 +1,15 @@
 # Release APK pipeline para MundoLimpio App
 #
 # Se ejecuta en cada push a develop (post-merge de PRs).
-# Construye APK release firmado y lo distribuye vía Firebase App Distribution.
+# Construye APK y (cuando haya secrets) lo distribuye vía Firebase App Distribution.
 #
-# Requiere los siguientes GitHub Secrets:
+# Requiere los siguientes GitHub Secrets para release firmado + Firebase:
 # - GOOGLE_SERVICES_JSON: archivo google-services.json codificado en base64
 # - KEYSTORE_BASE64: keystore de release codificado en base64
-# - KEYSTORE_PASSWORD: contraseña del keystore
-# - KEY_PASSWORD: contraseña de la clave
-# - KEY_ALIAS: alias de la clave en el keystore
-# - FIREBASE_APP_ID: ID de la app en Firebase
-# - FIREBASE_TOKEN: token de autenticación de Firebase CI
+# - KEYSTORE_PASSWORD, KEY_PASSWORD, KEY_ALIAS: credenciales del keystore
+# - FIREBASE_APP_ID, FIREBASE_TOKEN: para Firebase App Distribution
+#
+# Sin secrets: build debug APK y archiva como artefacto (verifica que compila).
 
 name: Release APK
 
@@ -19,8 +18,8 @@ on:
     branches: [develop]
 
 jobs:
-  build-and-distribute:
-    name: Build & Distribute
+  build:
+    name: Build APK
     runs-on: ubuntu-latest
 
     steps:
@@ -35,32 +34,63 @@ jobs:
       - name: 📦 Instalar dependencias
         run: flutter pub get
 
-      - name: 🔑 Decodificar google-services.json
-        run: echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 -d > android/app/google-services.json
+      - name: 🔨 Build APK debug
+        run: flutter build apk --debug
 
-      - name: 🔐 Decodificar keystore
-        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/mundolimpio.keystore
-
-      - name: 📝 Crear key.properties
-        run: |
-          echo "storeFile=mundolimpio.keystore" > android/key.properties
-          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" >> android/key.properties
-          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
-          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
-
-      - name: 🔨 Build APK release
-        run: flutter build apk --release
-
-      - name: 🚀 Subir a Firebase App Distribution
-        uses: wzieba/Firebase-Distribution-Github-Action@v1
-        with:
-          appId: ${{ secrets.FIREBASE_APP_ID }}
-          token: ${{ secrets.FIREBASE_TOKEN }}
-          file: build/app/outputs/flutter-apk/app-release.apk
-
-      - name: 📦 Archivar APK como artefacto
+      - name: 📦 Archivar APK debug
         uses: actions/upload-artifact@v4
         with:
-          name: app-release
-          path: build/app/outputs/flutter-apk/app-release.apk
-          retention-days: 30
+          name: app-debug
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 7
+
+  # ─── Release firmado + Firebase Distribution ─────────────────
+  # Se activa cuando todos los secrets de Firebase están configurados.
+  # Descomentar esta sección después de configurar los secrets en GitHub.
+  #
+  # distribute:
+  #   name: Release & Distribute
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #
+  #   steps:
+  #     - name: 📥 Checkout código
+  #       uses: actions/checkout@v4
+  #
+  #     - name: 🎯 Setup Flutter
+  #       uses: subosito/flutter-action@v2
+  #       with:
+  #         channel: stable
+  #
+  #     - name: 📦 Instalar dependencias
+  #       run: flutter pub get
+  #
+  #     - name: 🔑 Decodificar google-services.json
+  #       run: echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 -d > android/app/google-services.json
+  #
+  #     - name: 🔐 Decodificar keystore
+  #       run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/mundolimpio.keystore
+  #
+  #     - name: 📝 Crear key.properties
+  #       run: |
+  #         echo "storeFile=mundolimpio.keystore" > android/key.properties
+  #         echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" >> android/key.properties
+  #         echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+  #         echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+  #
+  #     - name: 🔨 Build APK release
+  #       run: flutter build apk --release
+  #
+  #     - name: 🚀 Subir a Firebase App Distribution
+  #       uses: wzieba/Firebase-Distribution-Github-Action@v1
+  #       with:
+  #         appId: ${{ secrets.FIREBASE_APP_ID }}
+  #         token: ${{ secrets.FIREBASE_TOKEN }}
+  #         file: build/app/outputs/flutter-apk/app-release.apk
+  #
+  #     - name: 📦 Archivar APK release
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: app-release
+  #         path: build/app/outputs/flutter-apk/app-release.apk
+  #         retention-days: 30
