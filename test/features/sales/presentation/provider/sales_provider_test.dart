@@ -559,13 +559,23 @@ void main() {
       // Arrange
       final drafts = [
         DraftSale(
-          id: 1, productId: 10, productName: 'P1', batchId: 1,
-          quantity: 5.0, unitPrice: 100.0, status: 'draft',
+          id: 1,
+          productId: 10,
+          productName: 'P1',
+          batchId: 1,
+          quantity: 5.0,
+          unitPrice: 100.0,
+          status: 'draft',
           createdAt: DateTime(2026, 5, 10),
         ),
         DraftSale(
-          id: 2, productId: 20, productName: 'P2', batchId: 2,
-          quantity: 3.0, unitPrice: 200.0, status: 'draft',
+          id: 2,
+          productId: 20,
+          productName: 'P2',
+          batchId: 2,
+          quantity: 3.0,
+          unitPrice: 200.0,
+          status: 'draft',
           createdAt: DateTime(2026, 5, 11),
         ),
       ];
@@ -593,8 +603,9 @@ void main() {
 
     test('debe manejar ApiException al cargar drafts', () async {
       // Arrange
-      when(() => mockRepo.getDrafts())
-          .thenThrow(const ApiException('Error al cargar', 500));
+      when(
+        () => mockRepo.getDrafts(),
+      ).thenThrow(const ApiException('Error al cargar', 500));
 
       // Act
       await provider.loadDrafts();
@@ -609,33 +620,41 @@ void main() {
   // confirmDraft — TDD: RED
   // ──────────────────────────────────────────────────────────────
   group('confirmDraft', () {
-    test('debe llamar repository.confirmDraft y actualizar estado a success', () async {
-      // Arrange
-      final response = SaleResponse(
-        id: 99,
-        totalAmount: 1500.00,
-        createdAt: DateTime(2026, 5, 10, 12, 0, 0),
-        items: const [
-          SaleItemResponse(batchId: 10, quantity: 10.0, unitPrice: 150.00, unitCost: 100.00),
-        ],
-      );
-      when(() => mockRepo.confirmDraft(5))
-          .thenAnswer((_) async => response);
+    test(
+      'debe llamar repository.confirmDraft y actualizar estado a success',
+      () async {
+        // Arrange
+        final response = SaleResponse(
+          id: 99,
+          totalAmount: 1500.00,
+          createdAt: DateTime(2026, 5, 10, 12, 0, 0),
+          items: const [
+            SaleItemResponse(
+              batchId: 10,
+              quantity: 10.0,
+              unitPrice: 150.00,
+              unitCost: 100.00,
+            ),
+          ],
+        );
+        when(() => mockRepo.confirmDraft(5)).thenAnswer((_) async => response);
 
-      // Act
-      await provider.confirmDraft(5);
+        // Act
+        await provider.confirmDraft(5);
 
-      // Assert
-      expect(provider.status, SalesStatus.success);
-      expect(provider.lastSale, isNotNull);
-      expect(provider.lastSale!.id, 99);
-      verify(() => mockRepo.confirmDraft(5)).called(1);
-    });
+        // Assert
+        expect(provider.status, SalesStatus.success);
+        expect(provider.lastSale, isNotNull);
+        expect(provider.lastSale!.id, 99);
+        verify(() => mockRepo.confirmDraft(5)).called(1);
+      },
+    );
 
     test('debe setear error cuando confirmDraft lanza ApiException', () async {
       // Arrange
-      when(() => mockRepo.confirmDraft(7))
-          .thenThrow(const ApiException('Stock insuficiente', 400));
+      when(
+        () => mockRepo.confirmDraft(7),
+      ).thenThrow(const ApiException('Stock insuficiente', 400));
 
       // Act
       await provider.confirmDraft(7);
@@ -647,8 +666,9 @@ void main() {
 
     test('debe manejar errores genéricos en confirmDraft', () async {
       // Arrange
-      when(() => mockRepo.confirmDraft(1))
-          .thenThrow(Exception('Error inesperado'));
+      when(
+        () => mockRepo.confirmDraft(1),
+      ).thenThrow(Exception('Error inesperado'));
 
       // Act
       await provider.confirmDraft(1);
@@ -663,29 +683,37 @@ void main() {
   // createSale con respuesta draft — TDD: RED
   // ──────────────────────────────────────────────────────────────
   group('createSale — respuesta draft (offline)', () {
-    test('debe setear status success cuando createSale retorna draft (id=-1)', () async {
-      // Arrange: poner provider en stockLoaded
-      when(() => mockRepo.getProducts()).thenAnswer((_) async => [productA]);
-      await provider.loadProducts();
-      when(() => mockRepo.getBatchesByProduct(1)).thenAnswer(
-        (_) async => [
-          const ProductionBatchResponse(id: 1, productId: 1, currentStock: 100.0),
-        ],
-      );
-      await provider.loadStock(1);
+    test(
+      'debe setear status success cuando createSale retorna draft (id=-1)',
+      () async {
+        // Arrange: poner provider en stockLoaded
+        when(() => mockRepo.getProducts()).thenAnswer((_) async => [productA]);
+        await provider.loadProducts();
+        when(() => mockRepo.getBatchesByProduct(1)).thenAnswer(
+          (_) async => [
+            const ProductionBatchResponse(
+              id: 1,
+              productId: 1,
+              currentStock: 100.0,
+            ),
+          ],
+        );
+        await provider.loadStock(1);
 
-      final draftResponse = SaleResponse.draft();
-      when(() => mockRepo.createSale(any()))
-          .thenAnswer((_) async => draftResponse);
+        final draftResponse = SaleResponse.draft();
+        when(
+          () => mockRepo.createSale(any()),
+        ).thenAnswer((_) async => draftResponse);
 
-      // Act
-      await provider.createSale(15.0);
+        // Act
+        await provider.createSale(15.0);
 
-      // Assert: aunque es borrador, el status es success
-      expect(provider.status, SalesStatus.success);
-      expect(provider.lastSale, isNotNull);
-      expect(provider.lastSale!.id, -1);
-    });
+        // Assert: aunque es borrador, el status es success
+        expect(provider.status, SalesStatus.success);
+        expect(provider.lastSale, isNotNull);
+        expect(provider.lastSale!.id, -1);
+      },
+    );
   });
 
   // ──────────────────────────────────────────────────────────────
@@ -696,8 +724,13 @@ void main() {
       // Arrange: poblar drafts
       final drafts = [
         DraftSale(
-          id: 1, productId: 10, productName: 'P1', batchId: 1,
-          quantity: 5.0, unitPrice: 100.0, status: 'draft',
+          id: 1,
+          productId: 10,
+          productName: 'P1',
+          batchId: 1,
+          quantity: 5.0,
+          unitPrice: 100.0,
+          status: 'draft',
           createdAt: DateTime(2026),
         ),
       ];

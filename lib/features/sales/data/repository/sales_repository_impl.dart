@@ -55,20 +55,20 @@ class SalesRepositoryImpl implements SalesRepository {
       final products = await _salesApi.getProducts();
       await _productCacheDao.upsertAll(
         products
-            .map((p) => ProductCacheData(
-                  id: p.id,
-                  name: p.name,
-                  updatedAt: DateTime.now(),
-                ))
+            .map(
+              (p) => ProductCacheData(
+                id: p.id,
+                name: p.name,
+                updatedAt: DateTime.now(),
+              ),
+            )
             .toList(),
       );
       return products;
     }
     // offline: leer desde caché
     final cached = await _productCacheDao.getAll();
-    return cached
-        .map((c) => ProductResponse(id: c.id, name: c.name))
-        .toList();
+    return cached.map((c) => ProductResponse(id: c.id, name: c.name)).toList();
   }
 
   @override
@@ -81,12 +81,14 @@ class SalesRepositoryImpl implements SalesRepository {
       await _batchCacheDao.deleteByProductId(productId);
       await _batchCacheDao.upsertAll(
         batches
-            .map((b) => BatchCacheData(
-                  id: b.id,
-                  productId: productId,
-                  currentStock: b.currentStock,
-                  updatedAt: DateTime.now(),
-                ))
+            .map(
+              (b) => BatchCacheData(
+                id: b.id,
+                productId: productId,
+                currentStock: b.currentStock,
+                updatedAt: DateTime.now(),
+              ),
+            )
             .toList(),
       );
       return batches;
@@ -97,11 +99,13 @@ class SalesRepositoryImpl implements SalesRepository {
     final age = DateTime.now().difference(cached.first.updatedAt);
     if (age.inMinutes > 5) return []; // expirado
     return cached
-        .map((c) => ProductionBatchResponse(
-              id: c.id,
-              productId: c.productId,
-              currentStock: c.currentStock,
-            ))
+        .map(
+          (c) => ProductionBatchResponse(
+            id: c.id,
+            productId: c.productId,
+            currentStock: c.currentStock,
+          ),
+        )
         .toList();
   }
 
