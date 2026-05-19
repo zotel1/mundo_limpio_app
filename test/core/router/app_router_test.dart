@@ -36,6 +36,9 @@ class AuthProviderMock extends ChangeNotifier implements AuthProvider {
   String? get role => null;
 
   @override
+  String? get username => null;
+
+  @override
   bool get isLoading => _status == AuthStatus.loading;
 
   @override
