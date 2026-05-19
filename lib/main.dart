@@ -4,15 +4,16 @@
 // 1. TokenStorage — almacenamiento seguro de tokens JWT
 // 2. Dio compartido — instancia única con AuthInterceptor para toda la app
 // 3. ConnectivityService — monitoreo online/offline con ChangeNotifier
-// 4. AppDatabase — SQLite local (Drift) para persistencia offline
-// 5. DAOs — acceso tipado a cada tabla del esquema offline
-// 6. SalesApi + InventoryApi — clientes HTTP
-// 7. SyncService — sincronización al reconectar
-// 8. Repositories + Providers — auth, ventas, inventario
+// 4. CrashlyticsService — reporte de crashes a Firebase (PR#4)
+// 5. AppDatabase — SQLite local (Drift) para persistencia offline
+// 6. DAOs — acceso tipado a cada tabla del esquema offline
+// 7. SalesApi + InventoryApi — clientes HTTP
+// 8. SyncService — sincronización al reconectar
+// 9. Repositories + Providers — auth, ventas, inventario
 //
 // Luego renderiza MundoLimpioApp con MaterialApp.router.
 //
-// TDD: GREEN — nuevos providers PR#1 (Drift, Connectivity, Sync)
+// TDD: GREEN — PR#4 Crashlytics wiring
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,7 @@ import 'package:provider/provider.dart';
 
 import 'app.dart';
 import 'core/connectivity/connectivity_service.dart';
+import 'core/crashlytics/crashlytics_service.dart';
 import 'core/drift/app_database.dart';
 import 'core/drift/daos/batch_cache_dao.dart';
 import 'core/drift/daos/draft_sale_dao.dart';
@@ -49,6 +51,10 @@ void main() async {
   // ── Infraestructura inicializada antes de runApp ───────────
   final connectivityService = ConnectivityService();
   await connectivityService.initialize();
+
+  // Inicializar Crashlytics para capturar errores fatales (PR#4)
+  await CrashlyticsService.initialize();
+
   final db = AppDatabase();
 
   runApp(
