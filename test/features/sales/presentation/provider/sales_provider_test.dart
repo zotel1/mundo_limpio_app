@@ -10,6 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import 'package:mundo_limpio_app/core/drift/app_database.dart';
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/product_response.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/production_batch_response.dart';
@@ -547,6 +548,201 @@ void main() {
       provider.clearError();
 
       expect(notifyCount, greaterThan(0));
+    });
+  });
+
+  // ──────────────────────────────────────────────────────────────
+  // loadDrafts — TDD: RED
+  // ──────────────────────────────────────────────────────────────
+  group('loadDrafts', () {
+    test('debe poblar la lista de drafts desde el repositorio', () async {
+      // Arrange
+      final drafts = [
+        DraftSale(
+          id: 1,
+          productId: 10,
+          productName: 'P1',
+          batchId: 1,
+          quantity: 5.0,
+          unitPrice: 100.0,
+          status: 'draft',
+          createdAt: DateTime(2026, 5, 10),
+        ),
+        DraftSale(
+          id: 2,
+          productId: 20,
+          productName: 'P2',
+          batchId: 2,
+          quantity: 3.0,
+          unitPrice: 200.0,
+          status: 'draft',
+          createdAt: DateTime(2026, 5, 11),
+        ),
+      ];
+      when(() => mockRepo.getDrafts()).thenAnswer((_) async => drafts);
+
+      // Act
+      await provider.loadDrafts();
+
+      // Assert
+      expect(provider.drafts, hasLength(2));
+      expect(provider.drafts[0].productName, 'P1');
+      expect(provider.drafts[1].productName, 'P2');
+    });
+
+    test('debe retornar lista vacía cuando no hay borradores', () async {
+      // Arrange
+      when(() => mockRepo.getDrafts()).thenAnswer((_) async => []);
+
+      // Act
+      await provider.loadDrafts();
+
+      // Assert
+      expect(provider.drafts, isEmpty);
+    });
+
+    test('debe manejar ApiException al cargar drafts', () async {
+      // Arrange
+      when(
+        () => mockRepo.getDrafts(),
+      ).thenThrow(const ApiException('Error al cargar', 500));
+
+      // Act
+      await provider.loadDrafts();
+
+      // Assert
+      expect(provider.status, SalesStatus.error);
+      expect(provider.errorMessage, contains('Error al cargar'));
+    });
+  });
+
+  // ──────────────────────────────────────────────────────────────
+  // confirmDraft — TDD: RED
+  // ──────────────────────────────────────────────────────────────
+  group('confirmDraft', () {
+    test(
+      'debe llamar repository.confirmDraft y actualizar estado a success',
+      () async {
+        // Arrange
+        final response = SaleResponse(
+          id: 99,
+          totalAmount: 1500.00,
+          createdAt: DateTime(2026, 5, 10, 12, 0, 0),
+          items: const [
+            SaleItemResponse(
+              batchId: 10,
+              quantity: 10.0,
+              unitPrice: 150.00,
+              unitCost: 100.00,
+            ),
+          ],
+        );
+        when(() => mockRepo.confirmDraft(5)).thenAnswer((_) async => response);
+
+        // Act
+        await provider.confirmDraft(5);
+
+        // Assert
+        expect(provider.status, SalesStatus.success);
+        expect(provider.lastSale, isNotNull);
+        expect(provider.lastSale!.id, 99);
+        verify(() => mockRepo.confirmDraft(5)).called(1);
+      },
+    );
+
+    test('debe setear error cuando confirmDraft lanza ApiException', () async {
+      // Arrange
+      when(
+        () => mockRepo.confirmDraft(7),
+      ).thenThrow(const ApiException('Stock insuficiente', 400));
+
+      // Act
+      await provider.confirmDraft(7);
+
+      // Assert
+      expect(provider.status, SalesStatus.error);
+      expect(provider.errorMessage, contains('Stock insuficiente'));
+    });
+
+    test('debe manejar errores genéricos en confirmDraft', () async {
+      // Arrange
+      when(
+        () => mockRepo.confirmDraft(1),
+      ).thenThrow(Exception('Error inesperado'));
+
+      // Act
+      await provider.confirmDraft(1);
+
+      // Assert
+      expect(provider.status, SalesStatus.error);
+      expect(provider.errorMessage, isNotNull);
+    });
+  });
+
+  // ──────────────────────────────────────────────────────────────
+  // createSale con respuesta draft — TDD: RED
+  // ──────────────────────────────────────────────────────────────
+  group('createSale — respuesta draft (offline)', () {
+    test(
+      'debe setear status success cuando createSale retorna draft (id=-1)',
+      () async {
+        // Arrange: poner provider en stockLoaded
+        when(() => mockRepo.getProducts()).thenAnswer((_) async => [productA]);
+        await provider.loadProducts();
+        when(() => mockRepo.getBatchesByProduct(1)).thenAnswer(
+          (_) async => [
+            const ProductionBatchResponse(
+              id: 1,
+              productId: 1,
+              currentStock: 100.0,
+            ),
+          ],
+        );
+        await provider.loadStock(1);
+
+        final draftResponse = SaleResponse.draft();
+        when(
+          () => mockRepo.createSale(any()),
+        ).thenAnswer((_) async => draftResponse);
+
+        // Act
+        await provider.createSale(15.0);
+
+        // Assert: aunque es borrador, el status es success
+        expect(provider.status, SalesStatus.success);
+        expect(provider.lastSale, isNotNull);
+        expect(provider.lastSale!.id, -1);
+      },
+    );
+  });
+
+  // ──────────────────────────────────────────────────────────────
+  // reset incluye drafts — TDD: RED
+  // ──────────────────────────────────────────────────────────────
+  group('reset — incluye drafts', () {
+    test('debe limpiar drafts al hacer reset', () async {
+      // Arrange: poblar drafts
+      final drafts = [
+        DraftSale(
+          id: 1,
+          productId: 10,
+          productName: 'P1',
+          batchId: 1,
+          quantity: 5.0,
+          unitPrice: 100.0,
+          status: 'draft',
+          createdAt: DateTime(2026),
+        ),
+      ];
+      when(() => mockRepo.getDrafts()).thenAnswer((_) async => drafts);
+      await provider.loadDrafts();
+      expect(provider.drafts, isNotEmpty);
+
+      // Act
+      provider.reset();
+
+      // Assert
+      expect(provider.drafts, isEmpty);
     });
   });
 }

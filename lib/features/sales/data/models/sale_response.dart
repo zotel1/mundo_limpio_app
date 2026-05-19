@@ -39,6 +39,22 @@ class SaleResponse {
     required this.items,
   });
 
+  /// Crea un [SaleResponse] que representa un borrador (venta offline).
+  ///
+  /// Retorna id=-1, totalAmount=0, items=[] para que el Provider
+  /// pueda distinguir que esta venta fue guardada localmente y no
+  /// confirmada en el backend. El [createdAt] es el momento actual.
+  ///
+  /// TDD: GREEN — implementación mínima para pasar los tests
+  factory SaleResponse.draft() {
+    return SaleResponse(
+      id: -1,
+      totalAmount: 0,
+      createdAt: DateTime.now(),
+      items: const [],
+    );
+  }
+
   /// Construye un [SaleResponse] desde un mapa JSON.
   factory SaleResponse.fromJson(Map<String, dynamic> json) =>
       _$SaleResponseFromJson(json);
