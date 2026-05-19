@@ -13,6 +13,7 @@
 
 import 'package:flutter/foundation.dart';
 
+import 'package:mundo_limpio_app/core/crashlytics/crashlytics_service.dart';
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/core/network/error_handler.dart';
 import 'package:mundo_limpio_app/features/auth/domain/repository/auth_repository.dart';
@@ -42,6 +43,11 @@ class AuthProvider extends ChangeNotifier {
   /// Rol del usuario autenticado (null si no hay sesión activa).
   String? _role;
 
+  /// Nombre de usuario autenticado (null si no hay sesión activa).
+  ///
+  /// Se usa como identificador para Crashlytics (setUserIdentifier).
+  String? _username;
+
   /// Estado actual de autenticación.
   AuthStatus get status => _status;
 
@@ -60,6 +66,12 @@ class AuthProvider extends ChangeNotifier {
   /// Se popula después de un login exitoso desde [AuthResponse.role].
   /// T-5.3 lo usa para mostrar botones condicionales según el rol.
   String? get role => _role;
+
+  /// Nombre de usuario autenticado.
+  ///
+  /// Retorna null si no hay sesión activa.
+  /// Se usa para Crashlytics.setUserIdentifier en el reporte de crashes.
+  String? get username => _username;
 
   /// Crea un [AuthProvider] con el [repository] inyectado.
   AuthProvider(this._repository);
@@ -93,16 +105,23 @@ class AuthProvider extends ChangeNotifier {
     try {
       final response = await _repository.login(email, password);
       _role = response.role;
+      _username = response.username;
       _status = AuthStatus.authenticated;
       _error = null;
+
+      // Vincular metadata de usuario a Crashlytics para diagnósticos
+      // TDD: GREEN — el try-catch en setUser() protege si Firebase no está disponible
+      CrashlyticsService.setUser(response.username, response.role);
     } on ApiException catch (e) {
       // ApiException tiene mensaje amigable via ErrorHandler
       _role = null;
+      _username = null;
       _error = ErrorHandler.getMessage(e);
       _status = AuthStatus.unauthenticated;
     } catch (e) {
       // Error genérico (no debería ocurrir en condiciones normales)
       _role = null;
+      _username = null;
       _error = 'Error inesperado. Intentalo de nuevo.';
       _status = AuthStatus.unauthenticated;
     }
@@ -142,7 +161,12 @@ class AuthProvider extends ChangeNotifier {
     }
     _status = AuthStatus.unauthenticated;
     _role = null;
+    _username = null;
     _error = null;
+
+    // Desvincular metadata de usuario de Crashlytics
+    CrashlyticsService.setUser('', '');
+
     notifyListeners();
   }
 
