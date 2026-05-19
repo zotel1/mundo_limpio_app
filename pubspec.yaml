@@ -71,6 +71,8 @@ dependencies:
 
   # Monitoreo de conectividad de red (online/offline) con stream reactivo.
   connectivity_plus: ^6.1.0
+  firebase_core: ^4.9.0
+  firebase_crashlytics: ^5.2.2
 
 dev_dependencies:
   flutter_test:
