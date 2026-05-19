@@ -8,10 +8,15 @@
 //   stockLoaded ──createSale(qty)──→ loading ──→ success ──reset()──→ idle
 //   Cualquier error ──→ error ──clearError()──→ idle
 //
+// También expone métodos para borradores offline:
+// - loadDrafts(): carga los borradores pendientes
+// - confirmDraft(id): confirma un borrador al reconectar
+//
 // TDD: GREEN — implementación mínima para pasar los tests
 
 import 'package:flutter/foundation.dart';
 
+import 'package:mundo_limpio_app/core/drift/app_database.dart';
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/product_response.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/production_batch_response.dart';
@@ -45,6 +50,7 @@ class SalesProvider extends ChangeNotifier {
   SalesStatus _status = SalesStatus.idle;
   List<ProductResponse> _products = [];
   List<ProductionBatchResponse> _batches = [];
+  List<DraftSale> _drafts = [];
   int? _selectedProductId;
   String? _errorMessage;
   SaleResponse? _lastSale;
@@ -72,6 +78,9 @@ class SalesProvider extends ChangeNotifier {
 
   /// Última venta creada (null si no hay venta).
   SaleResponse? get lastSale => _lastSale;
+
+  /// Lista de borradores de ventas offline pendientes de confirmar.
+  List<DraftSale> get drafts => _drafts;
 
   /// Crea un [SalesProvider] con el [repository] inyectado.
   SalesProvider(this._repository);
@@ -151,9 +160,47 @@ class SalesProvider extends ChangeNotifier {
     _status = SalesStatus.idle;
     _products = [];
     _batches = [];
+    _drafts = [];
     _selectedProductId = null;
     _errorMessage = null;
     _lastSale = null;
+    notifyListeners();
+  }
+
+  /// Carga los borradores de ventas offline pendientes de confirmar.
+  ///
+  /// Transición: idle → loading → idle | error
+  Future<void> loadDrafts() async {
+    _setLoading();
+    try {
+      _drafts = await _repository.getDrafts();
+      _status = SalesStatus.idle;
+    } on ApiException catch (e) {
+      _status = SalesStatus.error;
+      _errorMessage = e.message;
+    } catch (e) {
+      _status = SalesStatus.error;
+      _errorMessage = e.toString();
+    }
+    notifyListeners();
+  }
+
+  /// Confirma un borrador enviándolo al backend.
+  ///
+  /// [draftId]: ID del borrador a confirmar.
+  /// Transición: idle → loading → success | error
+  Future<void> confirmDraft(int draftId) async {
+    _setLoading();
+    try {
+      _lastSale = await _repository.confirmDraft(draftId);
+      _status = SalesStatus.success;
+    } on ApiException catch (e) {
+      _status = SalesStatus.error;
+      _errorMessage = e.message;
+    } catch (e) {
+      _status = SalesStatus.error;
+      _errorMessage = e.toString();
+    }
     notifyListeners();
   }
 
