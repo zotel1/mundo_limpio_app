@@ -130,7 +130,13 @@ void main() async {
         ),
 
         Provider<SalesRepository>(
-          create: (ctx) => SalesRepositoryImpl(salesApi: ctx.read<SalesApi>()),
+          create: (ctx) => SalesRepositoryImpl(
+            salesApi: ctx.read<SalesApi>(),
+            connectivity: ctx.read<ConnectivityService>(),
+            productCacheDao: ctx.read<ProductCacheDao>(),
+            batchCacheDao: ctx.read<BatchCacheDao>(),
+            draftSaleDao: ctx.read<DraftSaleDao>(),
+          ),
         ),
 
         ChangeNotifierProvider<SalesProvider>(

@@ -116,4 +116,38 @@ void main() {
       expect(result.items[1].batchId, 2);
     });
   });
+
+  // TDD: RED — tests para SaleResponse.draft() escrito antes de la implementación
+  group('SaleResponse.draft()', () {
+    test('debe crear un SaleResponse con id=-1, totalAmount=0, items=[]', () {
+      final draft = SaleResponse.draft();
+
+      expect(draft.id, -1);
+      expect(draft.totalAmount, 0.0);
+      expect(draft.items, isEmpty);
+    });
+
+    // Triangulación: createdAt no es null
+    test('debe tener createdAt no nulo', () {
+      final draft = SaleResponse.draft();
+
+      expect(draft.createdAt, isNotNull);
+      expect(
+        draft.createdAt.isBefore(
+          DateTime.now().add(const Duration(seconds: 1)),
+        ),
+        isTrue,
+      );
+    });
+
+    // Edge case: el draft es igual a otro draft (ids iguales)
+    test('dos drafts deben tener el mismo id=-1', () {
+      final draft1 = SaleResponse.draft();
+      final draft2 = SaleResponse.draft();
+
+      expect(draft1.id, -1);
+      expect(draft2.id, -1);
+      expect(draft1.id, draft2.id);
+    });
+  });
 }
