@@ -37,12 +37,18 @@ void main() {
     test('debe declarar assets/images/logo.png en flutter.assets', () {
       // TDD: RED — assets section is currently commented out
       final flutter = pubspec['flutter'] as yaml.YamlMap?;
-      expect(flutter, isNotNull,
-          reason: 'pubspec.yaml debe tener la sección flutter');
+      expect(
+        flutter,
+        isNotNull,
+        reason: 'pubspec.yaml debe tener la sección flutter',
+      );
 
       final assets = flutter!['assets'] as yaml.YamlList?;
-      expect(assets, isNotNull,
-          reason: 'flutter.assets debe estar declarado (no comentado)');
+      expect(
+        assets,
+        isNotNull,
+        reason: 'flutter.assets debe estar declarado (no comentado)',
+      );
 
       expect(
         assets!.cast<String>().contains('assets/images/logo.png'),
@@ -51,31 +57,31 @@ void main() {
       );
     });
 
-    test(
-      'debe declarar flutter_launcher_icons en dev_dependencies',
-      () {
-        // TDD: RED — dependency not yet added
-        final devDeps = pubspec['dev_dependencies'] as yaml.YamlMap?;
-        expect(devDeps, isNotNull);
+    test('debe declarar flutter_launcher_icons en dev_dependencies', () {
+      // TDD: RED — dependency not yet added
+      final devDeps = pubspec['dev_dependencies'] as yaml.YamlMap?;
+      expect(devDeps, isNotNull);
 
-        final iconsDep = devDeps!['flutter_launcher_icons'];
-        expect(iconsDep, isNotNull,
-            reason: 'flutter_launcher_icons debe estar en dev_dependencies');
-      },
-    );
+      final iconsDep = devDeps!['flutter_launcher_icons'];
+      expect(
+        iconsDep,
+        isNotNull,
+        reason: 'flutter_launcher_icons debe estar en dev_dependencies',
+      );
+    });
 
-    test(
-      'debe declarar flutter_native_splash en dev_dependencies',
-      () {
-        // TDD: RED — dependency not yet added
-        final devDeps = pubspec['dev_dependencies'] as yaml.YamlMap?;
-        expect(devDeps, isNotNull);
+    test('debe declarar flutter_native_splash en dev_dependencies', () {
+      // TDD: RED — dependency not yet added
+      final devDeps = pubspec['dev_dependencies'] as yaml.YamlMap?;
+      expect(devDeps, isNotNull);
 
-        final splashDep = devDeps!['flutter_native_splash'];
-        expect(splashDep, isNotNull,
-            reason: 'flutter_native_splash debe estar en dev_dependencies');
-      },
-    );
+      final splashDep = devDeps!['flutter_native_splash'];
+      expect(
+        splashDep,
+        isNotNull,
+        reason: 'flutter_native_splash debe estar en dev_dependencies',
+      );
+    });
   });
 
   // ---------------------------------------------------------------------------
@@ -91,10 +97,8 @@ void main() {
 
     test('debe tener android=true e ios=false', () {
       // TDD: RED — config file does not exist yet
-      expect(config['android'], true,
-          reason: 'Solo Android por ahora');
-      expect(config['ios'], false,
-          reason: 'iOS no configurado en este cambio');
+      expect(config['android'], true, reason: 'Solo Android por ahora');
+      expect(config['ios'], false, reason: 'iOS no configurado en este cambio');
     });
 
     test('image_path debe apuntar a assets/images/logo.png', () {
@@ -102,13 +106,10 @@ void main() {
       expect(imagePath, equals('assets/images/logo.png'));
     });
 
-    test(
-      'adaptive_icon_background debe ser navy #1E2238',
-      () {
-        final bg = config['adaptive_icon_background'] as String?;
-        expect(bg, anyOf(equals('#1E2238'), equals('1E2238')));
-      },
-    );
+    test('adaptive_icon_background debe ser navy #1E2238', () {
+      final bg = config['adaptive_icon_background'] as String?;
+      expect(bg, anyOf(equals('#1E2238'), equals('1E2238')));
+    });
   });
 
   group('flutter_native_splash.yaml — configuration', () {
@@ -121,10 +122,8 @@ void main() {
 
     test('debe tener android=true y solo Android', () {
       // TDD: RED — config file does not exist yet
-      expect(config['android'], true,
-          reason: 'Solo Android configurado');
-      expect(config['ios'], false,
-          reason: 'iOS no configurado en este cambio');
+      expect(config['android'], true, reason: 'Solo Android configurado');
+      expect(config['ios'], false, reason: 'iOS no configurado en este cambio');
     });
 
     test('color de fondo debe ser navy #1E2238', () {
@@ -139,8 +138,11 @@ void main() {
 
     test('debe tener fullscreen activado (sin spinner)', () {
       final fullscreen = config['fullscreen'];
-      expect(fullscreen, true,
-          reason: 'fullscreen debe estar activado para evitar spinner');
+      expect(
+        fullscreen,
+        true,
+        reason: 'fullscreen debe estar activado para evitar spinner',
+      );
     });
   });
 
@@ -157,8 +159,11 @@ void main() {
           'android/app/src/main/res/mipmap-$density/ic_launcher.png',
         );
         final file = File(path);
-        expect(file.existsSync(), isTrue,
-            reason: 'El icono debe haberse generado en mipmap-$density');
+        expect(
+          file.existsSync(),
+          isTrue,
+          reason: 'El icono debe haberse generado en mipmap-$density',
+        );
       });
     }
 
@@ -168,8 +173,11 @@ void main() {
       );
       final file = File(path);
       if (file.existsSync()) {
-        expect(file.lengthSync(), greaterThan(0),
-            reason: 'El icono generado no debe ser un archivo vacío');
+        expect(
+          file.lengthSync(),
+          greaterThan(0),
+          reason: 'El icono generado no debe ser un archivo vacío',
+        );
       }
     });
   });
@@ -182,8 +190,11 @@ void main() {
         'android/app/src/main/res/drawable-mdpi/splash.png',
       );
       final file = File(path);
-      expect(file.existsSync(), isTrue,
-          reason: 'Debe existir un drawable de splash generado');
+      expect(
+        file.existsSync(),
+        isTrue,
+        reason: 'Debe existir un drawable de splash generado',
+      );
     });
 
     test(
@@ -213,8 +224,11 @@ void main() {
       final file = File(colorsPath);
       if (file.existsSync()) {
         final content = file.readAsStringSync();
-        expect(content.contains('1E2238'), isTrue,
-            reason: 'colors.xml debe contener el color navy #1E2238');
+        expect(
+          content.contains('1E2238'),
+          isTrue,
+          reason: 'colors.xml debe contener el color navy #1E2238',
+        );
       }
     });
   });
