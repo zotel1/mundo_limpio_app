@@ -45,18 +45,17 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      InventoryPendingQueueCompanion.insert(
+      InventoryPendingQueueCompanion.insert(productId: 0, payload: ''),
+    );
+    registerFallbackValue(
+      InventoryCacheData(
         productId: 0,
-        payload: '',
+        productName: '',
+        currentStock: 0,
+        minStockThreshold: 0,
+        updatedAt: DateTime(2025),
       ),
     );
-    registerFallbackValue(InventoryCacheData(
-      productId: 0,
-      productName: '',
-      currentStock: 0,
-      minStockThreshold: 0,
-      updatedAt: DateTime(2025),
-    ));
     registerFallbackValue(
       const AdjustmentRequest(
         type: AdjustmentType.ADJUSTMENT,
@@ -89,25 +88,28 @@ void main() {
       when(() => mockConnectivity.isOnline).thenReturn(true);
     });
 
-    test('llama InventoryApi.getInventory y retorna InventoryResponse',
-        () async {
-      final expectedResponse = const InventoryResponse(
-        productId: testProductId,
-        productName: 'Jabón Líquido',
-        currentStock: 50.0,
-        minStockThreshold: 10.0,
-      );
-      when(() => mockInventoryApi.getInventory(testProductId))
-          .thenAnswer((_) async => expectedResponse);
-      when(() => mockCacheDao.upsertAll(any())).thenAnswer((_) async {});
+    test(
+      'llama InventoryApi.getInventory y retorna InventoryResponse',
+      () async {
+        final expectedResponse = const InventoryResponse(
+          productId: testProductId,
+          productName: 'Jabón Líquido',
+          currentStock: 50.0,
+          minStockThreshold: 10.0,
+        );
+        when(
+          () => mockInventoryApi.getInventory(testProductId),
+        ).thenAnswer((_) async => expectedResponse);
+        when(() => mockCacheDao.upsertAll(any())).thenAnswer((_) async {});
 
-      final result = await repository.getInventory(testProductId);
+        final result = await repository.getInventory(testProductId);
 
-      expect(result.productId, testProductId);
-      expect(result.productName, 'Jabón Líquido');
-      expect(result.currentStock, 50.0);
-      verify(() => mockInventoryApi.getInventory(testProductId)).called(1);
-    });
+        expect(result.productId, testProductId);
+        expect(result.productName, 'Jabón Líquido');
+        expect(result.currentStock, 50.0);
+        verify(() => mockInventoryApi.getInventory(testProductId)).called(1);
+      },
+    );
 
     test('cachea la respuesta en InventoryCacheDao', () async {
       final expectedResponse = const InventoryResponse(
@@ -116,15 +118,16 @@ void main() {
         currentStock: 50.0,
         minStockThreshold: 10.0,
       );
-      when(() => mockInventoryApi.getInventory(testProductId))
-          .thenAnswer((_) async => expectedResponse);
+      when(
+        () => mockInventoryApi.getInventory(testProductId),
+      ).thenAnswer((_) async => expectedResponse);
       when(() => mockCacheDao.upsertAll(any())).thenAnswer((_) async {});
 
       await repository.getInventory(testProductId);
 
-      final captured = verify(() => mockCacheDao.upsertAll(captureAny()))
-          .captured
-          .single as List<InventoryCacheData>;
+      final captured =
+          verify(() => mockCacheDao.upsertAll(captureAny())).captured.single
+              as List<InventoryCacheData>;
       expect(captured, hasLength(1));
       expect(captured[0].productId, testProductId);
       expect(captured[0].productName, 'Jabón Líquido');
@@ -133,8 +136,9 @@ void main() {
     });
 
     test('propaga ApiException cuando la API falla', () async {
-      when(() => mockInventoryApi.getInventory(testProductId))
-          .thenThrow(const ApiException('Producto no encontrado', 404));
+      when(
+        () => mockInventoryApi.getInventory(testProductId),
+      ).thenThrow(const ApiException('Producto no encontrado', 404));
 
       expect(
         () => repository.getInventory(testProductId),
@@ -160,8 +164,9 @@ void main() {
         minStockThreshold: 10.0,
         updatedAt: DateTime(2025, 1, 1),
       );
-      when(() => mockCacheDao.getByProductId(testProductId))
-          .thenAnswer((_) async => cachedData);
+      when(
+        () => mockCacheDao.getByProductId(testProductId),
+      ).thenAnswer((_) async => cachedData);
 
       final result = await repository.getInventory(testProductId);
 
@@ -176,8 +181,9 @@ void main() {
     });
 
     test('retorna producto con productId=-1 cuando no hay cache', () async {
-      when(() => mockCacheDao.getByProductId(testProductId))
-          .thenAnswer((_) async => null);
+      when(
+        () => mockCacheDao.getByProductId(testProductId),
+      ).thenAnswer((_) async => null);
 
       final result = await repository.getInventory(testProductId);
 
@@ -210,8 +216,9 @@ void main() {
           minStockThreshold: 20.0,
         ),
       ];
-      when(() => mockInventoryApi.getLowStock())
-          .thenAnswer((_) async => expectedItems);
+      when(
+        () => mockInventoryApi.getLowStock(),
+      ).thenAnswer((_) async => expectedItems);
       when(() => mockCacheDao.upsertAll(any())).thenAnswer((_) async {});
 
       final result = await repository.getLowStock();
@@ -239,15 +246,16 @@ void main() {
           minStockThreshold: 20.0,
         ),
       ];
-      when(() => mockInventoryApi.getLowStock())
-          .thenAnswer((_) async => expectedItems);
+      when(
+        () => mockInventoryApi.getLowStock(),
+      ).thenAnswer((_) async => expectedItems);
       when(() => mockCacheDao.upsertAll(any())).thenAnswer((_) async {});
 
       await repository.getLowStock();
 
-      final captured = verify(() => mockCacheDao.upsertAll(captureAny()))
-          .captured
-          .single as List<InventoryCacheData>;
+      final captured =
+          verify(() => mockCacheDao.upsertAll(captureAny())).captured.single
+              as List<InventoryCacheData>;
       expect(captured, hasLength(2));
       expect(captured[0].productId, 1);
       expect(captured[0].currentStock, 5.0);
@@ -256,13 +264,11 @@ void main() {
     });
 
     test('propaga ApiException cuando la API falla', () async {
-      when(() => mockInventoryApi.getLowStock())
-          .thenThrow(const ApiException('Error interno', 500));
+      when(
+        () => mockInventoryApi.getLowStock(),
+      ).thenThrow(const ApiException('Error interno', 500));
 
-      expect(
-        () => repository.getLowStock(),
-        throwsA(isA<ApiException>()),
-      );
+      expect(() => repository.getLowStock(), throwsA(isA<ApiException>()));
     });
   });
 
@@ -333,29 +339,33 @@ void main() {
       when(() => mockConnectivity.isOnline).thenReturn(true);
     });
 
-    test('llama InventoryApi.adjustStock y retorna InventoryResponse',
-        () async {
-      final expectedResponse = InventoryResponse(
-        productId: testProductId,
-        productName: 'Jabón Líquido',
-        currentStock: 60.0,
-        minStockThreshold: 10.0,
-      );
-      when(() => mockInventoryApi.adjustStock(testProductId, testRequest))
-          .thenAnswer((_) async => expectedResponse);
+    test(
+      'llama InventoryApi.adjustStock y retorna InventoryResponse',
+      () async {
+        final expectedResponse = InventoryResponse(
+          productId: testProductId,
+          productName: 'Jabón Líquido',
+          currentStock: 60.0,
+          minStockThreshold: 10.0,
+        );
+        when(
+          () => mockInventoryApi.adjustStock(testProductId, testRequest),
+        ).thenAnswer((_) async => expectedResponse);
 
-      final result =
-          await repository.adjustStock(testProductId, testRequest);
+        final result = await repository.adjustStock(testProductId, testRequest);
 
-      expect(result.currentStock, 60.0);
-      expect(result.productId, testProductId);
-      verify(() => mockInventoryApi.adjustStock(testProductId, testRequest))
-          .called(1);
-    });
+        expect(result.currentStock, 60.0);
+        expect(result.productId, testProductId);
+        verify(
+          () => mockInventoryApi.adjustStock(testProductId, testRequest),
+        ).called(1);
+      },
+    );
 
     test('propaga ApiException cuando la API falla', () async {
-      when(() => mockInventoryApi.adjustStock(testProductId, testRequest))
-          .thenThrow(const ApiException('Conflicto de versión', 409));
+      when(
+        () => mockInventoryApi.adjustStock(testProductId, testRequest),
+      ).thenThrow(const ApiException('Conflicto de versión', 409));
 
       expect(
         () => repository.adjustStock(testProductId, testRequest),
@@ -380,8 +390,7 @@ void main() {
     });
 
     test('encola el ajuste en InventoryPendingDao', () async {
-      when(() => mockPendingDao.insert(any()))
-          .thenAnswer((_) async => 42);
+      when(() => mockPendingDao.insert(any())).thenAnswer((_) async => 42);
 
       await repository.adjustStock(testProductId, testRequest);
 
@@ -396,8 +405,7 @@ void main() {
     });
 
     test('el payload contiene el AdjustmentRequest serializado', () async {
-      when(() => mockPendingDao.insert(any()))
-          .thenAnswer((_) async => 42);
+      when(() => mockPendingDao.insert(any())).thenAnswer((_) async => 42);
 
       await repository.adjustStock(testProductId, testRequest);
 
@@ -411,11 +419,9 @@ void main() {
     });
 
     test('retorna InventoryResponse con productId=-1 (pendiente)', () async {
-      when(() => mockPendingDao.insert(any()))
-          .thenAnswer((_) async => 42);
+      when(() => mockPendingDao.insert(any())).thenAnswer((_) async => 42);
 
-      final result =
-          await repository.adjustStock(testProductId, testRequest);
+      final result = await repository.adjustStock(testProductId, testRequest);
 
       expect(result.productId, -1);
     });
@@ -426,11 +432,12 @@ void main() {
         quantity: -5.0,
         reason: 'quebrado',
       );
-      when(() => mockPendingDao.insert(any()))
-          .thenAnswer((_) async => 42);
+      when(() => mockPendingDao.insert(any())).thenAnswer((_) async => 42);
 
-      final result =
-          await repository.adjustStock(testProductId, breakageRequest);
+      final result = await repository.adjustStock(
+        testProductId,
+        breakageRequest,
+      );
 
       expect(result.productId, -1);
 
