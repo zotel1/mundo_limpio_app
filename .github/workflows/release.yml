@@ -2,14 +2,10 @@
 #
 # Se ejecuta en cada push a develop. Construye APK y lo distribuye.
 #
-# Secrets requeridos en GitHub:
-# - GOOGLE_SERVICES_JSON: google-services.json en base64 (OBLIGATORIO para build)
-# - KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_PASSWORD, KEY_ALIAS (opcional — release firmado)
-# - FIREBASE_APP_ID, FIREBASE_TOKEN (opcional — Firebase App Distribution)
-#
-# Sin keystore: build debug APK sin firmar
-# Con keystore: build release APK firmado
-# Con Firebase: distribuye automáticamente a testers
+# Secrets requeridos:
+# - GOOGLE_SERVICES_JSON: google-services.json en base64 (OBLIGATORIO)
+# - KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_PASSWORD, KEY_ALIAS (opcional → release firmado)
+# - FIREBASE_APP_ID, FIREBASE_TOKEN (opcional → distribución automática)
 
 name: Release APK
 
@@ -35,48 +31,45 @@ jobs:
         run: flutter pub get
 
       - name: 🔑 Decodificar google-services.json
-        run: echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 -d > android/app/google-services.json
+        run: echo "$GOOGLE_SERVICES_JSON" | base64 -d > android/app/google-services.json
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
 
-      - name: 🔨 Build APK debug
-        if: ${{ secrets.KEYSTORE_BASE64 == '' }}
-        run: flutter build apk --debug
-
-      - name: 🔐 Decodificar keystore
-        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
-        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/mundolimpio.keystore
-
-      - name: 📝 Crear key.properties
-        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+      - name: 🔨 Build APK
         run: |
-          echo "storeFile=mundolimpio.keystore" > android/key.properties
-          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" >> android/key.properties
-          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
-          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
-
-      - name: 🔨 Build APK release
-        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
-        run: flutter build apk --release
-
-      - name: 📦 Archivar APK debug
-        if: ${{ secrets.KEYSTORE_BASE64 == '' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-debug
-          path: build/app/outputs/flutter-apk/app-debug.apk
-          retention-days: 7
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "🔐 Keystore detectado — build release firmado"
+            echo "$KEYSTORE_BASE64" | base64 -d > android/app/mundolimpio.keystore
+            echo "storeFile=mundolimpio.keystore" > android/key.properties
+            echo "storePassword=$KEYSTORE_PASSWORD" >> android/key.properties
+            echo "keyPassword=$KEY_PASSWORD" >> android/key.properties
+            echo "keyAlias=$KEY_ALIAS" >> android/key.properties
+            flutter build apk --release
+            echo "APK_PATH=build/app/outputs/flutter-apk/app-release.apk" >> $GITHUB_ENV
+            echo "APK_NAME=app-release" >> $GITHUB_ENV
+          else
+            echo "⚠️ Sin keystore — build debug"
+            flutter build apk --debug
+            echo "APK_PATH=build/app/outputs/flutter-apk/app-debug.apk" >> $GITHUB_ENV
+            echo "APK_NAME=app-debug" >> $GITHUB_ENV
+          fi
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
 
       - name: 🚀 Firebase App Distribution
-        if: ${{ secrets.FIREBASE_TOKEN != '' }}
         uses: wzieba/Firebase-Distribution-Github-Action@v1
+        continue-on-error: true
         with:
           appId: ${{ secrets.FIREBASE_APP_ID }}
           token: ${{ secrets.FIREBASE_TOKEN }}
           file: build/app/outputs/flutter-apk/app-release.apk
 
-      - name: 📦 Archivar APK release
-        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+      - name: 📦 Archivar APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-release
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: ${{ env.APK_NAME }}
+          path: ${{ env.APK_PATH }}
           retention-days: 30
