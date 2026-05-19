@@ -12,6 +12,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:mundo_limpio_app/core/theme/app_colors.dart';
+import 'package:mundo_limpio_app/core/widgets/logo_widget.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/screens/register_screen.dart';
@@ -32,14 +34,37 @@ import 'package:mundo_limpio_app/features/production/presentation/screens/produc
 /// Pantalla que se muestra mientras se resuelve el estado de auth.
 ///
 /// Aparece durante el startup cuando AuthStatus es loading.
+/// Muestra el logo de la marca centrado sobre fondo navy con un
+/// indicador de carga sutil debajo.
 /// Tan pronto como el estado cambia a authenticated o unauthenticated,
 /// el redirect de GoRouter redirige a la ruta correspondiente.
+///
+/// TDD: GREEN — reemplazar bare CircularProgressIndicator por splash con branding
 class _SplashScreen extends StatelessWidget {
   const _SplashScreen();
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    return Scaffold(
+      backgroundColor: AppColors.primary,
+      body: const Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            LogoWidget(size: 100),
+            SizedBox(height: 32),
+            SizedBox(
+              width: 32,
+              height: 32,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white54),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

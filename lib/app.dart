@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'core/router/app_router.dart';
+import 'core/theme/app_theme.dart';
 import 'features/auth/presentation/provider/auth_provider.dart';
 
 /// Widget raíz de la aplicación.
@@ -29,7 +30,8 @@ class MundoLimpioApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'MundoLimpio',
       routerConfig: createRouter(authProvider),
-      theme: ThemeData(colorSchemeSeed: Colors.green, useMaterial3: true),
+      // TDD: GREEN — reemplazar ThemeData inline por AppTheme.light
+      theme: AppTheme.light,
     );
   }
 }
