@@ -9,6 +9,7 @@
 //
 // TDD: GREEN — implementación mínima para pasar los tests
 
+import 'package:mundo_limpio_app/core/drift/app_database.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/product_response.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/production_batch_response.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/sale_request.dart';
@@ -20,6 +21,8 @@ import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
 /// - [getProducts]: obtiene la lista de productos disponibles
 /// - [getBatchesByProduct]: obtiene los lotes de un producto
 /// - [createSale]: crea una venta con lógica FIFO
+/// - [getDrafts]: lista los borradores de ventas offline
+/// - [confirmDraft]: confirma un borrador enviándolo al backend
 abstract class SalesRepository {
   /// Obtiene la lista de productos disponibles.
   ///
@@ -40,4 +43,17 @@ abstract class SalesRepository {
   /// Retorna [SaleResponse] con los datos de la venta creada.
   /// Lanza [ApiException] en caso de error (stock insuficiente, etc.).
   Future<SaleResponse> createSale(SaleRequest request);
+
+  /// Obtiene todos los borradores de ventas con status 'draft'.
+  ///
+  /// Retorna [List<DraftSale>] ordenada por fecha de creación descendente.
+  Future<List<DraftSale>> getDrafts();
+
+  /// Confirma un borrador enviándolo al backend.
+  ///
+  /// [draftId]: ID del borrador a confirmar.
+  /// Lee el borrador de la DB, lo envía vía [createSale],
+  /// y si el backend responde OK, lo marca como 'confirmed'.
+  /// Si el backend falla, propaga [ApiException] y NO cambia el status.
+  Future<SaleResponse> confirmDraft(int draftId);
 }
