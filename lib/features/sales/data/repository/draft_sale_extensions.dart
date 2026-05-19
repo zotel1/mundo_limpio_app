@@ -13,8 +13,6 @@ extension DraftSaleToRequest on DraftSale {
   /// Convierte este borrador en un request para la API de ventas.
   ///
   /// Toma [productId] y [quantity] del borrador.
-  SaleRequest toRequest() => SaleRequest(
-        productId: productId,
-        quantity: quantity,
-      );
+  SaleRequest toRequest() =>
+      SaleRequest(productId: productId, quantity: quantity);
 }

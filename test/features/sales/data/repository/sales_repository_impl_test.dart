@@ -28,9 +28,13 @@ import 'package:mundo_limpio_app/features/sales/data/repository/sales_repository
 // ─── Mocks ──────────────────────────────────────────────────────────────────
 
 class MockSalesApi extends Mock implements SalesApi {}
+
 class MockConnectivityService extends Mock implements ConnectivityService {}
+
 class MockProductCacheDao extends Mock implements ProductCacheDao {}
+
 class MockBatchCacheDao extends Mock implements BatchCacheDao {}
+
 class MockDraftSaleDao extends Mock implements DraftSaleDao {}
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -91,33 +95,40 @@ void main() {
   // ══════════════════════════════════════════════════════════════════════
 
   group('getProducts — online', () {
-    test('debe llamar SalesApi, cachear en ProductCacheDao y retornar', () async {
-      // Arrange
-      setOnline();
-      final products = [
-        const ProductResponse(id: 1, name: 'Producto A'),
-        const ProductResponse(id: 2, name: 'Producto B'),
-      ];
-      when(() => mockSalesApi.getProducts()).thenAnswer((_) async => products);
-      when(() => mockProductCacheDao.upsertAll(any()))
-          .thenAnswer((_) async {});
+    test(
+      'debe llamar SalesApi, cachear en ProductCacheDao y retornar',
+      () async {
+        // Arrange
+        setOnline();
+        final products = [
+          const ProductResponse(id: 1, name: 'Producto A'),
+          const ProductResponse(id: 2, name: 'Producto B'),
+        ];
+        when(
+          () => mockSalesApi.getProducts(),
+        ).thenAnswer((_) async => products);
+        when(
+          () => mockProductCacheDao.upsertAll(any()),
+        ).thenAnswer((_) async {});
 
-      // Act
-      final result = await repository.getProducts();
+        // Act
+        final result = await repository.getProducts();
 
-      // Assert
-      expect(result, hasLength(2));
-      expect(result[0].id, 1);
-      expect(result[0].name, 'Producto A');
-      verify(() => mockSalesApi.getProducts()).called(1);
-      verify(() => mockProductCacheDao.upsertAll(any())).called(1);
-    });
+        // Assert
+        expect(result, hasLength(2));
+        expect(result[0].id, 1);
+        expect(result[0].name, 'Producto A');
+        verify(() => mockSalesApi.getProducts()).called(1);
+        verify(() => mockProductCacheDao.upsertAll(any())).called(1);
+      },
+    );
 
     test('debe propagar ApiException cuando SalesApi falla', () async {
       // Arrange
       setOnline();
-      when(() => mockSalesApi.getProducts())
-          .thenThrow(const ApiException('Error de red', 0));
+      when(
+        () => mockSalesApi.getProducts(),
+      ).thenThrow(const ApiException('Error de red', 0));
 
       // Act & Assert
       expect(() => repository.getProducts(), throwsA(isA<ApiException>()));
@@ -176,37 +187,50 @@ void main() {
   // ══════════════════════════════════════════════════════════════════════
 
   group('getBatchesByProduct — online', () {
-    test('debe llamar SalesApi, limpiar caché viejo, cachear y retornar', () async {
-      // Arrange
-      setOnline();
-      const productId = 42;
-      final batches = [
-        const ProductionBatchResponse(id: 1, productId: productId, currentStock: 100.0),
-        const ProductionBatchResponse(id: 2, productId: productId, currentStock: 50.0),
-      ];
-      when(() => mockSalesApi.getBatchesByProduct(productId))
-          .thenAnswer((_) async => batches);
-      when(() => mockBatchCacheDao.deleteByProductId(productId))
-          .thenAnswer((_) async {});
-      when(() => mockBatchCacheDao.upsertAll(any()))
-          .thenAnswer((_) async {});
+    test(
+      'debe llamar SalesApi, limpiar caché viejo, cachear y retornar',
+      () async {
+        // Arrange
+        setOnline();
+        const productId = 42;
+        final batches = [
+          const ProductionBatchResponse(
+            id: 1,
+            productId: productId,
+            currentStock: 100.0,
+          ),
+          const ProductionBatchResponse(
+            id: 2,
+            productId: productId,
+            currentStock: 50.0,
+          ),
+        ];
+        when(
+          () => mockSalesApi.getBatchesByProduct(productId),
+        ).thenAnswer((_) async => batches);
+        when(
+          () => mockBatchCacheDao.deleteByProductId(productId),
+        ).thenAnswer((_) async {});
+        when(() => mockBatchCacheDao.upsertAll(any())).thenAnswer((_) async {});
 
-      // Act
-      final result = await repository.getBatchesByProduct(productId);
+        // Act
+        final result = await repository.getBatchesByProduct(productId);
 
-      // Assert
-      expect(result, hasLength(2));
-      expect(result[0].currentStock, 100.0);
-      verify(() => mockSalesApi.getBatchesByProduct(productId)).called(1);
-      verify(() => mockBatchCacheDao.deleteByProductId(productId)).called(1);
-      verify(() => mockBatchCacheDao.upsertAll(any())).called(1);
-    });
+        // Assert
+        expect(result, hasLength(2));
+        expect(result[0].currentStock, 100.0);
+        verify(() => mockSalesApi.getBatchesByProduct(productId)).called(1);
+        verify(() => mockBatchCacheDao.deleteByProductId(productId)).called(1);
+        verify(() => mockBatchCacheDao.upsertAll(any())).called(1);
+      },
+    );
 
     test('debe propagar ApiException cuando SalesApi falla', () async {
       // Arrange
       setOnline();
-      when(() => mockSalesApi.getBatchesByProduct(any()))
-          .thenThrow(const ApiException('Producto no encontrado', 404));
+      when(
+        () => mockSalesApi.getBatchesByProduct(any()),
+      ).thenThrow(const ApiException('Producto no encontrado', 404));
 
       // Act & Assert
       expect(
@@ -222,11 +246,22 @@ void main() {
       setOffline();
       const productId = 42;
       final cached = [
-        BatchCacheData(id: 1, productId: productId, currentStock: 100.0, updatedAt: DateTime.now()),
-        BatchCacheData(id: 2, productId: productId, currentStock: 50.0, updatedAt: DateTime.now()),
+        BatchCacheData(
+          id: 1,
+          productId: productId,
+          currentStock: 100.0,
+          updatedAt: DateTime.now(),
+        ),
+        BatchCacheData(
+          id: 2,
+          productId: productId,
+          currentStock: 50.0,
+          updatedAt: DateTime.now(),
+        ),
       ];
-      when(() => mockBatchCacheDao.getByProductId(productId))
-          .thenAnswer((_) async => cached);
+      when(
+        () => mockBatchCacheDao.getByProductId(productId),
+      ).thenAnswer((_) async => cached);
 
       // Act
       final result = await repository.getBatchesByProduct(productId);
@@ -249,8 +284,9 @@ void main() {
           updatedAt: DateTime.now().subtract(const Duration(minutes: 6)),
         ),
       ];
-      when(() => mockBatchCacheDao.getByProductId(productId))
-          .thenAnswer((_) async => expired);
+      when(
+        () => mockBatchCacheDao.getByProductId(productId),
+      ).thenAnswer((_) async => expired);
 
       // Act
       final result = await repository.getBatchesByProduct(productId);
@@ -263,8 +299,9 @@ void main() {
     test('debe retornar [] cuando el caché está vacío', () async {
       // Arrange
       setOffline();
-      when(() => mockBatchCacheDao.getByProductId(42))
-          .thenAnswer((_) async => []);
+      when(
+        () => mockBatchCacheDao.getByProductId(42),
+      ).thenAnswer((_) async => []);
 
       // Act
       final result = await repository.getBatchesByProduct(42);
@@ -273,28 +310,32 @@ void main() {
       expect(result, isEmpty);
     });
 
-    test('debe retornar datos cuando el caché tiene exactamente 5 min (límite)', () async {
-      // Arrange
-      setOffline();
-      const productId = 42;
-      final justFresh = [
-        BatchCacheData(
-          id: 1,
-          productId: productId,
-          currentStock: 75.0,
-          updatedAt: DateTime.now().subtract(const Duration(minutes: 5)),
-        ),
-      ];
-      when(() => mockBatchCacheDao.getByProductId(productId))
-          .thenAnswer((_) async => justFresh);
+    test(
+      'debe retornar datos cuando el caché tiene exactamente 5 min (límite)',
+      () async {
+        // Arrange
+        setOffline();
+        const productId = 42;
+        final justFresh = [
+          BatchCacheData(
+            id: 1,
+            productId: productId,
+            currentStock: 75.0,
+            updatedAt: DateTime.now().subtract(const Duration(minutes: 5)),
+          ),
+        ];
+        when(
+          () => mockBatchCacheDao.getByProductId(productId),
+        ).thenAnswer((_) async => justFresh);
 
-      // Act
-      final result = await repository.getBatchesByProduct(productId);
+        // Act
+        final result = await repository.getBatchesByProduct(productId);
 
-      // Assert: 5 min exactos → aún fresco
-      expect(result, hasLength(1));
-      expect(result[0].currentStock, 75.0);
-    });
+        // Assert: 5 min exactos → aún fresco
+        expect(result, hasLength(1));
+        expect(result[0].currentStock, 75.0);
+      },
+    );
   });
 
   // ══════════════════════════════════════════════════════════════════════
@@ -311,11 +352,17 @@ void main() {
         totalAmount: 375.00,
         createdAt: DateTime(2026, 5, 10, 10, 30, 0),
         items: const [
-          SaleItemResponse(batchId: 42, quantity: 30.0, unitPrice: 150.00, unitCost: 100.00),
+          SaleItemResponse(
+            batchId: 42,
+            quantity: 30.0,
+            unitPrice: 150.00,
+            unitCost: 100.00,
+          ),
         ],
       );
-      when(() => mockSalesApi.createSale(request))
-          .thenAnswer((_) async => expectedResponse);
+      when(
+        () => mockSalesApi.createSale(request),
+      ).thenAnswer((_) async => expectedResponse);
 
       // Act
       final result = await repository.createSale(request);
@@ -331,8 +378,9 @@ void main() {
       // Arrange
       setOnline();
       final request = SaleRequest(productId: 1, quantity: 100.0);
-      when(() => mockSalesApi.createSale(request))
-          .thenThrow(const ApiException('Stock insuficiente', 400));
+      when(
+        () => mockSalesApi.createSale(request),
+      ).thenThrow(const ApiException('Stock insuficiente', 400));
 
       // Act & Assert
       expect(
@@ -343,22 +391,25 @@ void main() {
   });
 
   group('createSale — offline', () {
-    test('debe guardar borrador en DraftSaleDao y retornar SaleResponse.draft()', () async {
-      // Arrange
-      setOffline();
-      final request = SaleRequest(productId: 42, quantity: 15.0);
-      when(() => mockDraftSaleDao.insert(any())).thenAnswer((_) async => 1);
+    test(
+      'debe guardar borrador en DraftSaleDao y retornar SaleResponse.draft()',
+      () async {
+        // Arrange
+        setOffline();
+        final request = SaleRequest(productId: 42, quantity: 15.0);
+        when(() => mockDraftSaleDao.insert(any())).thenAnswer((_) async => 1);
 
-      // Act
-      final result = await repository.createSale(request);
+        // Act
+        final result = await repository.createSale(request);
 
-      // Assert
-      expect(result.id, -1);
-      expect(result.totalAmount, 0.0);
-      expect(result.items, isEmpty);
-      verify(() => mockDraftSaleDao.insert(any())).called(1);
-      verifyNever(() => mockSalesApi.createSale(any()));
-    });
+        // Assert
+        expect(result.id, -1);
+        expect(result.totalAmount, 0.0);
+        expect(result.items, isEmpty);
+        verify(() => mockDraftSaleDao.insert(any())).called(1);
+        verifyNever(() => mockSalesApi.createSale(any()));
+      },
+    );
   });
 
   // ══════════════════════════════════════════════════════════════════════
@@ -366,81 +417,91 @@ void main() {
   // ══════════════════════════════════════════════════════════════════════
 
   group('confirmDraft', () {
-    test('debe leer borrador, llamar API, marcar confirmado y retornar respuesta', () async {
-      // Arrange
-      final draft = DraftSale(
-        id: 5,
-        productId: 42,
-        productName: 'Producto Test',
-        batchId: 10,
-        quantity: 30.0,
-        unitPrice: 150.0,
-        status: 'draft',
-        createdAt: DateTime(2026, 5, 10),
-      );
-      final apiResponse = SaleResponse(
-        id: 99,
-        totalAmount: 4500.00,
-        createdAt: DateTime(2026, 5, 10, 12, 0, 0),
-        items: const [
-          SaleItemResponse(batchId: 10, quantity: 30.0, unitPrice: 150.00, unitCost: 100.00),
-        ],
-      );
+    test(
+      'debe leer borrador, llamar API, marcar confirmado y retornar respuesta',
+      () async {
+        // Arrange
+        final draft = DraftSale(
+          id: 5,
+          productId: 42,
+          productName: 'Producto Test',
+          batchId: 10,
+          quantity: 30.0,
+          unitPrice: 150.0,
+          status: 'draft',
+          createdAt: DateTime(2026, 5, 10),
+        );
+        final apiResponse = SaleResponse(
+          id: 99,
+          totalAmount: 4500.00,
+          createdAt: DateTime(2026, 5, 10, 12, 0, 0),
+          items: const [
+            SaleItemResponse(
+              batchId: 10,
+              quantity: 30.0,
+              unitPrice: 150.00,
+              unitCost: 100.00,
+            ),
+          ],
+        );
 
-      when(() => mockDraftSaleDao.getById(5)).thenAnswer((_) async => draft);
-      when(() => mockSalesApi.createSale(any())).thenAnswer((_) async => apiResponse);
-      when(() => mockDraftSaleDao.updateStatus(5, 'confirmed'))
-          .thenAnswer((_) async {});
+        when(() => mockDraftSaleDao.getById(5)).thenAnswer((_) async => draft);
+        when(
+          () => mockSalesApi.createSale(any()),
+        ).thenAnswer((_) async => apiResponse);
+        when(
+          () => mockDraftSaleDao.updateStatus(5, 'confirmed'),
+        ).thenAnswer((_) async {});
 
-      // Act
-      final result = await repository.confirmDraft(5);
+        // Act
+        final result = await repository.confirmDraft(5);
 
-      // Assert
-      expect(result.id, 99);
-      expect(result.totalAmount, 4500.00);
-      verify(() => mockDraftSaleDao.getById(5)).called(1);
-      verify(() => mockSalesApi.createSale(any())).called(1);
-      verify(() => mockDraftSaleDao.updateStatus(5, 'confirmed')).called(1);
-    });
+        // Assert
+        expect(result.id, 99);
+        expect(result.totalAmount, 4500.00);
+        verify(() => mockDraftSaleDao.getById(5)).called(1);
+        verify(() => mockSalesApi.createSale(any())).called(1);
+        verify(() => mockDraftSaleDao.updateStatus(5, 'confirmed')).called(1);
+      },
+    );
 
-    test('debe mantener status draft cuando API falla con ApiException', () async {
-      // Arrange
-      final draft = DraftSale(
-        id: 7,
-        productId: 1,
-        productName: 'Test',
-        batchId: 1,
-        quantity: 10.0,
-        unitPrice: 100.0,
-        status: 'draft',
-        createdAt: DateTime(2026),
-      );
+    test(
+      'debe mantener status draft cuando API falla con ApiException',
+      () async {
+        // Arrange
+        final draft = DraftSale(
+          id: 7,
+          productId: 1,
+          productName: 'Test',
+          batchId: 1,
+          quantity: 10.0,
+          unitPrice: 100.0,
+          status: 'draft',
+          createdAt: DateTime(2026),
+        );
 
-      when(() => mockDraftSaleDao.getById(7)).thenAnswer((_) async => draft);
-      when(() => mockSalesApi.createSale(any()))
-          .thenThrow(const ApiException('Stock insuficiente', 400));
+        when(() => mockDraftSaleDao.getById(7)).thenAnswer((_) async => draft);
+        when(
+          () => mockSalesApi.createSale(any()),
+        ).thenThrow(const ApiException('Stock insuficiente', 400));
 
-      // Act & Assert
-      expect(
-        () => repository.confirmDraft(7),
-        throwsA(isA<ApiException>()),
-      );
-      // NUNCA se marca como confirmado
-      verifyNever(() => mockDraftSaleDao.updateStatus(any(), 'confirmed'));
-      // El draft se leyó correctamente
-      verify(() => mockDraftSaleDao.getById(7)).called(1);
-    });
+        // Act & Assert
+        expect(() => repository.confirmDraft(7), throwsA(isA<ApiException>()));
+        // NUNCA se marca como confirmado
+        verifyNever(() => mockDraftSaleDao.updateStatus(any(), 'confirmed'));
+        // El draft se leyó correctamente
+        verify(() => mockDraftSaleDao.getById(7)).called(1);
+      },
+    );
 
     test('debe propagar la excepción cuando getById falla', () async {
       // Arrange
-      when(() => mockDraftSaleDao.getById(99))
-          .thenThrow(const ApiException('Borrador no encontrado', 404));
+      when(
+        () => mockDraftSaleDao.getById(99),
+      ).thenThrow(const ApiException('Borrador no encontrado', 404));
 
       // Act & Assert
-      expect(
-        () => repository.confirmDraft(99),
-        throwsA(isA<ApiException>()),
-      );
+      expect(() => repository.confirmDraft(99), throwsA(isA<ApiException>()));
     });
   });
 
@@ -453,18 +514,29 @@ void main() {
       // Arrange
       final drafts = [
         DraftSale(
-          id: 1, productId: 10, productName: 'P1', batchId: 1,
-          quantity: 5.0, unitPrice: 100.0, status: 'draft',
+          id: 1,
+          productId: 10,
+          productName: 'P1',
+          batchId: 1,
+          quantity: 5.0,
+          unitPrice: 100.0,
+          status: 'draft',
           createdAt: DateTime(2026, 5, 10),
         ),
         DraftSale(
-          id: 2, productId: 20, productName: 'P2', batchId: 2,
-          quantity: 3.0, unitPrice: 200.0, status: 'draft',
+          id: 2,
+          productId: 20,
+          productName: 'P2',
+          batchId: 2,
+          quantity: 3.0,
+          unitPrice: 200.0,
+          status: 'draft',
           createdAt: DateTime(2026, 5, 11),
         ),
       ];
-      when(() => mockDraftSaleDao.getAllByStatus('draft'))
-          .thenAnswer((_) async => drafts);
+      when(
+        () => mockDraftSaleDao.getAllByStatus('draft'),
+      ).thenAnswer((_) async => drafts);
 
       // Act
       final result = await repository.getDrafts();
@@ -478,8 +550,9 @@ void main() {
 
     test('debe retornar lista vacía cuando no hay borradores', () async {
       // Arrange
-      when(() => mockDraftSaleDao.getAllByStatus('draft'))
-          .thenAnswer((_) async => []);
+      when(
+        () => mockDraftSaleDao.getAllByStatus('draft'),
+      ).thenAnswer((_) async => []);
 
       // Act
       final result = await repository.getDrafts();

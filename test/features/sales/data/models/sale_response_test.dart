@@ -132,7 +132,12 @@ void main() {
       final draft = SaleResponse.draft();
 
       expect(draft.createdAt, isNotNull);
-      expect(draft.createdAt.isBefore(DateTime.now().add(const Duration(seconds: 1))), isTrue);
+      expect(
+        draft.createdAt.isBefore(
+          DateTime.now().add(const Duration(seconds: 1)),
+        ),
+        isTrue,
+      );
     });
 
     // Edge case: el draft es igual a otro draft (ids iguales)
