@@ -14,6 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
+
 import '../provider/auth_provider.dart';
 import 'login_screen.dart';
 
@@ -24,8 +26,8 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('MundoLimpio'),
+      appBar: BrandedAppBar(
+        title: 'MundoLimpio',
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),

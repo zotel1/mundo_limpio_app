@@ -8,6 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/features/production/domain/entities/bulk_product.dart';
 import 'package:mundo_limpio_app/features/production/presentation/providers/bulk_product_provider.dart';
 import 'package:mundo_limpio_app/features/production/presentation/screens/bulk/bulk_product_form_screen.dart';
@@ -37,7 +38,7 @@ class _BulkProductListScreenState extends State<BulkProductListScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<BulkProductProvider>();
     return Scaffold(
-      appBar: AppBar(title: const Text('Materias Primas')),
+      appBar: const BrandedAppBar(title: 'Materias Primas'),
       body: _buildBody(provider),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _navigateToForm(provider),

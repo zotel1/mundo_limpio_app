@@ -9,6 +9,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/features/production/domain/entities/bulk_product.dart';
 import 'package:mundo_limpio_app/features/production/presentation/providers/bulk_product_provider.dart';
 
@@ -88,12 +89,10 @@ class _BulkProductFormScreenState extends State<BulkProductFormScreen> {
     return Stack(
       children: [
         Scaffold(
-          appBar: AppBar(
-            title: Text(
-              widget.product != null
-                  ? 'Editar Materia Prima'
-                  : 'Nueva Materia Prima',
-            ),
+          appBar: BrandedAppBar(
+            title: widget.product != null
+                ? 'Editar Materia Prima'
+                : 'Nueva Materia Prima',
           ),
           body: Form(
             key: _formKey,
