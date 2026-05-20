@@ -23,8 +23,9 @@ class AppConfig {
   );
 
   /// Tiempo máximo de espera para establecer conexión TCP.
-  /// 10 segundos da margen para redes lentas sin bloquear la UI.
-  static const Duration connectTimeout = Duration(seconds: 10);
+  /// 45 segundos para tolerar cold starts del backend Render en free tier
+  /// (~30-60s tras spin-down por inactividad de 15 min).
+  static const Duration connectTimeout = Duration(seconds: 45);
 
   /// Tiempo máximo de espera para recibir la respuesta completa.
   /// 10 segundos es suficiente para la mayoría de las APIs REST.
