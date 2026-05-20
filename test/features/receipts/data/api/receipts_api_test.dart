@@ -30,9 +30,7 @@ void main() {
 
     // Crea un archivo temporal real para que MultipartFile.fromFile
     // pueda leerlo (necesita acceder a File.length en disco).
-    testImageFile = File(
-      '${Directory.systemTemp.path}/receipt_test_ocr.jpg',
-    );
+    testImageFile = File('${Directory.systemTemp.path}/receipt_test_ocr.jpg');
     testImageFile.writeAsStringSync('fake-image-bytes');
   });
 
@@ -62,9 +60,7 @@ void main() {
         'imageUrl': 'https://storage.example.com/receipts/img123.jpg',
       };
       final response = Response(
-        requestOptions: RequestOptions(
-          path: '/api/v1/receipts/process',
-        ),
+        requestOptions: RequestOptions(path: '/api/v1/receipts/process'),
         data: responseData,
         statusCode: 200,
       );
@@ -75,12 +71,15 @@ void main() {
       ).thenAnswer((_) async => response);
 
       // Act
-      final result = await receiptsApi.processReceipt('${testImageFile.path}');
+      final result = await receiptsApi.processReceipt(testImageFile.path);
 
       // Assert: verifica que el ReceiptProcessResponse tiene los campos correctos
       expect(result.detectedSupplier, 'Proveedor X');
       expect(result.detectedDate, '2026-05-15');
-      expect(result.imageUrl, 'https://storage.example.com/receipts/img123.jpg');
+      expect(
+        result.imageUrl,
+        'https://storage.example.com/receipts/img123.jpg',
+      );
       expect(result.lines, hasLength(1));
       expect(result.lines[0].name, 'Leche');
       expect(result.lines[0].quantity, 2);
@@ -96,54 +95,61 @@ void main() {
     });
 
     // Error 400: debe lanzar ApiException
-    test('debe lanzar ApiException en processReceipt con bad request (400)',
-        () async {
-      when(
-        () =>
-            mockDio.post('/api/v1/receipts/process', data: any(named: 'data')),
-      ).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(path: '/api/v1/receipts/process'),
-          response: Response(
-            statusCode: 400,
-            requestOptions: RequestOptions(path: '/api/v1/receipts/process'),
+    test(
+      'debe lanzar ApiException en processReceipt con bad request (400)',
+      () async {
+        when(
+          () => mockDio.post(
+            '/api/v1/receipts/process',
+            data: any(named: 'data'),
           ),
-          type: DioExceptionType.badResponse,
-        ),
-      );
+        ).thenThrow(
+          DioException(
+            requestOptions: RequestOptions(path: '/api/v1/receipts/process'),
+            response: Response(
+              statusCode: 400,
+              requestOptions: RequestOptions(path: '/api/v1/receipts/process'),
+            ),
+            type: DioExceptionType.badResponse,
+          ),
+        );
 
-      expect(
-        () => receiptsApi.processReceipt('${testImageFile.path}'),
-        throwsA(isA<ApiException>()),
-      );
-    });
+        expect(
+          () => receiptsApi.processReceipt(testImageFile.path),
+          throwsA(isA<ApiException>()),
+        );
+      },
+    );
 
     // Error 403: debe lanzar AuthException
-    test('debe lanzar AuthException en processReceipt sin permisos (403)',
-        () async {
-      when(
-        () =>
-            mockDio.post('/api/v1/receipts/process', data: any(named: 'data')),
-      ).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(path: '/api/v1/receipts/process'),
-          response: Response(
-            statusCode: 403,
-            requestOptions: RequestOptions(path: '/api/v1/receipts/process'),
+    test(
+      'debe lanzar AuthException en processReceipt sin permisos (403)',
+      () async {
+        when(
+          () => mockDio.post(
+            '/api/v1/receipts/process',
+            data: any(named: 'data'),
           ),
-          type: DioExceptionType.badResponse,
-        ),
-      );
+        ).thenThrow(
+          DioException(
+            requestOptions: RequestOptions(path: '/api/v1/receipts/process'),
+            response: Response(
+              statusCode: 403,
+              requestOptions: RequestOptions(path: '/api/v1/receipts/process'),
+            ),
+            type: DioExceptionType.badResponse,
+          ),
+        );
 
-      expect(
-        () => receiptsApi.processReceipt('${testImageFile.path}'),
-        throwsA(isA<AuthException>()),
-      );
-    });
+        expect(
+          () => receiptsApi.processReceipt(testImageFile.path),
+          throwsA(isA<AuthException>()),
+        );
+      },
+    );
 
     // Error 422: debe lanzar ApiException (genérico, no auth ni server)
-    test(
-        'debe lanzar ApiException en processReceipt con '
+    test('debe lanzar ApiException en processReceipt con '
         'entidad no procesable (422)', () async {
       when(
         () =>
@@ -160,14 +166,13 @@ void main() {
       );
 
       expect(
-        () => receiptsApi.processReceipt('${testImageFile.path}'),
+        () => receiptsApi.processReceipt(testImageFile.path),
         throwsA(isA<ApiException>()),
       );
     });
 
     // Error 500: debe lanzar ServerException
-    test(
-        'debe lanzar ServerException en processReceipt con '
+    test('debe lanzar ServerException en processReceipt con '
         'error interno (500)', () async {
       when(
         () =>
@@ -184,29 +189,33 @@ void main() {
       );
 
       expect(
-        () => receiptsApi.processReceipt('${testImageFile.path}'),
+        () => receiptsApi.processReceipt(testImageFile.path),
         throwsA(isA<ServerException>()),
       );
     });
 
     // Error de red: debe lanzar NetworkException
-    test('debe lanzar NetworkException en processReceipt sin conexión',
-        () async {
-      when(
-        () =>
-            mockDio.post('/api/v1/receipts/process', data: any(named: 'data')),
-      ).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(path: '/api/v1/receipts/process'),
-          type: DioExceptionType.connectionTimeout,
-        ),
-      );
+    test(
+      'debe lanzar NetworkException en processReceipt sin conexión',
+      () async {
+        when(
+          () => mockDio.post(
+            '/api/v1/receipts/process',
+            data: any(named: 'data'),
+          ),
+        ).thenThrow(
+          DioException(
+            requestOptions: RequestOptions(path: '/api/v1/receipts/process'),
+            type: DioExceptionType.connectionTimeout,
+          ),
+        );
 
-      expect(
-        () => receiptsApi.processReceipt('${testImageFile.path}'),
-        throwsA(isA<NetworkException>()),
-      );
-    });
+        expect(
+          () => receiptsApi.processReceipt(testImageFile.path),
+          throwsA(isA<NetworkException>()),
+        );
+      },
+    );
   });
 
   group('confirmReceipt', () {
@@ -247,9 +256,7 @@ void main() {
         ],
       };
       final response = Response(
-        requestOptions: RequestOptions(
-          path: '/api/v1/receipts/confirm',
-        ),
+        requestOptions: RequestOptions(path: '/api/v1/receipts/confirm'),
         data: responseData,
         statusCode: 201,
       );
@@ -264,8 +271,10 @@ void main() {
 
       // Assert: verifica que el PurchaseResponse tiene los campos correctos
       expect(result.id, 1);
-      expect(result.imageUrl,
-          'https://storage.example.com/receipts/img123.jpg');
+      expect(
+        result.imageUrl,
+        'https://storage.example.com/receipts/img123.jpg',
+      );
       expect(result.supplierName, 'Proveedor X');
       expect(result.purchaseDate, DateTime(2026, 5, 15));
       expect(result.total, 300.0);
@@ -299,54 +308,61 @@ void main() {
     });
 
     // Error 400: debe lanzar ApiException
-    test('debe lanzar ApiException en confirmReceipt con bad request (400)',
-        () async {
-      when(
-        () =>
-            mockDio.post('/api/v1/receipts/confirm', data: any(named: 'data')),
-      ).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(path: '/api/v1/receipts/confirm'),
-          response: Response(
-            statusCode: 400,
-            requestOptions: RequestOptions(path: '/api/v1/receipts/confirm'),
+    test(
+      'debe lanzar ApiException en confirmReceipt con bad request (400)',
+      () async {
+        when(
+          () => mockDio.post(
+            '/api/v1/receipts/confirm',
+            data: any(named: 'data'),
           ),
-          type: DioExceptionType.badResponse,
-        ),
-      );
+        ).thenThrow(
+          DioException(
+            requestOptions: RequestOptions(path: '/api/v1/receipts/confirm'),
+            response: Response(
+              statusCode: 400,
+              requestOptions: RequestOptions(path: '/api/v1/receipts/confirm'),
+            ),
+            type: DioExceptionType.badResponse,
+          ),
+        );
 
-      expect(
-        () => receiptsApi.confirmReceipt(testRequest),
-        throwsA(isA<ApiException>()),
-      );
-    });
+        expect(
+          () => receiptsApi.confirmReceipt(testRequest),
+          throwsA(isA<ApiException>()),
+        );
+      },
+    );
 
     // Error 403: debe lanzar AuthException
-    test('debe lanzar AuthException en confirmReceipt sin permisos (403)',
-        () async {
-      when(
-        () =>
-            mockDio.post('/api/v1/receipts/confirm', data: any(named: 'data')),
-      ).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(path: '/api/v1/receipts/confirm'),
-          response: Response(
-            statusCode: 403,
-            requestOptions: RequestOptions(path: '/api/v1/receipts/confirm'),
+    test(
+      'debe lanzar AuthException en confirmReceipt sin permisos (403)',
+      () async {
+        when(
+          () => mockDio.post(
+            '/api/v1/receipts/confirm',
+            data: any(named: 'data'),
           ),
-          type: DioExceptionType.badResponse,
-        ),
-      );
+        ).thenThrow(
+          DioException(
+            requestOptions: RequestOptions(path: '/api/v1/receipts/confirm'),
+            response: Response(
+              statusCode: 403,
+              requestOptions: RequestOptions(path: '/api/v1/receipts/confirm'),
+            ),
+            type: DioExceptionType.badResponse,
+          ),
+        );
 
-      expect(
-        () => receiptsApi.confirmReceipt(testRequest),
-        throwsA(isA<AuthException>()),
-      );
-    });
+        expect(
+          () => receiptsApi.confirmReceipt(testRequest),
+          throwsA(isA<AuthException>()),
+        );
+      },
+    );
 
     // Error 422: debe lanzar ApiException (genérico, no auth ni server)
-    test(
-        'debe lanzar ApiException en confirmReceipt con '
+    test('debe lanzar ApiException en confirmReceipt con '
         'entidad no procesable (422)', () async {
       when(
         () =>
@@ -369,8 +385,7 @@ void main() {
     });
 
     // Error 500: debe lanzar ServerException
-    test(
-        'debe lanzar ServerException en confirmReceipt con '
+    test('debe lanzar ServerException en confirmReceipt con '
         'error interno (500)', () async {
       when(
         () =>
@@ -393,22 +408,26 @@ void main() {
     });
 
     // Error de red: debe lanzar NetworkException
-    test('debe lanzar NetworkException en confirmReceipt sin conexión',
-        () async {
-      when(
-        () =>
-            mockDio.post('/api/v1/receipts/confirm', data: any(named: 'data')),
-      ).thenThrow(
-        DioException(
-          requestOptions: RequestOptions(path: '/api/v1/receipts/confirm'),
-          type: DioExceptionType.connectionTimeout,
-        ),
-      );
+    test(
+      'debe lanzar NetworkException en confirmReceipt sin conexión',
+      () async {
+        when(
+          () => mockDio.post(
+            '/api/v1/receipts/confirm',
+            data: any(named: 'data'),
+          ),
+        ).thenThrow(
+          DioException(
+            requestOptions: RequestOptions(path: '/api/v1/receipts/confirm'),
+            type: DioExceptionType.connectionTimeout,
+          ),
+        );
 
-      expect(
-        () => receiptsApi.confirmReceipt(testRequest),
-        throwsA(isA<NetworkException>()),
-      );
-    });
+        expect(
+          () => receiptsApi.confirmReceipt(testRequest),
+          throwsA(isA<NetworkException>()),
+        );
+      },
+    );
   });
 }

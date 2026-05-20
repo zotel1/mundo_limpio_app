@@ -63,17 +63,13 @@ class ReceiptsApi {
   ///
   /// Endpoint: `POST /api/v1/receipts/confirm`
   /// Body: serialización JSON de [request]
-  Future<PurchaseResponse> confirmReceipt(
-    ReceiptConfirmRequest request,
-  ) async {
+  Future<PurchaseResponse> confirmReceipt(ReceiptConfirmRequest request) async {
     try {
       final response = await _dio.post(
         '/api/v1/receipts/confirm',
         data: request.toJson(),
       );
-      return PurchaseResponse.fromJson(
-        response.data as Map<String, dynamic>,
-      );
+      return PurchaseResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
     }
