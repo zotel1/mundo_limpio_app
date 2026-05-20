@@ -9,6 +9,7 @@
 // dependencias que ApiClient no conoce.
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import '../config/app_config.dart';
 
@@ -46,9 +47,9 @@ class ApiClient {
       LogInterceptor(
         request: true,
         requestHeader: true,
-        requestBody: true,
+        requestBody: !kReleaseMode,
         responseHeader: false,
-        responseBody: true,
+        responseBody: !kReleaseMode,
         error: true,
       ),
     );
