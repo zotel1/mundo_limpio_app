@@ -1,13 +1,21 @@
-// Pantalla de recibo confirmado (placeholder).
+// Pantalla de recibo confirmado.
 //
-// PR 4 implementará la UI completa con resumen de compra,
-// lista de ítems, total y botón "Nuevo Escaneo".
+// Muestra el resumen de una compra confirmada con:
+// - Datos del proveedor y fecha
+// - Total de la compra
+// - Lista de ítems (descripción, cantidad, precio unitario, total)
+// - Botón "Nuevo Escaneo" para iniciar otro ciclo
+// - Estado de error con Reintentar (defensivo)
 //
-// Por ahora es un placeholder mínimo que recibe PurchaseResponse.
+// TDD: GREEN — implementación completa para pasar los tests widget
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
+import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response.dart';
+import 'package:mundo_limpio_app/features/receipts/presentation/provider/receipts_provider.dart';
 
 /// Pantalla que muestra el resumen de una compra confirmada.
 ///
@@ -19,12 +27,185 @@ class ReceiptConfirmedScreen extends StatelessWidget {
 
   const ReceiptConfirmedScreen({super.key, required this.purchase});
 
+  void _onNewScan(BuildContext context) {
+    context.read<ReceiptsProvider>().reset();
+    context.pushReplacement('/receipts/new');
+  }
+
+  void _onRetry(BuildContext context) {
+    context.read<ReceiptsProvider>().clearError();
+    context.pushReplacement('/receipts/new');
+  }
+
   @override
   Widget build(BuildContext context) {
+    final date = purchase.purchaseDate;
+    final dateStr =
+        '${date.day.toString().padLeft(2, '0')}/'
+        '${date.month.toString().padLeft(2, '0')}/'
+        '${date.year}';
+
+    String formatCurrency(double value) => '\$${value.toStringAsFixed(2)}';
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Recibo Confirmado')),
-      body: Center(
-        child: Text('Compra #${purchase.id}: ${purchase.supplierName}'),
+      appBar: const BrandedAppBar(title: 'Recibo Confirmado'),
+      body: Consumer<ReceiptsProvider>(
+        builder: (context, provider, _) {
+          // Estado de error (defensivo)
+          if (provider.status == ReceiptsStatus.error) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Colors.red,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      provider.errorMessage ?? 'Error desconocido',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 16, color: Colors.red),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: () => _onRetry(context),
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Reintentar'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // ─── Encabezado: icono check ─────────
+                const Icon(Icons.check_circle, size: 64, color: Colors.green),
+                const SizedBox(height: 16),
+                const Text(
+                  '¡Compra Confirmada!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // ─── Resumen ──────────────────────────
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSummaryRow('Proveedor', purchase.supplierName),
+                        const Divider(),
+                        _buildSummaryRow('Fecha', dateStr),
+                        const Divider(),
+                        _buildSummaryRow(
+                          'Total',
+                          formatCurrency(purchase.total),
+                          valueStyle: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // ─── Lista de ítems ──────────────────
+                const Text(
+                  'Ítems',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                ...purchase.items.map(
+                  (item) => Card(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.description,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Qty: ${item.quantity}  |  '
+                                  'Unit: ${formatCurrency(item.unitPrice)}',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text(
+                            formatCurrency(item.totalPrice),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // ─── Botón Nuevo Escaneo ─────────────
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton.icon(
+                    onPressed: () => _onNewScan(context),
+                    icon: const Icon(Icons.receipt_long),
+                    label: const Text(
+                      'Nuevo Escaneo',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSummaryRow(String label, String value, {TextStyle? valueStyle}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(color: Colors.grey)),
+          Text(
+            value,
+            style: valueStyle ?? const TextStyle(fontWeight: FontWeight.w500),
+          ),
+        ],
       ),
     );
   }
