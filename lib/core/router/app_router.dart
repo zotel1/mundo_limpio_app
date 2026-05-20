@@ -26,6 +26,11 @@ import 'package:mundo_limpio_app/features/sales/presentation/screens/sale_result
 import 'package:mundo_limpio_app/features/production/presentation/screens/bulk/bulk_product_list_screen.dart';
 import 'package:mundo_limpio_app/features/production/presentation/screens/production/production_batch_list_screen.dart';
 import 'package:mundo_limpio_app/features/production/presentation/screens/production/production_create_screen.dart';
+import 'package:mundo_limpio_app/features/receipts/data/models/receipt_process_response.dart';
+import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response.dart';
+import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_capture_screen.dart';
+import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_review_screen.dart';
+import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_confirmed_screen.dart';
 
 // ---------------------------------------------------------------------------
 // Pantalla de splash / carga
@@ -96,9 +101,10 @@ GoRouter createRouter(
       final status = authProvider.status;
       final location = state.matchedLocation;
 
-      // Proteger rutas de producción: solo ADMIN puede acceder
+      // Proteger rutas de producción y recibos: solo ADMIN puede acceder
       if (status == AuthStatus.authenticated &&
-          location.startsWith('/production/') &&
+          (location.startsWith('/production/') ||
+              location.startsWith('/receipts/')) &&
           authProvider.role != 'ADMIN') {
         return '/';
       }
@@ -168,6 +174,40 @@ GoRouter createRouter(
             );
           }
           return SaleResultScreen(sale: sale);
+        },
+      ),
+
+      // --- Recibos (OCR) ---
+      GoRoute(
+        path: '/receipts/new',
+        builder: (_, _) => const ReceiptCaptureScreen(),
+      ),
+      GoRoute(
+        path: '/receipts/review',
+        builder: (context, state) {
+          final response = state.extra as ReceiptProcessResponse?;
+          if (response == null) {
+            return const Scaffold(
+              body: Center(
+                child: Text('Error: datos de recibo no disponibles'),
+              ),
+            );
+          }
+          return ReceiptReviewScreen(processResponse: response);
+        },
+      ),
+      GoRoute(
+        path: '/receipts/confirmed',
+        builder: (context, state) {
+          final purchase = state.extra as PurchaseResponse?;
+          if (purchase == null) {
+            return const Scaffold(
+              body: Center(
+                child: Text('Error: datos de compra no disponibles'),
+              ),
+            );
+          }
+          return ReceiptConfirmedScreen(purchase: purchase);
         },
       ),
     ],
