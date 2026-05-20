@@ -38,12 +38,12 @@ Widget createTestApp({
     routes: [
       GoRoute(
         path: '/',
-        builder: (_, __) =>
+        builder: (_, _) =>
             ReceiptReviewScreen(processResponse: processResponse),
       ),
       GoRoute(
         path: '/receipts/confirmed',
-        builder: (_, __) =>
+        builder: (_, _) =>
             const Scaffold(body: Center(child: Text('Confirmed'))),
       ),
     ],

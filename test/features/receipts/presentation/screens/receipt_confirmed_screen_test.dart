@@ -31,12 +31,11 @@ Widget createTestApp({
     routes: [
       GoRoute(
         path: '/',
-        builder: (_, __) => ReceiptConfirmedScreen(purchase: purchase),
+        builder: (_, _) => ReceiptConfirmedScreen(purchase: purchase),
       ),
       GoRoute(
         path: '/receipts/new',
-        builder: (_, __) =>
-            const Scaffold(body: Center(child: Text('Capture'))),
+        builder: (_, _) => const Scaffold(body: Center(child: Text('Capture'))),
       ),
     ],
   );
