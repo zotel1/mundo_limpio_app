@@ -15,10 +15,11 @@ void main() {
       expect(AppConfig.baseUrl, 'http://localhost:8080/api/v1');
     });
 
-    // El timeout de conexión debe ser 10 segundos para
-    // permitir reintentos sin bloquear la UI.
-    test('should have 10 seconds connect timeout', () {
-      expect(AppConfig.connectTimeout, const Duration(seconds: 10));
+    // TDD: RED — timeout actualizado para tolerar cold starts de Render (~30-60s).
+    // El timeout de conexión debe ser 45 segundos para
+    // tolerar cold starts del backend Render en free tier.
+    test('should have 45 seconds connect timeout for Render cold starts', () {
+      expect(AppConfig.connectTimeout, const Duration(seconds: 45));
     });
 
     // El timeout de recepción debe ser 10 segundos para

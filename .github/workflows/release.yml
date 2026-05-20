@@ -44,12 +44,12 @@ jobs:
             echo "storePassword=$KEYSTORE_PASSWORD" >> android/key.properties
             echo "keyPassword=$KEY_PASSWORD" >> android/key.properties
             echo "keyAlias=$KEY_ALIAS" >> android/key.properties
-            flutter build apk --release
+            flutter build apk --release --dart-define=BASE_URL=https://mundo-limpio-backend.onrender.com/api/v1
             echo "APK_PATH=build/app/outputs/flutter-apk/app-release.apk" >> $GITHUB_ENV
             echo "APK_NAME=app-release" >> $GITHUB_ENV
           else
             echo "⚠️ Sin keystore — build debug"
-            flutter build apk --debug
+            flutter build apk --debug --dart-define=BASE_URL=https://mundo-limpio-backend.onrender.com/api/v1
             echo "APK_PATH=build/app/outputs/flutter-apk/app-debug.apk" >> $GITHUB_ENV
             echo "APK_NAME=app-debug" >> $GITHUB_ENV
           fi
