@@ -8,7 +8,7 @@
 // para permitir tests con mocks y compartir la configuración
 // de ApiClient (base URL, timeouts, interceptors).
 //
-// TDD: RED — esqueleto mínimo, tests deben fallar
+// TDD: GREEN — implementación para pasar los tests
 
 import 'package:dio/dio.dart';
 
@@ -40,8 +40,23 @@ class ReceiptsApi {
   /// Endpoint: `POST /api/v1/receipts/process`
   /// Body: multipart FormData con el campo 'image'
   Future<ReceiptProcessResponse> processReceipt(String imagePath) async {
-    // TDD: RED — implementación pendiente
-    throw UnimplementedError('processReceipt — RED phase');
+    try {
+      final formData = FormData.fromMap({
+        'image': await MultipartFile.fromFile(
+          imagePath,
+          filename: 'receipt.jpg',
+        ),
+      });
+      final response = await _dio.post(
+        '/api/v1/receipts/process',
+        data: formData,
+      );
+      return ReceiptProcessResponse.fromJson(
+        response.data as Map<String, dynamic>,
+      );
+    } on DioException catch (e) {
+      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+    }
   }
 
   /// Confirma una compra desde recibo OCR en el backend.
@@ -51,7 +66,16 @@ class ReceiptsApi {
   Future<PurchaseResponse> confirmReceipt(
     ReceiptConfirmRequest request,
   ) async {
-    // TDD: RED — implementación pendiente
-    throw UnimplementedError('confirmReceipt — RED phase');
+    try {
+      final response = await _dio.post(
+        '/api/v1/receipts/confirm',
+        data: request.toJson(),
+      );
+      return PurchaseResponse.fromJson(
+        response.data as Map<String, dynamic>,
+      );
+    } on DioException catch (e) {
+      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+    }
   }
 }

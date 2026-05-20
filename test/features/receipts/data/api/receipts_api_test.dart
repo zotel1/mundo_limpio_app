@@ -5,6 +5,8 @@
 //
 // TDD: RED — test escrito antes que la implementación
 
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -20,10 +22,24 @@ class MockDio extends Mock implements Dio {}
 void main() {
   late MockDio mockDio;
   late ReceiptsApi receiptsApi;
+  late File testImageFile;
 
   setUp(() {
     mockDio = MockDio();
     receiptsApi = ReceiptsApi(dio: mockDio);
+
+    // Crea un archivo temporal real para que MultipartFile.fromFile
+    // pueda leerlo (necesita acceder a File.length en disco).
+    testImageFile = File(
+      '${Directory.systemTemp.path}/receipt_test_ocr.jpg',
+    );
+    testImageFile.writeAsStringSync('fake-image-bytes');
+  });
+
+  tearDown(() {
+    if (testImageFile.existsSync()) {
+      testImageFile.deleteSync();
+    }
   });
 
   group('processReceipt', () {
@@ -59,7 +75,7 @@ void main() {
       ).thenAnswer((_) async => response);
 
       // Act
-      final result = await receiptsApi.processReceipt('/tmp/test.jpg');
+      final result = await receiptsApi.processReceipt('${testImageFile.path}');
 
       // Assert: verifica que el ReceiptProcessResponse tiene los campos correctos
       expect(result.detectedSupplier, 'Proveedor X');
@@ -97,7 +113,7 @@ void main() {
       );
 
       expect(
-        () => receiptsApi.processReceipt('/tmp/test.jpg'),
+        () => receiptsApi.processReceipt('${testImageFile.path}'),
         throwsA(isA<ApiException>()),
       );
     });
@@ -120,7 +136,7 @@ void main() {
       );
 
       expect(
-        () => receiptsApi.processReceipt('/tmp/test.jpg'),
+        () => receiptsApi.processReceipt('${testImageFile.path}'),
         throwsA(isA<AuthException>()),
       );
     });
@@ -144,7 +160,7 @@ void main() {
       );
 
       expect(
-        () => receiptsApi.processReceipt('/tmp/test.jpg'),
+        () => receiptsApi.processReceipt('${testImageFile.path}'),
         throwsA(isA<ApiException>()),
       );
     });
@@ -168,7 +184,7 @@ void main() {
       );
 
       expect(
-        () => receiptsApi.processReceipt('/tmp/test.jpg'),
+        () => receiptsApi.processReceipt('${testImageFile.path}'),
         throwsA(isA<ServerException>()),
       );
     });
@@ -187,7 +203,7 @@ void main() {
       );
 
       expect(
-        () => receiptsApi.processReceipt('/tmp/test.jpg'),
+        () => receiptsApi.processReceipt('${testImageFile.path}'),
         throwsA(isA<NetworkException>()),
       );
     });
