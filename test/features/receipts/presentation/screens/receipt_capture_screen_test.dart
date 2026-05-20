@@ -34,7 +34,8 @@ Widget createTestApp(ReceiptsProvider provider) {
       GoRoute(path: '/', builder: (context, _) => const ReceiptCaptureScreen()),
       GoRoute(
         path: '/receipts/review',
-        builder: (context, _) => const Scaffold(body: Center(child: Text('Review'))),
+        builder: (context, _) =>
+            const Scaffold(body: Center(child: Text('Review'))),
       ),
     ],
   );
