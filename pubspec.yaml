@@ -47,6 +47,9 @@ dependencies:
   # para el scope actual. Migrar a Riverpod después si hace falta.
   provider: ^6.1.0
 
+  # Acceso a cámara y galería para capturar fotos de recibos.
+  image_picker: ^1.1.2
+
   # Routing declarativo con redirects por estado de autenticación.
   go_router: ^14.0.0
 
