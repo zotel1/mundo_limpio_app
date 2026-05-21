@@ -23,6 +23,7 @@ import 'app.dart';
 import 'core/config/app_config.dart';
 import 'core/connectivity/connectivity_service.dart';
 import 'core/crashlytics/crashlytics_service.dart';
+import 'core/services/notifications_service.dart';
 import 'core/drift/app_database.dart';
 import 'core/drift/daos/batch_cache_dao.dart';
 import 'core/drift/daos/draft_sale_dao.dart';
@@ -45,6 +46,9 @@ import 'features/sales/data/api/sales_api.dart';
 import 'features/sales/data/repository/sales_repository_impl.dart';
 import 'features/sales/domain/repository/sales_repository.dart';
 import 'features/sales/presentation/provider/sales_provider.dart';
+import 'features/notifications/data/push_notifications_repository_impl.dart';
+import 'features/notifications/domain/push_notifications_repository.dart';
+import 'features/notifications/presentation/notifications_provider.dart';
 import 'features/splash/data/splash_repository_impl.dart';
 import 'features/splash/domain/splash_repository.dart';
 import 'features/splash/presentation/splash_provider.dart';
@@ -58,6 +62,11 @@ void main() async {
 
   // Inicializar Crashlytics para capturar errores fatales (PR#4)
   await CrashlyticsService.initialize();
+
+  // Inicializar notificaciones push — suscripcion al topic de actualizaciones.
+  // Si el usuario niega el permiso o falla la suscripcion, la app
+  // continua normalmente (no bloqueante).
+  await NotificationsService.initialize();
 
   final db = AppDatabase();
 
@@ -117,6 +126,17 @@ void main() async {
             service.initialize();
             return service;
           },
+        ),
+
+        // ── Notificaciones push: repositorio + provider ──────
+        // Repositorio de notificaciones push (wraps FirebaseMessaging).
+        Provider<PushNotificationsRepository>(
+          create: (_) => PushNotificationsRepositoryImpl(),
+        ),
+        // Provider que expone el estado de notificaciones foreground.
+        ChangeNotifierProvider<NotificationsProvider>(
+          create: (ctx) =>
+              NotificationsProvider(ctx.read<PushNotificationsRepository>()),
         ),
 
         // ── Repositorios (sin cambios en PR#1) ───────────────
