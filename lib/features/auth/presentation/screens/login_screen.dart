@@ -19,6 +19,7 @@ import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/core/widgets/branded_error_banner.dart';
+import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/core/widgets/logo_widget.dart';
 
 import '../helpers/validators.dart';
@@ -136,7 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ? const SizedBox(
                             height: 24,
                             width: 24,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                            child: CatLoadingIndicator.small(),
                           )
                         : const Text(
                             'Iniciar Sesión',
