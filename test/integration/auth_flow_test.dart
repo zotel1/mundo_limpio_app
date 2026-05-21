@@ -16,6 +16,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/router/app_router.dart';
@@ -23,6 +24,8 @@ import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provid
 import 'package:mundo_limpio_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/screens/register_screen.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/screens/home_screen.dart';
+import 'package:mundo_limpio_app/features/splash/domain/splash_repository.dart';
+import 'package:mundo_limpio_app/features/splash/presentation/splash_provider.dart';
 
 // Mock de AuthProvider que responde a login/register cambiando estado.
 //
@@ -97,27 +100,47 @@ class MockAuthProvider extends ChangeNotifier implements AuthProvider {
   }
 }
 
+/// Mock del repositorio de splash para el test de integración.
+class MockSplashRepository extends Mock implements SplashRepository {}
+
 /// Crea la app de test con GoRouter y mock de auth.
 ///
 /// [authProvider] controla el estado de autenticación.
+/// [splashProvider] controla el estado del splash.
 /// [initialLocation] permite arrancar desde una ruta específica.
 Widget createTestApp(
-  MockAuthProvider authProvider, {
+  MockAuthProvider authProvider,
+  SplashProvider splashProvider, {
   String initialLocation = '/',
 }) {
-  final router = createRouter(authProvider, initialLocation: initialLocation);
+  final router = createRouter(
+    authProvider,
+    splashProvider,
+    initialLocation: initialLocation,
+  );
 
-  return ChangeNotifierProvider<AuthProvider>.value(
-    value: authProvider,
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
+      ChangeNotifierProvider<SplashProvider>.value(value: splashProvider),
+    ],
     child: MaterialApp.router(routerConfig: router),
   );
 }
 
 void main() {
   late MockAuthProvider authProvider;
+  late MockSplashRepository mockSplashRepo;
+  late SplashProvider splashProvider;
 
   setUp(() {
     authProvider = MockAuthProvider();
+    mockSplashRepo = MockSplashRepository();
+    when(() => mockSplashRepo.wakeBackend()).thenAnswer((_) async => true);
+    splashProvider = SplashProvider(
+      mockSplashRepo,
+      animationDuration: Duration.zero,
+    );
   });
 
   /// Helper: hace pump hasta que GoRouter procesa redirects.
@@ -139,7 +162,7 @@ void main() {
       // =========================================================================
       // Arrange: usuario no autenticado (default)
       // Act: renderizar app desde /
-      await tester.pumpWidget(createTestApp(authProvider));
+      await tester.pumpWidget(createTestApp(authProvider, splashProvider));
       await pumpUntilRouterSettles(tester);
 
       // Assert: debe mostrar LoginScreen
