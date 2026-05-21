@@ -16,6 +16,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
+import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/inventory/data/models/inventory_response.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/provider/inventory_provider.dart';
 
@@ -61,7 +62,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
         return const Center(
           child: Padding(
             padding: EdgeInsets.symmetric(vertical: 64),
-            child: CircularProgressIndicator(),
+            child: CatLoadingIndicator.general(),
           ),
         );
       case InventoryStatus.lowStockLoaded:
