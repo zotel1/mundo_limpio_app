@@ -59,7 +59,7 @@ void main() {
   /// Crea un [NotificationsProvider] y registra un listener que cuenta
   /// invocaciones de notifyListeners.
   (NotificationsProvider, List<int> notifications)
-      createProviderWithListener() {
+  createProviderWithListener() {
     final provider = NotificationsProvider(mockRepo);
     final calls = <int>[];
     provider.addListener(() => calls.add(calls.length));
@@ -97,7 +97,7 @@ void main() {
       () async {
         // Arrange
         final mockMessage = MockRemoteMessage();
-        final (provider, listenerCalls) =     createProviderWithListener();
+        final (provider, listenerCalls) = createProviderWithListener();
 
         // Act
         messageController.add(mockMessage);
@@ -117,7 +117,7 @@ void main() {
     test('debe notificar a los listeners cuando llega un mensaje', () async {
       // Arrange
       final mockMessage = MockRemoteMessage();
-      final (provider, listenerCalls) =     createProviderWithListener();
+      final (provider, listenerCalls) = createProviderWithListener();
 
       // Act
       messageController.add(mockMessage);
@@ -134,7 +134,7 @@ void main() {
   group('NotificationsProvider — multiples mensajes', () {
     test('debe actualizar lastMessage con cada mensaje recibido', () async {
       // Arrange
-      final (provider, listenerCalls) =     createProviderWithListener();
+      final (provider, listenerCalls) = createProviderWithListener();
       final msg1 = MockRemoteMessage();
       final msg2 = MockRemoteMessage();
       final msg3 = MockRemoteMessage();
@@ -166,7 +166,7 @@ void main() {
 
     test('cada mensaje debe disparar exactamente una notificacion', () async {
       // Arrange
-      final (provider, _) =     createProviderWithListener();
+      final (provider, _) = createProviderWithListener();
       final listenerCalls = <int>[];
       provider.addListener(() => listenerCalls.add(listenerCalls.length));
 
@@ -186,7 +186,7 @@ void main() {
   group('NotificationsProvider — dispose', () {
     test('debe cancelar la suscripcion del stream al hacer dispose', () async {
       // Arrange
-      final (provider, listenerCalls) =     createProviderWithListener();
+      final (provider, listenerCalls) = createProviderWithListener();
 
       // Act — dispose (cancela el stream subscription)
       provider.dispose();
@@ -220,7 +220,7 @@ void main() {
   group('NotificationsProvider — sin mensajes', () {
     test('lastMessage se mantiene null si el stream no emite', () async {
       // Arrange
-      final (provider, listenerCalls) =     createProviderWithListener();
+      final (provider, listenerCalls) = createProviderWithListener();
 
       // Act — no emitimos nada
       await Future<void>.delayed(Duration.zero);
@@ -262,7 +262,7 @@ void main() {
       'debe funcionar sin callback opcional (solo actualizar estado)',
       () async {
         // Arrange — sin callback
-        final (provider, listenerCalls) =     createProviderWithListener();
+        final (provider, listenerCalls) = createProviderWithListener();
         final mockMessage = MockRemoteMessage();
 
         // Act
