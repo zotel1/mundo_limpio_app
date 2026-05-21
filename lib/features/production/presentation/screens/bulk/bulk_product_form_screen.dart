@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
+import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/production/domain/entities/bulk_product.dart';
 import 'package:mundo_limpio_app/features/production/presentation/providers/bulk_product_provider.dart';
 
@@ -153,7 +154,7 @@ class _BulkProductFormScreenState extends State<BulkProductFormScreen> {
         ),
         if (_isSaving)
           const ModalBarrier(dismissible: false, color: Colors.black26),
-        if (_isSaving) const Center(child: CircularProgressIndicator()),
+        if (_isSaving) const Center(child: CatLoadingIndicator.small()),
       ],
     );
   }

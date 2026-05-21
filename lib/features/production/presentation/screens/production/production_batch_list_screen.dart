@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
+import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/production/domain/entities/production_batch.dart';
 import 'package:mundo_limpio_app/features/production/presentation/providers/production_provider.dart';
 import 'package:mundo_limpio_app/features/production/presentation/screens/production/production_create_screen.dart';
@@ -55,7 +56,7 @@ class _ProductionBatchListScreenState extends State<ProductionBatchListScreen> {
         if (provider.productionBatches.isNotEmpty) {
           return _buildBatchList(provider);
         }
-        return const Center(child: CircularProgressIndicator());
+        return const Center(child: CatLoadingIndicator.general());
 
       case ProductionStatus.loaded:
         if (provider.productionBatches.isEmpty) {

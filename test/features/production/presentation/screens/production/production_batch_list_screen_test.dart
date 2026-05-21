@@ -3,7 +3,7 @@
 // Pruebas de widget para ProductionBatchListScreen.
 //
 // Cubre:
-// - Estado loading → CircularProgressIndicator
+// - Estado loading → CatLoadingIndicator
 // - Lista con lotes → Cards con Lote #1 y Lote #2
 // - Lista vacía → "No hay lotes de producción"
 // - Error → mensaje + botón Reintentar
@@ -19,6 +19,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/production/domain/entities/bulk_product.dart';
 import 'package:mundo_limpio_app/features/production/domain/entities/production_batch.dart';
 import 'package:mundo_limpio_app/features/production/domain/repositories/i_bulk_product_repository.dart';
@@ -149,7 +150,7 @@ void main() {
       await pumpUntilSettled(tester);
 
       // Assert: spinner visible
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(CatLoadingIndicator), findsOneWidget);
     });
 
     testWidgets('debe mostrar lista de lotes cuando hay datos', (tester) async {
