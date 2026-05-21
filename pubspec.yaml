@@ -117,7 +117,14 @@ flutter:
 
   # Assets de la aplicación.
   assets:
-    - assets/images/logo.png
+    - assets/images/01_cat_standing.png
+    - assets/images/02_cat_sleeping.png
+    - assets/images/03_cat_laundry.png
+    - assets/images/04_cat_waking.png
+    - assets/images/05_cat_soap.png
+    - assets/images/06_cat_broom_small.png
+    - assets/images/07_cat_broom.png
+    - assets/images/08_cat_cleaning_logo.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
