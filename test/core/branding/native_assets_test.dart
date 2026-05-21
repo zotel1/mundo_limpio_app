@@ -34,28 +34,33 @@ void main() {
       pubspec = readYamlFile('pubspec.yaml');
     });
 
-    test('debe declarar assets/images/08_cat_cleaning_logo.png en flutter.assets', () {
-      // TDD: REFACTOR — logo.png reemplazado por 08_cat_cleaning_logo.png
-      final flutter = pubspec['flutter'] as yaml.YamlMap?;
-      expect(
-        flutter,
-        isNotNull,
-        reason: 'pubspec.yaml debe tener la sección flutter',
-      );
+    test(
+      'debe declarar assets/images/08_cat_cleaning_logo.png en flutter.assets',
+      () {
+        // TDD: REFACTOR — logo.png reemplazado por 08_cat_cleaning_logo.png
+        final flutter = pubspec['flutter'] as yaml.YamlMap?;
+        expect(
+          flutter,
+          isNotNull,
+          reason: 'pubspec.yaml debe tener la sección flutter',
+        );
 
-      final assets = flutter!['assets'] as yaml.YamlList?;
-      expect(
-        assets,
-        isNotNull,
-        reason: 'flutter.assets debe estar declarado (no comentado)',
-      );
+        final assets = flutter!['assets'] as yaml.YamlList?;
+        expect(
+          assets,
+          isNotNull,
+          reason: 'flutter.assets debe estar declarado (no comentado)',
+        );
 
-      expect(
-        assets!.cast<String>().contains('assets/images/08_cat_cleaning_logo.png'),
-        isTrue,
-        reason: 'assets debe incluir assets/images/08_cat_cleaning_logo.png',
-      );
-    });
+        expect(
+          assets!.cast<String>().contains(
+            'assets/images/08_cat_cleaning_logo.png',
+          ),
+          isTrue,
+          reason: 'assets debe incluir assets/images/08_cat_cleaning_logo.png',
+        );
+      },
+    );
 
     test('debe declarar flutter_launcher_icons en dev_dependencies', () {
       // TDD: RED — dependency not yet added
@@ -101,10 +106,13 @@ void main() {
       expect(config['ios'], false, reason: 'iOS no configurado en este cambio');
     });
 
-    test('image_path debe apuntar a assets/images/08_cat_cleaning_logo.png', () {
-      final imagePath = config['image_path'] as String?;
-      expect(imagePath, equals('assets/images/08_cat_cleaning_logo.png'));
-    });
+    test(
+      'image_path debe apuntar a assets/images/08_cat_cleaning_logo.png',
+      () {
+        final imagePath = config['image_path'] as String?;
+        expect(imagePath, equals('assets/images/08_cat_cleaning_logo.png'));
+      },
+    );
 
     test('adaptive_icon_background debe ser navy #1E2238', () {
       final bg = config['adaptive_icon_background'] as String?;

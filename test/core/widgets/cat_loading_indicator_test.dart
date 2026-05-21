@@ -68,9 +68,7 @@ void main() {
       const customSize = 120.0;
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: CatLoadingIndicator.general(size: customSize),
-          ),
+          home: Scaffold(body: CatLoadingIndicator.general(size: customSize)),
         ),
       );
 
@@ -81,9 +79,7 @@ void main() {
 
     testWidgets('.small() por defecto debe ser 24', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(body: CatLoadingIndicator.small()),
-        ),
+        const MaterialApp(home: Scaffold(body: CatLoadingIndicator.small())),
       );
 
       final image = tester.widget<Image>(find.byType(Image));
@@ -95,9 +91,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(body: CatLoadingIndicator.general()),
-        ),
+        const MaterialApp(home: Scaffold(body: CatLoadingIndicator.general())),
       );
 
       expect(find.bySemanticsLabel('Cargando...'), findsOneWidget);
