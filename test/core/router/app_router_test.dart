@@ -1,17 +1,21 @@
 // Pruebas de widget para los redirects de GoRouter.
 //
 // Verifica que el router redirija correctamente según el estado
-// de autenticación:
+// de autenticación y splash:
 // - R6.1: No autenticado en / → redirige a /login
 // - R6.2: Autenticado en /login → redirige a /
 // - R6.3: Loading durante startup → splash
 // - /login y /register accesibles sin auth
 // - / redirige a /login cuando no autenticado
 //
-// TDD: RED — test escrito antes que la implementación del router
+// Actualizado PR3: ahora usa SplashScreen en vez de CircularProgressIndicator
+// y createRouter recibe también SplashProvider.
+//
+// TDD: RED — test actualizado antes de modificar createRouter
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/router/app_router.dart';
@@ -19,10 +23,16 @@ import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provid
 import 'package:mundo_limpio_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/screens/register_screen.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/screens/home_screen.dart';
+import 'package:mundo_limpio_app/features/splash/domain/splash_repository.dart';
+import 'package:mundo_limpio_app/features/splash/presentation/splash_provider.dart';
+import 'package:mundo_limpio_app/features/splash/presentation/splash_screen.dart';
 
-// Mock de AuthProvider para tests de routing.
-// Extiende ChangeNotifier + implementa AuthProvider para que
-// Provider pueda inyectarlo y GoRouter reaccione a cambios.
+// ── Mocks ───────────────────────────────────────────────────────────────────
+
+class MockSplashRepository extends Mock implements SplashRepository {}
+
+/// Mock de AuthProvider que extiende ChangeNotifier para que Provider
+/// pueda inyectarlo y GoRouter reaccione a cambios.
 class AuthProviderMock extends ChangeNotifier implements AuthProvider {
   AuthStatus _status = AuthStatus.loading;
 
@@ -69,27 +79,47 @@ class AuthProviderMock extends ChangeNotifier implements AuthProvider {
   }
 }
 
+// ── Helpers ─────────────────────────────────────────────────────────────────
+
 /// Crea la app de test envuelta en Provider para testing de routing.
 ///
 /// [authProvider] controla el estado de autenticación.
+/// [splashProvider] controla el estado del splash screen.
 /// [initialLocation] permite arrancar desde una ruta específica.
 Widget createTestApp(
-  AuthProviderMock authProvider, {
+  AuthProviderMock authProvider,
+  SplashProvider splashProvider, {
   String initialLocation = '/',
 }) {
-  final router = createRouter(authProvider, initialLocation: initialLocation);
+  final router = createRouter(
+    authProvider,
+    splashProvider,
+    initialLocation: initialLocation,
+  );
 
-  return ChangeNotifierProvider<AuthProvider>.value(
-    value: authProvider,
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
+      ChangeNotifierProvider<SplashProvider>.value(value: splashProvider),
+    ],
     child: MaterialApp.router(routerConfig: router),
   );
 }
 
 void main() {
   late AuthProviderMock authProvider;
+  late MockSplashRepository mockSplashRepo;
+  late SplashProvider splashProvider;
 
   setUp(() {
     authProvider = AuthProviderMock();
+    mockSplashRepo = MockSplashRepository();
+    // Por defecto el repositorio retorna true (backend healthy)
+    when(() => mockSplashRepo.wakeBackend()).thenAnswer((_) async => true);
+    splashProvider = SplashProvider(
+      mockSplashRepo,
+      animationDuration: Duration.zero,
+    );
   });
 
   /// Helper: hacer pump hasta que GoRouter procese redirects.
@@ -111,7 +141,7 @@ void main() {
       authProvider.setStatus(AuthStatus.unauthenticated);
 
       // Act: renderizar app desde /
-      await tester.pumpWidget(createTestApp(authProvider));
+      await tester.pumpWidget(createTestApp(authProvider, splashProvider));
       await pumpUntilSettled(tester);
 
       // Assert: debe mostrar LoginScreen (no HomeScreen)
@@ -125,7 +155,7 @@ void main() {
 
       // Act: arrancar desde /login
       await tester.pumpWidget(
-        createTestApp(authProvider, initialLocation: '/login'),
+        createTestApp(authProvider, splashProvider, initialLocation: '/login'),
       );
       await pumpUntilSettled(tester);
 
@@ -138,12 +168,12 @@ void main() {
       // Arrange: estado loading por defecto
 
       // Act: renderizar app desde /
-      await tester.pumpWidget(createTestApp(authProvider));
-      // Solo un frame — CircularProgressIndicator no se settlea nunca
+      await tester.pumpWidget(createTestApp(authProvider, splashProvider));
+      // Solo un frame — SplashScreen debe mostrarse
       await tester.pump();
 
-      // Assert: debe mostrar CircularProgressIndicator (splash)
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      // Assert: debe mostrar SplashScreen (no CircularProgressIndicator)
+      expect(find.byType(SplashScreen), findsOneWidget);
       expect(find.byType(HomeScreen), findsNothing);
     });
 
@@ -153,7 +183,7 @@ void main() {
 
       // Act: ir a /login explícitamente
       await tester.pumpWidget(
-        createTestApp(authProvider, initialLocation: '/login'),
+        createTestApp(authProvider, splashProvider, initialLocation: '/login'),
       );
       await pumpUntilSettled(tester);
 
@@ -167,7 +197,11 @@ void main() {
 
       // Act: ir a /register explícitamente
       await tester.pumpWidget(
-        createTestApp(authProvider, initialLocation: '/register'),
+        createTestApp(
+          authProvider,
+          splashProvider,
+          initialLocation: '/register',
+        ),
       );
       await pumpUntilSettled(tester);
 
@@ -180,7 +214,7 @@ void main() {
       authProvider.setStatus(AuthStatus.unauthenticated);
 
       // Act: arrancar desde /
-      await tester.pumpWidget(createTestApp(authProvider));
+      await tester.pumpWidget(createTestApp(authProvider, splashProvider));
       await pumpUntilSettled(tester);
 
       // Assert: LoginScreen visible, HomeScreen no
@@ -192,9 +226,9 @@ void main() {
       tester,
     ) async {
       // Arrange: empezar en loading (splash)
-      await tester.pumpWidget(createTestApp(authProvider));
+      await tester.pumpWidget(createTestApp(authProvider, splashProvider));
       await tester.pump();
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(SplashScreen), findsOneWidget);
 
       // Act: cambiar a no autenticado
       authProvider.setStatus(AuthStatus.unauthenticated);
@@ -206,9 +240,9 @@ void main() {
 
     testWidgets('Cambio loading → authenticated redirige a /', (tester) async {
       // Arrange: empezar en loading
-      await tester.pumpWidget(createTestApp(authProvider));
+      await tester.pumpWidget(createTestApp(authProvider, splashProvider));
       await tester.pump();
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(SplashScreen), findsOneWidget);
 
       // Act: cambiar a autenticado
       authProvider.setStatus(AuthStatus.authenticated);

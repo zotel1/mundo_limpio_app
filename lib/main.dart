@@ -13,13 +13,14 @@
 //
 // Luego renderiza MundoLimpioApp con MaterialApp.router.
 //
-// TDD: GREEN — PR#4 Crashlytics wiring
+// TDD: GREEN — PR3: agregar SplashRepository + SplashProvider al composition root
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'app.dart';
+import 'core/config/app_config.dart';
 import 'core/connectivity/connectivity_service.dart';
 import 'core/crashlytics/crashlytics_service.dart';
 import 'core/drift/app_database.dart';
@@ -44,6 +45,9 @@ import 'features/sales/data/api/sales_api.dart';
 import 'features/sales/data/repository/sales_repository_impl.dart';
 import 'features/sales/domain/repository/sales_repository.dart';
 import 'features/sales/presentation/provider/sales_provider.dart';
+import 'features/splash/data/splash_repository_impl.dart';
+import 'features/splash/domain/splash_repository.dart';
+import 'features/splash/presentation/splash_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -161,6 +165,24 @@ void main() async {
         ChangeNotifierProvider<InventoryProvider>(
           create: (ctx) =>
               InventoryProvider(repository: ctx.read<InventoryRepository>()),
+        ),
+
+        // ── Splash: salud del backend y estado del splash screen ──
+        Provider<SplashRepository>(
+          create: (_) {
+            final healthDio = Dio(
+              BaseOptions(
+                baseUrl: AppConfig.healthBaseUrl,
+                connectTimeout: const Duration(seconds: 30),
+                receiveTimeout: const Duration(seconds: 30),
+              ),
+            );
+            return SplashRepositoryImpl(dio: healthDio);
+          },
+        ),
+
+        ChangeNotifierProvider<SplashProvider>(
+          create: (ctx) => SplashProvider(ctx.read<SplashRepository>()),
         ),
       ],
       child: const MundoLimpioApp(),

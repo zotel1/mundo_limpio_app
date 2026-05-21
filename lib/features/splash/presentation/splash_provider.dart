@@ -134,10 +134,12 @@ class SplashProvider extends ChangeNotifier {
         DateTime.now().difference(_animationStart!) >= _animationDuration;
 
     if (animationDone && _wakeOk && _authResolved) {
+      if (_state == SplashState.resolved) return; // Evitar rebuilds redundantes
       _state = SplashState.resolved;
       notifyListeners();
       onStateChanged?.call();
     } else if (!_wakeOk && _wakeCompleted && animationDone) {
+      if (_state == SplashState.retry) return; // Evitar rebuilds redundantes
       _state = SplashState.retry;
       notifyListeners();
       onStateChanged?.call();
