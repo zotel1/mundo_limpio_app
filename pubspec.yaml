@@ -77,6 +77,12 @@ dependencies:
   firebase_core: ^4.9.0
   firebase_crashlytics: ^5.2.2
 
+  # Firebase Cloud Messaging para notificaciones push de nuevas versiones.
+  firebase_messaging: ^16.2.2
+
+  # Deep links para abrir Play Store / App Distribution desde notificaciones.
+  url_launcher: ^6.3.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
