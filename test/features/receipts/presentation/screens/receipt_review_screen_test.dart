@@ -18,6 +18,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/receipts/data/models/receipt_confirm_request.dart';
 import 'package:mundo_limpio_app/features/receipts/data/models/receipt_process_response.dart';
 import 'package:mundo_limpio_app/features/receipts/data/models/product_line_dto.dart';
@@ -263,7 +264,7 @@ void main() {
       await tester.pump(); // Un frame para iniciar la operación
 
       // Debe mostrar CircularProgressIndicator mientras confirma
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(CatLoadingIndicator), findsOneWidget);
 
       // Liberar el completer para que termine
       completer.complete(purchaseResponse);
