@@ -3,7 +3,7 @@
 // Cubre los 4 escenarios de R1 y R2 del spec:
 // - R1.1/R1.2: Botones de cámara y galería visibles en idle
 // - R1.1/R1.2: Selección de imagen → preview + botón procesar
-// - R2.1: Estado processing → CircularProgressIndicator
+// - R2.1: Estado processing → CatLoadingIndicator
 // - R2.2-R2.4: Estado error → mensaje + botón reintentar
 //
 // Usa ReceiptsProvider real con MockReceiptsRepository para probar
@@ -19,6 +19,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/receipts/data/models/receipt_process_response.dart';
 import 'package:mundo_limpio_app/features/receipts/data/models/product_line_dto.dart';
 import 'package:mundo_limpio_app/features/receipts/domain/repository/receipts_repository.dart';
@@ -134,36 +135,35 @@ void main() {
   });
 
   // ──────────────────────────────────────────────
-  // R2.1: Estado processing → CircularProgressIndicator
+  // R2.1: Estado processing → CatLoadingIndicator
   // ──────────────────────────────────────────────
   group('ReceiptCaptureScreen — Estado processing', () {
-    testWidgets(
-      'debe mostrar CircularProgressIndicator durante procesamiento',
-      (tester) async {
-        // Arrange: mantener el procesamiento pendiente con un Completer
-        final completer = Completer<ReceiptProcessResponse>();
-        when(
-          () => mockRepo.processReceipt(any()),
-        ).thenAnswer((_) => completer.future);
+    testWidgets('debe mostrar CatLoadingIndicator durante procesamiento', (
+      tester,
+    ) async {
+      // Arrange: mantener el procesamiento pendiente con un Completer
+      final completer = Completer<ReceiptProcessResponse>();
+      when(
+        () => mockRepo.processReceipt(any()),
+      ).thenAnswer((_) => completer.future);
 
-        await tester.pumpWidget(createTestApp(provider));
-        await tester.pumpAndSettle();
+      await tester.pumpWidget(createTestApp(provider));
+      await tester.pumpAndSettle();
 
-        // Seleccionar imagen
-        provider.selectImage('/tmp/test_receipt.jpg');
-        await tester.pumpAndSettle();
+      // Seleccionar imagen
+      provider.selectImage('/tmp/test_receipt.jpg');
+      await tester.pumpAndSettle();
 
-        // Iniciar procesamiento
-        unawaited(provider.processReceipt());
-        await tester.pump();
+      // Iniciar procesamiento
+      unawaited(provider.processReceipt());
+      await tester.pump();
 
-        // Debe mostrar CircularProgressIndicator
-        expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      // Debe mostrar CatLoadingIndicator decorativo
+      expect(find.byType(CatLoadingIndicator), findsOneWidget);
 
-        // Cleanup: liberar el completer
-        completer.complete(processResponse);
-      },
-    );
+      // Cleanup: liberar el completer
+      completer.complete(processResponse);
+    });
   });
 
   // ──────────────────────────────────────────────

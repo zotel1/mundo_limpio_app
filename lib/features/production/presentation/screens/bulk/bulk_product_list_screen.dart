@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
+import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/production/domain/entities/bulk_product.dart';
 import 'package:mundo_limpio_app/features/production/presentation/providers/bulk_product_provider.dart';
 import 'package:mundo_limpio_app/features/production/presentation/screens/bulk/bulk_product_form_screen.dart';
@@ -55,7 +56,7 @@ class _BulkProductListScreenState extends State<BulkProductListScreen> {
         if (provider.bulkProducts.isNotEmpty) {
           return _buildProductList(provider);
         }
-        return const Center(child: CircularProgressIndicator());
+        return const Center(child: CatLoadingIndicator.general());
 
       case BulkProductStatus.loaded:
         if (provider.bulkProducts.isEmpty) {

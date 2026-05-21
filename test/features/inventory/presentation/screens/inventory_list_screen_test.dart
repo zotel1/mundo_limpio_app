@@ -19,6 +19,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
+import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/inventory/data/models/inventory_response.dart';
 import 'package:mundo_limpio_app/features/inventory/domain/repository/inventory_repository.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/provider/inventory_provider.dart';
@@ -130,7 +131,7 @@ void main() {
       // Un frame para que initState → loadLowStock → loading
       await tester.pump();
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(CatLoadingIndicator), findsOneWidget);
 
       completer.complete(lowStockItems);
     });

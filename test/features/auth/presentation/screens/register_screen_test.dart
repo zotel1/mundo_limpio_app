@@ -20,6 +20,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
+import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/auth/data/models/auth_response.dart';
 import 'package:mundo_limpio_app/features/auth/domain/repository/auth_repository.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
@@ -308,7 +309,7 @@ void main() {
       await tester.pump();
 
       // Assert: spinner visible
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(CatLoadingIndicator), findsOneWidget);
 
       // Assert: botón deshabilitado (onPressed es null cuando isLoading)
       // Buscar por tipo porque el texto cambia a spinner en loading
