@@ -24,6 +24,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:mundo_limpio_app/core/crashlytics/crashlytics_service.dart';
+import 'package:mundo_limpio_app/core/services/url_launcher_service.dart';
 import 'package:mundo_limpio_app/features/notifications/data/push_notifications_repository_impl.dart';
 import 'package:mundo_limpio_app/features/notifications/domain/push_notifications_repository.dart';
 
@@ -56,6 +57,9 @@ class NotificationsService {
   /// Repositorio activo: el mock de test si existe, sino el real.
   static PushNotificationsRepository get _repository =>
       __testInstance ?? _defaultRepository;
+
+  /// Stream subscription para mensajes que abren la app desde background (R4).
+  static StreamSubscription<RemoteMessage>? __onMessageOpenedAppSubscription;
 
   /// Inyecta un mock de [PushNotificationsRepository] para tests.
   ///
@@ -114,10 +118,14 @@ class NotificationsService {
 
     // 3. Suscribirse al topic con retry (R1)
     const topic = 'app-updates';
+    var subscribed = false;
 
     for (var attempt = 0; attempt < testRetryDelays.length; attempt++) {
       final success = await repo.subscribeToTopic(topic);
-      if (success) return;
+      if (success) {
+        subscribed = true;
+        break;
+      }
 
       // Si no es el ultimo intento, esperar el delay antes del siguiente
       if (attempt < testRetryDelays.length - 1) {
@@ -126,11 +134,42 @@ class NotificationsService {
     }
 
     // 4. Fallo persistente despues de todos los intentos
-    CrashlyticsService.recordError(
-      'Failed to subscribe to topic $topic '
-      'after ${testRetryDelays.length} attempts',
-      StackTrace.current,
-    );
+    if (!subscribed) {
+      CrashlyticsService.recordError(
+        'Failed to subscribe to topic $topic '
+        'after ${testRetryDelays.length} attempts',
+        StackTrace.current,
+      );
+    }
+
+    // TDD: GREEN — R4: Deep link — mensaje que abrio la app desde terminada
+    try {
+      final initialMessage = await repo.getInitialMessage();
+      final initialUrl = initialMessage?.data['url'];
+      if (initialUrl != null && initialUrl.toString().trim().isNotEmpty) {
+        try {
+          UrlLauncherService.launchUrl(initialUrl.toString().trim());
+        } catch (e, stack) {
+          CrashlyticsService.recordError(e, stack);
+        }
+      }
+    } catch (e, stack) {
+      CrashlyticsService.recordError(e, stack);
+    }
+
+    // TDD: GREEN — R4: Deep link — stream para mensajes que abren la app
+    // desde background
+    __onMessageOpenedAppSubscription =
+        _repository.onMessageOpenedApp.listen((message) {
+      final url = message.data['url'];
+      if (url != null && url.toString().trim().isNotEmpty) {
+        try {
+          UrlLauncherService.launchUrl(url.toString().trim());
+        } catch (e, stack) {
+          CrashlyticsService.recordError(e, stack);
+        }
+      }
+    });
   }
 
   // ── Reset para tests ─────────────────────────────────────────────────
@@ -139,6 +178,8 @@ class NotificationsService {
   @visibleForTesting
   static void resetForTesting() {
     __testInstance = null;
+    __onMessageOpenedAppSubscription?.cancel();
+    __onMessageOpenedAppSubscription = null;
     testRetryDelays = const [
       Duration(seconds: 1),
       Duration(seconds: 2),
