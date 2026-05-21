@@ -22,6 +22,17 @@ class AppConfig {
     defaultValue: 'http://localhost:8080/api/v1',
   );
 
+  /// URL base para el endpoint de salud del backend.
+  ///
+  /// Apunta al host sin el path `/api/v1` porque el endpoint de salud
+  /// (`/actuator/health`) es público y no requiere autenticación.
+  /// Se overridea con `--dart-define=HEALTH_BASE_URL=https://api.example.com`.
+  /// Por defecto apunta a localhost:8080 para desarrollo local.
+  static const String healthBaseUrl = String.fromEnvironment(
+    'HEALTH_BASE_URL',
+    defaultValue: 'http://localhost:8080',
+  );
+
   /// Tiempo máximo de espera para establecer conexión TCP.
   /// 45 segundos para tolerar cold starts del backend Render en free tier
   /// (~30-60s tras spin-down por inactividad de 15 min).
