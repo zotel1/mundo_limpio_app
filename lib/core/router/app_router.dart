@@ -1,19 +1,17 @@
 // Configuración del router de la aplicación.
 //
 // Define las rutas de la app y la lógica de redirect
-// basada en el estado de autenticación (AuthStatus).
+// basada en el estado de autenticación (AuthStatus) y el splash.
 //
-// Usa GoRouter con refreshListenable para que los redirects
-// se reevalúen automáticamente cuando AuthProvider notifica
-// cambios en el estado de autenticación.
+// Usa GoRouter con refreshListenable = Listenable.merge([authProvider, splashProvider])
+// para que los redirects se reevalúen automáticamente cuando cualquiera
+// de los dos providers notifica cambios.
 //
-// TDD: GREEN — implementación mínima para pasar los tests
+// TDD: GREEN — PR3: reemplazar _SplashScreen por SplashScreen importado
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:mundo_limpio_app/core/theme/app_colors.dart';
-import 'package:mundo_limpio_app/core/widgets/logo_widget.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/screens/register_screen.dart';
@@ -31,56 +29,21 @@ import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response
 import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_capture_screen.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_review_screen.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_confirmed_screen.dart';
-
-// ---------------------------------------------------------------------------
-// Pantalla de splash / carga
-// ---------------------------------------------------------------------------
-
-/// Pantalla que se muestra mientras se resuelve el estado de auth.
-///
-/// Aparece durante el startup cuando AuthStatus es loading.
-/// Muestra el logo de la marca centrado sobre fondo navy con un
-/// indicador de carga sutil debajo.
-/// Tan pronto como el estado cambia a authenticated o unauthenticated,
-/// el redirect de GoRouter redirige a la ruta correspondiente.
-///
-/// TDD: GREEN — reemplazar bare CircularProgressIndicator por splash con branding
-class _SplashScreen extends StatelessWidget {
-  const _SplashScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.primary,
-      body: const Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            LogoWidget(size: 100),
-            SizedBox(height: 32),
-            SizedBox(
-              width: 32,
-              height: 32,
-              child: CircularProgressIndicator(
-                strokeWidth: 2.5,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white54),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+import 'package:mundo_limpio_app/features/splash/presentation/splash_provider.dart';
+import 'package:mundo_limpio_app/features/splash/presentation/splash_screen.dart';
 
 // ---------------------------------------------------------------------------
 // Fábrica del router
 // ---------------------------------------------------------------------------
 
-/// Crea un [GoRouter] que protege rutas según [authProvider].
+/// Crea un [GoRouter] que protege rutas según [authProvider] y [splashProvider].
 ///
 /// [authProvider] se usa para:
 /// 1. Leer el estado actual via [AuthProvider.status]
+/// 2. Notificar cambios via [ChangeNotifier] (refreshListenable)
+///
+/// [splashProvider] se usa para:
+/// 1. Renderizar el splash screen interactivo
 /// 2. Notificar cambios via [ChangeNotifier] (refreshListenable)
 ///
 /// [initialLocation] permite arrancar desde una ruta específica
@@ -91,12 +54,13 @@ class _SplashScreen extends StatelessWidget {
 /// - unauthenticated → /login y /register libres; el resto redirige a /login
 /// - authenticated → /login, /register y /splash redirigen a /
 GoRouter createRouter(
-  AuthProvider authProvider, {
+  AuthProvider authProvider,
+  SplashProvider splashProvider, {
   String initialLocation = '/',
 }) {
   return GoRouter(
     initialLocation: initialLocation,
-    refreshListenable: authProvider,
+    refreshListenable: Listenable.merge([authProvider, splashProvider]),
     redirect: (context, state) {
       final status = authProvider.status;
       final location = state.matchedLocation;
@@ -131,7 +95,7 @@ GoRouter createRouter(
       }
     },
     routes: [
-      GoRoute(path: '/splash', builder: (_, _) => const _SplashScreen()),
+      GoRoute(path: '/splash', builder: (_, _) => const SplashScreen()),
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
       GoRoute(path: '/register', builder: (_, _) => const RegisterScreen()),
       GoRoute(path: '/', builder: (_, _) => const HomeScreen()),

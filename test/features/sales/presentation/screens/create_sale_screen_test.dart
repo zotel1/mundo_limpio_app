@@ -21,6 +21,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
+import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/product_response.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/production_batch_response.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/sale_item_response.dart';
@@ -121,7 +122,7 @@ void main() {
       // Un frame para que initState → loadProducts → loading
       await tester.pump();
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(CatLoadingIndicator), findsOneWidget);
 
       completer.complete([productA]);
     });

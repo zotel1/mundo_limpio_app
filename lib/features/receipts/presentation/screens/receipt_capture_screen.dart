@@ -20,6 +20,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
+import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/provider/receipts_provider.dart';
 
 /// Pantalla para capturar una imagen de recibo.
@@ -180,7 +181,7 @@ class _ReceiptCaptureScreenState extends State<ReceiptCaptureScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(),
+          CatLoadingIndicator.decorative(),
           SizedBox(height: 16),
           Text(
             'Procesando recibo...',

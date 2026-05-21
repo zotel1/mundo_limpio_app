@@ -11,13 +11,16 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/app.dart';
 import 'package:mundo_limpio_app/core/theme/app_colors.dart';
 import 'package:mundo_limpio_app/core/router/app_router.dart';
-import 'package:mundo_limpio_app/core/widgets/logo_widget.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mundo_limpio_app/features/splash/domain/splash_repository.dart';
+import 'package:mundo_limpio_app/features/splash/presentation/splash_provider.dart';
+import 'package:mundo_limpio_app/features/splash/presentation/splash_screen.dart';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -75,6 +78,9 @@ class _AppIdentityAuthMock extends ChangeNotifier implements AuthProvider {
   }
 }
 
+/// Mock del repositorio de splash para tests de branding.
+class _MockSplashRepository extends Mock implements SplashRepository {}
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -91,9 +97,19 @@ void main() {
       final authMock = _AppIdentityAuthMock();
       authMock.setStatus(AuthStatus.unauthenticated);
 
+      final mockRepo = _MockSplashRepository();
+      when(() => mockRepo.wakeBackend()).thenAnswer((_) async => true);
+      final splashProvider = SplashProvider(
+        mockRepo,
+        animationDuration: Duration.zero,
+      );
+
       await tester.pumpWidget(
-        ChangeNotifierProvider<AuthProvider>.value(
-          value: authMock,
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider<AuthProvider>.value(value: authMock),
+            ChangeNotifierProvider<SplashProvider>.value(value: splashProvider),
+          ],
           child: const MundoLimpioApp(),
         ),
       );
@@ -126,9 +142,17 @@ void main() {
   // =========================================================================
   group('Branded Splash Screen', () {
     late _AppIdentityAuthMock authMock;
+    late _MockSplashRepository mockSplashRepo;
+    late SplashProvider splashProvider;
 
     setUp(() {
       authMock = _AppIdentityAuthMock();
+      mockSplashRepo = _MockSplashRepository();
+      when(() => mockSplashRepo.wakeBackend()).thenAnswer((_) async => true);
+      splashProvider = SplashProvider(
+        mockSplashRepo,
+        animationDuration: Duration.zero,
+      );
       // loading state activa la ruta /splash
     });
 
@@ -145,10 +169,17 @@ void main() {
     testWidgets('splash screen debe tener fondo navy', (tester) async {
       // TDD: RED — splash actual usa Scaffold por defecto (blanco)
       await tester.pumpWidget(
-        ChangeNotifierProvider<AuthProvider>.value(
-          value: authMock,
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider<AuthProvider>.value(value: authMock),
+            ChangeNotifierProvider<SplashProvider>.value(value: splashProvider),
+          ],
           child: MaterialApp.router(
-            routerConfig: createRouter(authMock, initialLocation: '/splash'),
+            routerConfig: createRouter(
+              authMock,
+              splashProvider,
+              initialLocation: '/splash',
+            ),
           ),
         ),
       );
@@ -166,49 +197,69 @@ void main() {
       );
     });
 
-    testWidgets('splash screen debe mostrar el LogoWidget', (tester) async {
-      // TDD: RED — splash actual solo tiene CircularProgressIndicator
+    testWidgets('splash screen debe mostrar el SplashScreen interactivo', (
+      tester,
+    ) async {
+      // TDD: GREEN — PR3: splash interactivo con gato mascota
       await tester.pumpWidget(
-        ChangeNotifierProvider<AuthProvider>.value(
-          value: authMock,
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider<AuthProvider>.value(value: authMock),
+            ChangeNotifierProvider<SplashProvider>.value(value: splashProvider),
+          ],
           child: MaterialApp.router(
-            routerConfig: createRouter(authMock, initialLocation: '/splash'),
+            routerConfig: createRouter(
+              authMock,
+              splashProvider,
+              initialLocation: '/splash',
+            ),
           ),
         ),
       );
       await pumpUntilSettled(tester);
 
-      // Debe existir un LogoWidget en el árbol
+      // Debe existir un SplashScreen en el árbol
       expect(
-        find.byType(LogoWidget),
+        find.byType(SplashScreen),
         findsOneWidget,
-        reason: 'El splash debe mostrar el logo de la marca',
+        reason: 'El splash debe mostrar el SplashScreen interactivo',
       );
     });
 
-    testWidgets('splash screen debe tener un indicador de carga sutil', (
+    testWidgets('splash screen debe mostrar imagen del gato en estado idle', (
       tester,
     ) async {
-      // TDD: RED — splash actual solo CircularProgressIndicator, sin LogoWidget
+      // TDD: GREEN — PR3: gato durmiendo + prompt de tap
       await tester.pumpWidget(
-        ChangeNotifierProvider<AuthProvider>.value(
-          value: authMock,
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider<AuthProvider>.value(value: authMock),
+            ChangeNotifierProvider<SplashProvider>.value(value: splashProvider),
+          ],
           child: MaterialApp.router(
-            routerConfig: createRouter(authMock, initialLocation: '/splash'),
+            routerConfig: createRouter(
+              authMock,
+              splashProvider,
+              initialLocation: '/splash',
+            ),
           ),
         ),
       );
       await pumpUntilSettled(tester);
 
-      // Debe existir un indicador de carga (CircularProgressIndicator)
+      // Debe mostrar la imagen del gato (Image widget)
       expect(
-        find.byType(CircularProgressIndicator),
+        find.byType(Image),
         findsOneWidget,
-        reason: 'Debe haber un spinner de carga',
+        reason: 'El splash debe mostrar la imagen del gato mascota',
       );
 
-      // Y debe coexistir con el LogoWidget
-      expect(find.byType(LogoWidget), findsOneWidget);
+      // Debe mostrar el prompt de tap para interactuar
+      expect(
+        find.text('Tocá para despertar al gato...'),
+        findsOneWidget,
+        reason: 'El splash idle debe invitar al usuario a interactuar',
+      );
     });
   });
 

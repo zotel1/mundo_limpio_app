@@ -19,6 +19,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
+import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/receipts/data/models/receipt_confirm_request.dart';
 import 'package:mundo_limpio_app/features/receipts/data/models/receipt_process_response.dart';
 import 'package:mundo_limpio_app/features/receipts/data/models/product_line_confirm_dto.dart';
@@ -133,7 +134,7 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(),
+                  CatLoadingIndicator.decorative(),
                   SizedBox(height: 16),
                   Text(
                     'Confirmando compra...',

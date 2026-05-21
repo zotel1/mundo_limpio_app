@@ -1,11 +1,10 @@
 // Widget de logo MundoLimpio.
 //
-// Muestra el logo de la app desde `assets/images/logo.png`.
-// El asset real se agrega en PR 3 (native assets) — mientras tanto
-// el `errorBuilder` muestra un SizedBox coloreado como fallback
-// para que la app no crashee si el asset falta.
+// Muestra el logo de la app: el gato limpiando (08_cat_cleaning_logo.png).
+// Si el asset no está disponible, el errorBuilder muestra un Icon de
+// fallback para que la app no crashee.
 //
-// TDD: GREEN — implementación mínima para pasar el test
+// TDD: GREEN — actualizar path al nuevo logo del gato
 
 import 'package:flutter/material.dart';
 
@@ -13,9 +12,9 @@ import '../theme/app_colors.dart';
 
 /// Widget reusable para mostrar el logo de MundoLimpio.
 ///
-/// Carga el logo desde `assets/images/logo.png` usando [Image.asset].
-/// Si el asset no está disponible todavía (PR 3), el [errorBuilder]
-/// muestra un [SizedBox] del color primario como placeholder seguro.
+/// Carga el logo desde `assets/images/08_cat_cleaning_logo.png`
+/// usando [Image.asset]. Si el asset falla en runtime, el
+/// [errorBuilder] muestra un [Icon] de fallback.
 ///
 /// ```dart
 /// const LogoWidget(size: 80)
@@ -33,12 +32,11 @@ class LogoWidget extends StatelessWidget {
     return Semantics(
       label: 'Logo de Mundo Limpio',
       child: Image.asset(
-        'assets/images/logo.png',
+        'assets/images/08_cat_cleaning_logo.png',
         width: size,
         height: size,
         fit: BoxFit.contain,
         errorBuilder: (context, error, stackTrace) {
-          // TODO: reemplazar con el asset real en PR 3 (native assets)
           return SizedBox(
             width: size,
             height: size,

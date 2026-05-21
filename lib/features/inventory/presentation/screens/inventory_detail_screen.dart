@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
+import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/inventory/data/models/adjustment_request.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/provider/inventory_provider.dart';
 
@@ -67,7 +68,7 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
         return const Center(
           child: Padding(
             padding: EdgeInsets.symmetric(vertical: 64),
-            child: CircularProgressIndicator(),
+            child: CatLoadingIndicator.inventory(),
           ),
         );
       case InventoryStatus.inventoryLoaded:

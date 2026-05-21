@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
+import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/provider/sales_provider.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/screens/sale_result_screen.dart';
 
@@ -103,7 +104,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen> {
         return const Center(
           child: Padding(
             padding: EdgeInsets.symmetric(vertical: 64),
-            child: CircularProgressIndicator(),
+            child: CatLoadingIndicator.general(),
           ),
         );
       case SalesStatus.productsLoaded:
@@ -112,7 +113,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen> {
         return _buildSaleForm(provider);
       case SalesStatus.success:
         // La navegación se maneja en _handleCreateSale
-        return const Center(child: CircularProgressIndicator());
+        return const Center(child: CatLoadingIndicator.general());
       case SalesStatus.error:
         return _buildErrorSection(provider);
     }
@@ -218,7 +219,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen> {
                   ? const SizedBox(
                       height: 24,
                       width: 24,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                      child: CatLoadingIndicator.small(),
                     )
                   : const Text('Crear Venta', style: TextStyle(fontSize: 16)),
             ),

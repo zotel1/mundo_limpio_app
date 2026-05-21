@@ -46,7 +46,7 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('debe renderizar un Image.asset apuntando al logo', (
+    testWidgets('debe renderizar un Image.asset apuntando al nuevo logo', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -55,10 +55,11 @@ void main() {
         ),
       );
 
-      // Debe haber un Image widget (aunque el asset falte al no
-      // estar en assets todavía, el widget se construye igual)
-      final imageFinder = find.byType(Image);
-      expect(imageFinder, findsOneWidget);
+      // TDD: RED — verifica el nuevo path del asset
+      // Debe haber un Image widget y debe apuntar al gato limpiando (08)
+      final image = tester.widget<Image>(find.byType(Image));
+      final provider = image.image as AssetImage;
+      expect(provider.assetName, 'assets/images/08_cat_cleaning_logo.png');
     });
 
     testWidgets('debe mostrar un SizedBox fallback cuando el asset no existe', (
