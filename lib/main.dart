@@ -246,8 +246,7 @@ void main() async {
         ),
 
         Provider<ReceiptsRepository>(
-          create: (ctx) =>
-              ReceiptsRepositoryImpl(api: ctx.read<ReceiptsApi>()),
+          create: (ctx) => ReceiptsRepositoryImpl(api: ctx.read<ReceiptsApi>()),
         ),
 
         ChangeNotifierProvider<ReceiptsProvider>(
