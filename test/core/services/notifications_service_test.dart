@@ -32,7 +32,7 @@ import 'package:mundo_limpio_app/core/services/url_launcher_service.dart';
 
 import 'package:mundo_limpio_app/features/notifications/domain/push_notifications_repository.dart';
 
-// ── Mocks ──────────────────────────────────────────────────────────────────
+//  Mocks
 
 class MockPushNotificationsRepository extends Mock
     implements PushNotificationsRepository {}
@@ -44,7 +44,7 @@ class MockRemoteMessage extends Mock implements RemoteMessage {}
 // FirebaseCrashlytics no es final — mocktail puede mockearlo.
 class MockFirebaseCrashlytics extends Mock implements FirebaseCrashlytics {}
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+//  Helpers
 
 /// Crea un [NotificationSettings] mock con el [AuthorizationStatus] dado.
 NotificationSettings _settingsWith(AuthorizationStatus status) {
@@ -53,7 +53,7 @@ NotificationSettings _settingsWith(AuthorizationStatus status) {
   return settings;
 }
 
-// ── Tests ──────────────────────────────────────────────────────────────────
+//  Tests
 
 void main() {
   late MockPushNotificationsRepository mockRepo;
@@ -114,7 +114,7 @@ void main() {
     UrlLauncherService.resetForTesting();
   });
 
-  // ── Permiso denegado ────────────────────────────────────────────────────
+  //  Permiso denegado
 
   group('initialize — permiso denegado', () {
     test('debe retornar temprano sin intentar subscribeToTopic cuando el '
@@ -152,7 +152,7 @@ void main() {
     });
   });
 
-  // ── Permiso concedido + suscripcion exitosa ─────────────────────────────
+  //  Permiso concedido + suscripcion exitosa
 
   group('initialize — permiso concedido, suscripcion exitosa', () {
     test('debe suscribirse al topic "app-updates" cuando el permiso es '
@@ -185,8 +185,7 @@ void main() {
     });
   });
 
-  // ── Retry: falla 1 vez, exito en 2do intento ────────────────────────────
-
+  //  Retry: falla 1 vez, exito en 2do intento
   group('initialize — retry con backoff exponencial', () {
     test('debe reintentar si el primer subscribeToTopic falla y tener exito '
         'en el segundo intento', () async {
@@ -261,7 +260,7 @@ void main() {
     });
   });
 
-  // ── Fallo persistente (3 intentos fallidos) ─────────────────────────────
+  //  Fallo persistente (3 intentos fallidos)
 
   group('initialize — fallo persistente', () {
     test('debe loguear a Crashlytics cuando los 3 intentos de suscripcion '
@@ -314,7 +313,7 @@ void main() {
     );
   });
 
-  // ── Error inesperado al pedir permiso ───────────────────────────────────
+  //  Error inesperado al pedir permiso
 
   group('initialize — error inesperado en requestPermission', () {
     test('debe loguear a Crashlytics y retornar limpiamente cuando '
@@ -351,7 +350,7 @@ void main() {
     });
   });
 
-  // ── Backoff exponencial ─────────────────────────────────────────────────
+  //  Backoff exponencial
 
   group('initialize — backoff exponencial', () {
     test(
@@ -404,7 +403,7 @@ void main() {
     });
   });
 
-  // ── testInstance override ───────────────────────────────────────────────
+  //  testInstance override
 
   group('testInstance — inyeccion para tests', () {
     test('debe usar el repositorio inyectado via testInstance', () async {
