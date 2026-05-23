@@ -53,6 +53,20 @@ import 'features/splash/data/splash_repository_impl.dart';
 import 'features/splash/domain/splash_repository.dart';
 import 'features/splash/presentation/splash_provider.dart';
 
+// ── Producción: bulk products + lotes ────────────────────────
+import 'features/production/domain/repositories/i_production_repository.dart';
+import 'features/production/domain/repositories/i_bulk_product_repository.dart';
+import 'features/production/data/repositories/production_repository_impl.dart';
+import 'features/production/data/repositories/bulk_product_repository_impl.dart';
+import 'features/production/presentation/providers/production_provider.dart';
+import 'features/production/presentation/providers/bulk_product_provider.dart';
+
+// ── Recibos OCR ──────────────────────────────────────────────
+import 'features/receipts/data/api/receipts_api.dart';
+import 'features/receipts/data/repository/receipts_repository_impl.dart';
+import 'features/receipts/domain/repository/receipts_repository.dart';
+import 'features/receipts/presentation/provider/receipts_provider.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -203,6 +217,41 @@ void main() async {
 
         ChangeNotifierProvider<SplashProvider>(
           create: (ctx) => SplashProvider(ctx.read<SplashRepository>()),
+        ),
+
+        // ── Producción: bulk products ──────────────────────────
+        Provider<IBulkProductRepository>(
+          create: (ctx) => BulkProductRepositoryImpl(ctx.read<Dio>()),
+        ),
+
+        Provider<IProductionRepository>(
+          create: (ctx) => ProductionRepositoryImpl(ctx.read<Dio>()),
+        ),
+
+        ChangeNotifierProvider<BulkProductProvider>(
+          create: (ctx) =>
+              BulkProductProvider(ctx.read<IBulkProductRepository>()),
+        ),
+
+        ChangeNotifierProvider<ProductionProvider>(
+          create: (ctx) => ProductionProvider(
+            ctx.read<IProductionRepository>(),
+            ctx.read<IBulkProductRepository>(),
+          ),
+        ),
+
+        // ── Recibos OCR ────────────────────────────────────────
+        Provider<ReceiptsApi>(
+          create: (ctx) => ReceiptsApi(dio: ctx.read<Dio>()),
+        ),
+
+        Provider<ReceiptsRepository>(
+          create: (ctx) =>
+              ReceiptsRepositoryImpl(api: ctx.read<ReceiptsApi>()),
+        ),
+
+        ChangeNotifierProvider<ReceiptsProvider>(
+          create: (ctx) => ReceiptsProvider(ctx.read<ReceiptsRepository>()),
         ),
       ],
       child: const MundoLimpioApp(),
