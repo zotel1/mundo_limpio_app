@@ -38,8 +38,48 @@ class $ProductCacheTable extends ProductCache
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _skuMeta = const VerificationMeta('sku');
   @override
-  List<GeneratedColumn> get $columns => [id, name, updatedAt];
+  late final GeneratedColumn<String> sku = GeneratedColumn<String>(
+    'sku',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _minPriceMeta = const VerificationMeta(
+    'minPrice',
+  );
+  @override
+  late final GeneratedColumn<double> minPrice = GeneratedColumn<double>(
+    'min_price',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _activeMeta = const VerificationMeta('active');
+  @override
+  late final GeneratedColumn<bool> active = GeneratedColumn<bool>(
+    'active',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("active" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    updatedAt,
+    sku,
+    minPrice,
+    active,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -71,6 +111,24 @@ class $ProductCacheTable extends ProductCache
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
+    if (data.containsKey('sku')) {
+      context.handle(
+        _skuMeta,
+        sku.isAcceptableOrUnknown(data['sku']!, _skuMeta),
+      );
+    }
+    if (data.containsKey('min_price')) {
+      context.handle(
+        _minPriceMeta,
+        minPrice.isAcceptableOrUnknown(data['min_price']!, _minPriceMeta),
+      );
+    }
+    if (data.containsKey('active')) {
+      context.handle(
+        _activeMeta,
+        active.isAcceptableOrUnknown(data['active']!, _activeMeta),
+      );
+    }
     return context;
   }
 
@@ -92,6 +150,18 @@ class $ProductCacheTable extends ProductCache
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       )!,
+      sku: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sku'],
+      ),
+      minPrice: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}min_price'],
+      ),
+      active: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}active'],
+      )!,
     );
   }
 
@@ -106,10 +176,16 @@ class ProductCacheData extends DataClass
   final int id;
   final String name;
   final DateTime updatedAt;
+  final String? sku;
+  final double? minPrice;
+  final bool active;
   const ProductCacheData({
     required this.id,
     required this.name,
     required this.updatedAt,
+    this.sku,
+    this.minPrice,
+    required this.active,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -117,6 +193,13 @@ class ProductCacheData extends DataClass
     map['id'] = Variable<int>(id);
     map['name'] = Variable<String>(name);
     map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || sku != null) {
+      map['sku'] = Variable<String>(sku);
+    }
+    if (!nullToAbsent || minPrice != null) {
+      map['min_price'] = Variable<double>(minPrice);
+    }
+    map['active'] = Variable<bool>(active);
     return map;
   }
 
@@ -125,6 +208,11 @@ class ProductCacheData extends DataClass
       id: Value(id),
       name: Value(name),
       updatedAt: Value(updatedAt),
+      sku: sku == null && nullToAbsent ? const Value.absent() : Value(sku),
+      minPrice: minPrice == null && nullToAbsent
+          ? const Value.absent()
+          : Value(minPrice),
+      active: Value(active),
     );
   }
 
@@ -137,6 +225,9 @@ class ProductCacheData extends DataClass
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      sku: serializer.fromJson<String?>(json['sku']),
+      minPrice: serializer.fromJson<double?>(json['minPrice']),
+      active: serializer.fromJson<bool>(json['active']),
     );
   }
   @override
@@ -146,20 +237,35 @@ class ProductCacheData extends DataClass
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'sku': serializer.toJson<String?>(sku),
+      'minPrice': serializer.toJson<double?>(minPrice),
+      'active': serializer.toJson<bool>(active),
     };
   }
 
-  ProductCacheData copyWith({int? id, String? name, DateTime? updatedAt}) =>
-      ProductCacheData(
-        id: id ?? this.id,
-        name: name ?? this.name,
-        updatedAt: updatedAt ?? this.updatedAt,
-      );
+  ProductCacheData copyWith({
+    int? id,
+    String? name,
+    DateTime? updatedAt,
+    Value<String?> sku = const Value.absent(),
+    Value<double?> minPrice = const Value.absent(),
+    bool? active,
+  }) => ProductCacheData(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    updatedAt: updatedAt ?? this.updatedAt,
+    sku: sku.present ? sku.value : this.sku,
+    minPrice: minPrice.present ? minPrice.value : this.minPrice,
+    active: active ?? this.active,
+  );
   ProductCacheData copyWithCompanion(ProductCacheCompanion data) {
     return ProductCacheData(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      sku: data.sku.present ? data.sku.value : this.sku,
+      minPrice: data.minPrice.present ? data.minPrice.value : this.minPrice,
+      active: data.active.present ? data.active.value : this.active,
     );
   }
 
@@ -168,46 +274,67 @@ class ProductCacheData extends DataClass
     return (StringBuffer('ProductCacheData(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('sku: $sku, ')
+          ..write('minPrice: $minPrice, ')
+          ..write('active: $active')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, updatedAt);
+  int get hashCode => Object.hash(id, name, updatedAt, sku, minPrice, active);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ProductCacheData &&
           other.id == this.id &&
           other.name == this.name &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.sku == this.sku &&
+          other.minPrice == this.minPrice &&
+          other.active == this.active);
 }
 
 class ProductCacheCompanion extends UpdateCompanion<ProductCacheData> {
   final Value<int> id;
   final Value<String> name;
   final Value<DateTime> updatedAt;
+  final Value<String?> sku;
+  final Value<double?> minPrice;
+  final Value<bool> active;
   const ProductCacheCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.sku = const Value.absent(),
+    this.minPrice = const Value.absent(),
+    this.active = const Value.absent(),
   });
   ProductCacheCompanion.insert({
     this.id = const Value.absent(),
     required String name,
     required DateTime updatedAt,
+    this.sku = const Value.absent(),
+    this.minPrice = const Value.absent(),
+    this.active = const Value.absent(),
   }) : name = Value(name),
        updatedAt = Value(updatedAt);
   static Insertable<ProductCacheData> custom({
     Expression<int>? id,
     Expression<String>? name,
     Expression<DateTime>? updatedAt,
+    Expression<String>? sku,
+    Expression<double>? minPrice,
+    Expression<bool>? active,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (sku != null) 'sku': sku,
+      if (minPrice != null) 'min_price': minPrice,
+      if (active != null) 'active': active,
     });
   }
 
@@ -215,11 +342,17 @@ class ProductCacheCompanion extends UpdateCompanion<ProductCacheData> {
     Value<int>? id,
     Value<String>? name,
     Value<DateTime>? updatedAt,
+    Value<String?>? sku,
+    Value<double?>? minPrice,
+    Value<bool>? active,
   }) {
     return ProductCacheCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       updatedAt: updatedAt ?? this.updatedAt,
+      sku: sku ?? this.sku,
+      minPrice: minPrice ?? this.minPrice,
+      active: active ?? this.active,
     );
   }
 
@@ -235,6 +368,15 @@ class ProductCacheCompanion extends UpdateCompanion<ProductCacheData> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (sku.present) {
+      map['sku'] = Variable<String>(sku.value);
+    }
+    if (minPrice.present) {
+      map['min_price'] = Variable<double>(minPrice.value);
+    }
+    if (active.present) {
+      map['active'] = Variable<bool>(active.value);
+    }
     return map;
   }
 
@@ -243,7 +385,10 @@ class ProductCacheCompanion extends UpdateCompanion<ProductCacheData> {
     return (StringBuffer('ProductCacheCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('sku: $sku, ')
+          ..write('minPrice: $minPrice, ')
+          ..write('active: $active')
           ..write(')'))
         .toString();
   }
@@ -1974,12 +2119,18 @@ typedef $$ProductCacheTableCreateCompanionBuilder =
       Value<int> id,
       required String name,
       required DateTime updatedAt,
+      Value<String?> sku,
+      Value<double?> minPrice,
+      Value<bool> active,
     });
 typedef $$ProductCacheTableUpdateCompanionBuilder =
     ProductCacheCompanion Function({
       Value<int> id,
       Value<String> name,
       Value<DateTime> updatedAt,
+      Value<String?> sku,
+      Value<double?> minPrice,
+      Value<bool> active,
     });
 
 class $$ProductCacheTableFilterComposer
@@ -2003,6 +2154,21 @@ class $$ProductCacheTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sku => $composableBuilder(
+    column: $table.sku,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get minPrice => $composableBuilder(
+    column: $table.minPrice,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get active => $composableBuilder(
+    column: $table.active,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -2030,6 +2196,21 @@ class $$ProductCacheTableOrderingComposer
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get sku => $composableBuilder(
+    column: $table.sku,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get minPrice => $composableBuilder(
+    column: $table.minPrice,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get active => $composableBuilder(
+    column: $table.active,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ProductCacheTableAnnotationComposer
@@ -2049,6 +2230,15 @@ class $$ProductCacheTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get sku =>
+      $composableBuilder(column: $table.sku, builder: (column) => column);
+
+  GeneratedColumn<double> get minPrice =>
+      $composableBuilder(column: $table.minPrice, builder: (column) => column);
+
+  GeneratedColumn<bool> get active =>
+      $composableBuilder(column: $table.active, builder: (column) => column);
 }
 
 class $$ProductCacheTableTableManager
@@ -2085,20 +2275,32 @@ class $$ProductCacheTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<String?> sku = const Value.absent(),
+                Value<double?> minPrice = const Value.absent(),
+                Value<bool> active = const Value.absent(),
               }) => ProductCacheCompanion(
                 id: id,
                 name: name,
                 updatedAt: updatedAt,
+                sku: sku,
+                minPrice: minPrice,
+                active: active,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
                 required String name,
                 required DateTime updatedAt,
+                Value<String?> sku = const Value.absent(),
+                Value<double?> minPrice = const Value.absent(),
+                Value<bool> active = const Value.absent(),
               }) => ProductCacheCompanion.insert(
                 id: id,
                 name: name,
                 updatedAt: updatedAt,
+                sku: sku,
+                minPrice: minPrice,
+                active: active,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

@@ -19,7 +19,7 @@ class AppConfig {
   /// Por defecto apunta a localhost para desarrollo con backend local.
   static const String baseUrl = String.fromEnvironment(
     'BASE_URL',
-    defaultValue: 'http://localhost:8080/api/v1',
+    defaultValue: 'https://mundo-limpio-backend.onrender.com/api/v1',
   );
 
   /// URL base para el endpoint de salud del backend.
@@ -30,7 +30,7 @@ class AppConfig {
   /// Por defecto apunta a localhost:8080 para desarrollo local.
   static const String healthBaseUrl = String.fromEnvironment(
     'HEALTH_BASE_URL',
-    defaultValue: 'http://localhost:8080',
+    defaultValue: 'https://mundo-limpio-backend.onrender.com',
   );
 
   /// Tiempo máximo de espera para establecer conexión TCP.

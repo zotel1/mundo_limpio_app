@@ -24,12 +24,16 @@ part 'app_database.g.dart';
 
 /// Cache local de productos obtenidos del backend.
 ///
-/// Cada fila representa un producto cacheado con su ID, nombre y
-/// timestamp de última actualización.
+/// Cada fila representa un producto cacheado con su ID, nombre,
+/// SKU opcional, precio mínimo opcional, estado activo/inactivo
+/// y timestamp de última actualización.
 class ProductCache extends Table {
   IntColumn get id => integer()();
   TextColumn get name => text()();
   DateTimeColumn get updatedAt => dateTime()();
+  TextColumn? get sku => text().nullable()();
+  RealColumn? get minPrice => real().nullable()();
+  BoolColumn get active => boolean().withDefault(const Constant(true))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -118,7 +122,29 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onUpgrade: (migrator, from, to) async {
+        if (from == 1) {
+          await migrator.addColumn(productCache, productCache.sku);
+          await migrator.addColumn(productCache, productCache.minPrice);
+          await migrator.addColumn(productCache, productCache.active);
+          // Asegurar que filas existentes tengan active = true
+          // (ALTER TABLE ADD COLUMN con DEFAULT no siempre se aplica
+          // a filas existentes en todas las versiones de SQLite)
+          await customStatement(
+            'UPDATE product_cache SET active = 1 WHERE active IS NULL',
+          );
+        }
+      },
+      beforeOpen: (details) async {
+        await customStatement('PRAGMA foreign_keys = ON');
+      },
+    );
+  }
 }
 
 /// Abre la conexión nativa a SQLite usando el directorio de

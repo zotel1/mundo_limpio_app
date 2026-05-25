@@ -140,8 +140,18 @@ void main() {
       // Arrange
       setOffline();
       final cached = [
-        ProductCacheData(id: 1, name: 'Cache A', updatedAt: DateTime.now()),
-        ProductCacheData(id: 2, name: 'Cache B', updatedAt: DateTime.now()),
+        ProductCacheData(
+          id: 1,
+          name: 'Cache A',
+          updatedAt: DateTime.now(),
+          active: true,
+        ),
+        ProductCacheData(
+          id: 2,
+          name: 'Cache B',
+          updatedAt: DateTime.now(),
+          active: true,
+        ),
       ];
       when(() => mockProductCacheDao.getAll()).thenAnswer((_) async => cached);
 

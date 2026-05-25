@@ -60,6 +60,7 @@ class SalesRepositoryImpl implements SalesRepository {
                 id: p.id,
                 name: p.name,
                 updatedAt: DateTime.now(),
+                active: true,
               ),
             )
             .toList(),
