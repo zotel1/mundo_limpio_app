@@ -9,14 +9,18 @@ void main() {
       final bulkProduct = BulkProduct(
         id: 1,
         name: 'Alcohol Etílico',
-        unitOfMeasure: 'Litros',
-        stock: 100.0,
+        currentStockLiters: 500.0,
+        costPerLiter: 12.5,
+        conversionRatio: 1.0,
+        active: true,
       );
 
       expect(bulkProduct.id, 1);
       expect(bulkProduct.name, 'Alcohol Etílico');
-      expect(bulkProduct.unitOfMeasure, 'Litros');
-      expect(bulkProduct.stock, 100.0);
+      expect(bulkProduct.currentStockLiters, 500.0);
+      expect(bulkProduct.costPerLiter, 12.5);
+      expect(bulkProduct.conversionRatio, 1.0);
+      expect(bulkProduct.active, true);
     });
 
     test(
@@ -25,14 +29,18 @@ void main() {
         final bulkProduct1 = BulkProduct(
           id: 1,
           name: 'Alcohol Etílico',
-          unitOfMeasure: 'Litros',
-          stock: 100.0,
+          currentStockLiters: 500.0,
+          costPerLiter: 12.5,
+          conversionRatio: 1.0,
+          active: true,
         );
         final bulkProduct2 = BulkProduct(
           id: 1,
           name: 'Alcohol Etílico',
-          unitOfMeasure: 'Litros',
-          stock: 100.0,
+          currentStockLiters: 500.0,
+          costPerLiter: 12.5,
+          conversionRatio: 1.0,
+          active: true,
         );
 
         expect(bulkProduct1, equals(bulkProduct2));
@@ -45,18 +53,33 @@ void main() {
         final bulkProduct1 = BulkProduct(
           id: 1,
           name: 'Alcohol Etílico',
-          unitOfMeasure: 'Litros',
-          stock: 100.0,
+          currentStockLiters: 500.0,
+          costPerLiter: 12.5,
+          conversionRatio: 1.0,
+          active: true,
         );
         final bulkProduct2 = BulkProduct(
           id: 2,
           name: 'Alcohol Etílico',
-          unitOfMeasure: 'Litros',
-          stock: 100.0,
+          currentStockLiters: 500.0,
+          costPerLiter: 12.5,
+          conversionRatio: 1.0,
+          active: true,
         );
 
         expect(bulkProduct1, isNot(equals(bulkProduct2)));
       },
     );
+
+    test('debe tener active=true por defecto', () {
+      final bulkProduct = BulkProduct(
+        id: 1,
+        name: 'Test',
+        currentStockLiters: 100.0,
+        costPerLiter: 10.0,
+      );
+
+      expect(bulkProduct.active, true);
+    });
   });
 }

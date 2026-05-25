@@ -21,7 +21,14 @@ void main() {
     test('getBulkProducts debe retornar una lista de BulkProducts', () async {
       // Arrange
       final json = [
-        {'id': 1, 'name': 'Alcohol', 'unit_of_measure': 'L', 'stock': 10.0},
+        {
+          'id': 1,
+          'name': 'Alcohol',
+          'currentStockLiters': 100.0,
+          'costPerLiter': 10.0,
+          'conversionRatio': 1.0,
+          'active': true,
+        },
       ];
       when(() => mockDio.get(any())).thenAnswer(
         (_) async => Response(
@@ -40,19 +47,23 @@ void main() {
       verify(() => mockDio.get('/api/v1/bulk-products')).called(1);
     });
 
-    test('createBulkProduct debe retornar el BulkProduct creado', () async {
+    test('createBulkProduct debe enviar costperLiter en el body', () async {
       // Arrange
       final product = BulkProduct(
         id: 0,
         name: 'Nuevo',
-        unitOfMeasure: 'L',
-        stock: 0.0,
+        currentStockLiters: 100.0,
+        costPerLiter: 12.5,
+        conversionRatio: 1.0,
+        active: true,
       );
       final json = {
         'id': 1,
         'name': 'Nuevo',
-        'unit_of_measure': 'L',
-        'stock': 0.0,
+        'currentStockLiters': 100.0,
+        'costPerLiter': 12.5,
+        'conversionRatio': 1.0,
+        'active': true,
       };
       when(() => mockDio.post(any(), data: any(named: "data"))).thenAnswer(
         (_) async => Response(
@@ -65,11 +76,19 @@ void main() {
       // Act
       final result = await repository.createBulkProduct(product);
 
-      // Assert
+      // Assert: verificar que se envió costperLiter (typO del backend)
+      // y no costPerLiter
+      final captured =
+          verify(
+                () => mockDio.post(
+                  '/api/v1/bulk-products',
+                  data: captureAny(named: "data"),
+                ),
+              ).captured.single
+              as Map<String, dynamic>;
+      expect(captured['costperLiter'], 12.5);
+      expect(captured['costPerLiter'], isNull);
       expect(result.id, 1);
-      verify(
-        () => mockDio.post('/api/v1/bulk-products', data: any(named: "data")),
-      ).called(1);
     });
   });
 }

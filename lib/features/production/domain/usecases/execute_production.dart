@@ -23,10 +23,10 @@ class ExecuteProduction {
     final bulkProduct = await bulkProductRepository.getBulkProduct(
       request.bulkProductId,
     );
-    if (bulkProduct.stock < request.quantityUsed) {
+    if (bulkProduct.currentStockLiters < request.quantityUsed) {
       throw Exception(
         'Stock insuficiente de ${bulkProduct.name}. '
-        'Stock disponible: ${bulkProduct.stock}, requerido: ${request.quantityUsed}',
+        'Stock disponible: ${bulkProduct.currentStockLiters}, requerido: ${request.quantityUsed}',
       );
     }
 

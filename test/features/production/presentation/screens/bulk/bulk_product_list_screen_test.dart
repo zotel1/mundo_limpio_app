@@ -52,7 +52,12 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      const BulkProduct(id: 0, name: '', unitOfMeasure: '', stock: 0.0),
+      const BulkProduct(
+        id: 0,
+        name: '',
+        currentStockLiters: 0,
+        costPerLiter: 0,
+      ),
     );
   });
 
@@ -66,16 +71,16 @@ void main() {
       (_) async => const BulkProduct(
         id: 1,
         name: 'Test',
-        unitOfMeasure: 'L',
-        stock: 10.0,
+        currentStockLiters: 10.0,
+        costPerLiter: 5.0,
       ),
     );
     when(() => mockRepo.updateBulkProduct(any())).thenAnswer(
       (_) async => const BulkProduct(
         id: 1,
         name: 'Updated',
-        unitOfMeasure: 'L',
-        stock: 20.0,
+        currentStockLiters: 20.0,
+        costPerLiter: 6.0,
       ),
     );
     when(() => mockRepo.deleteBulkProduct(any())).thenAnswer((_) async {});
@@ -106,14 +111,14 @@ void main() {
         const BulkProduct(
           id: 1,
           name: 'Alcohol',
-          unitOfMeasure: 'L',
-          stock: 10.0,
+          currentStockLiters: 10.0,
+          costPerLiter: 5.0,
         ),
         const BulkProduct(
           id: 2,
           name: 'Glicerina',
-          unitOfMeasure: 'kg',
-          stock: 5.0,
+          currentStockLiters: 5.0,
+          costPerLiter: 8.0,
         ),
       ];
       when(() => mockRepo.getBulkProducts()).thenAnswer((_) async => products);
@@ -158,8 +163,8 @@ void main() {
           const BulkProduct(
             id: 1,
             name: 'Alcohol',
-            unitOfMeasure: 'L',
-            stock: 10.0,
+            currentStockLiters: 10.0,
+            costPerLiter: 5.0,
           ),
         ],
       );
@@ -193,8 +198,8 @@ void main() {
           (i) => BulkProduct(
             id: i + 1,
             name: 'Producto ${i + 1}',
-            unitOfMeasure: 'L',
-            stock: 10.0,
+            currentStockLiters: 10.0,
+            costPerLiter: 5.0,
           ),
         ),
       );

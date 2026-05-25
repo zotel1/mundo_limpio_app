@@ -2,28 +2,40 @@ import 'package:equatable/equatable.dart';
 
 class ProductionBatch extends Equatable {
   final int id;
-  final int finishedProductId;
-  final int bulkProductId;
-  final double quantityUsed;
-  final double quantityProduced;
-  final DateTime date;
+  final int productId;
+  final String? productName;
+  final int? bulkProductId;
+  final String? bulkProductName;
+  final double initialQuantity;
+  final double currentStock;
+  final double unitCostAtProduction;
+  final double rawQuantityUsed;
+  final DateTime productionDate;
 
   const ProductionBatch({
     required this.id,
-    required this.finishedProductId,
-    required this.bulkProductId,
-    required this.quantityUsed,
-    required this.quantityProduced,
-    required this.date,
+    required this.productId,
+    this.productName,
+    this.bulkProductId,
+    this.bulkProductName,
+    required this.initialQuantity,
+    required this.currentStock,
+    required this.unitCostAtProduction,
+    required this.rawQuantityUsed,
+    required this.productionDate,
   });
 
   @override
   List<Object?> get props => [
     id,
-    finishedProductId,
+    productId,
+    productName,
     bulkProductId,
-    quantityUsed,
-    quantityProduced,
-    date,
+    bulkProductName,
+    initialQuantity,
+    currentStock,
+    unitCostAtProduction,
+    rawQuantityUsed,
+    productionDate,
   ];
 }

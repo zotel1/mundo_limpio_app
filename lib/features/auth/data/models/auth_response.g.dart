@@ -11,6 +11,8 @@ AuthResponse _$AuthResponseFromJson(Map<String, dynamic> json) => AuthResponse(
   refreshToken: json['refreshToken'] as String,
   role: json['role'] as String,
   username: json['username'] as String,
+  email: json['email'] as String?,
+  roles: (json['roles'] as List<dynamic>?)?.map((e) => e as String).toList(),
   createdAt: DateTime.parse(json['createdAt'] as String),
 );
 
@@ -20,5 +22,7 @@ Map<String, dynamic> _$AuthResponseToJson(AuthResponse instance) =>
       'refreshToken': instance.refreshToken,
       'role': instance.role,
       'username': instance.username,
+      'email': instance.email,
+      'roles': instance.roles,
       'createdAt': instance.createdAt.toIso8601String(),
     };

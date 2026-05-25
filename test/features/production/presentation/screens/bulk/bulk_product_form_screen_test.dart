@@ -43,7 +43,12 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      const BulkProduct(id: 0, name: '', unitOfMeasure: '', stock: 0.0),
+      const BulkProduct(
+        id: 0,
+        name: '',
+        currentStockLiters: 0,
+        costPerLiter: 0,
+      ),
     );
   });
 
@@ -57,16 +62,16 @@ void main() {
       (_) async => const BulkProduct(
         id: 1,
         name: 'Test',
-        unitOfMeasure: 'L',
-        stock: 10.0,
+        currentStockLiters: 10.0,
+        costPerLiter: 5.0,
       ),
     );
     when(() => mockRepo.updateBulkProduct(any())).thenAnswer(
       (_) async => const BulkProduct(
         id: 1,
         name: 'Updated',
-        unitOfMeasure: 'L',
-        stock: 20.0,
+        currentStockLiters: 20.0,
+        costPerLiter: 6.0,
       ),
     );
     when(() => mockRepo.deleteBulkProduct(any())).thenAnswer((_) async {});
@@ -82,15 +87,16 @@ void main() {
       expect(find.text('Nueva Materia Prima'), findsOneWidget);
     });
 
-    testWidgets('debe mostrar campos de nombre, unidad de medida y stock', (
-      tester,
-    ) async {
-      await tester.pumpWidget(createTestApp(provider));
-      await pumpUntilSettled(tester);
+    testWidgets(
+      'debe mostrar campos de nombre, stock, costo y ratio de conversión',
+      (tester) async {
+        await tester.pumpWidget(createTestApp(provider));
+        await pumpUntilSettled(tester);
 
-      // 3 campos en create mode: nombre, unidad de medida, stock
-      expect(find.byType(TextFormField), findsNWidgets(3));
-    });
+        // 4 campos en create mode: nombre, stock, costo, ratio
+        expect(find.byType(TextFormField), findsNWidgets(4));
+      },
+    );
 
     testWidgets(
       'debe mostrar error de validación al guardar con campos vacíos',
@@ -115,8 +121,9 @@ void main() {
 
         // Act: llenar campos
         await tester.enterText(find.byType(TextFormField).at(0), 'Alcohol');
-        await tester.enterText(find.byType(TextFormField).at(1), 'L');
-        await tester.enterText(find.byType(TextFormField).at(2), '10.0');
+        await tester.enterText(find.byType(TextFormField).at(1), '100.0');
+        await tester.enterText(find.byType(TextFormField).at(2), '12.5');
+        await tester.enterText(find.byType(TextFormField).at(3), '1.0');
         await tester.tap(find.widgetWithText(ElevatedButton, 'Guardar'));
         await pumpUntilSettled(tester);
 
@@ -140,8 +147,9 @@ void main() {
 
       // Act: llenar campos y guardar
       await tester.enterText(find.byType(TextFormField).at(0), 'Alcohol');
-      await tester.enterText(find.byType(TextFormField).at(1), 'L');
-      await tester.enterText(find.byType(TextFormField).at(2), '10.0');
+      await tester.enterText(find.byType(TextFormField).at(1), '100.0');
+      await tester.enterText(find.byType(TextFormField).at(2), '12.5');
+      await tester.enterText(find.byType(TextFormField).at(3), '1.0');
       await tester.tap(find.widgetWithText(ElevatedButton, 'Guardar'));
       await pumpUntilSettled(tester);
 
@@ -154,8 +162,10 @@ void main() {
     final editProduct = const BulkProduct(
       id: 1,
       name: 'Alcohol',
-      unitOfMeasure: 'L',
-      stock: 100.0,
+      currentStockLiters: 100.0,
+      costPerLiter: 12.5,
+      conversionRatio: 1.0,
+      active: true,
     );
 
     testWidgets('debe mostrar "Editar Materia Prima" en el AppBar', (
@@ -173,12 +183,11 @@ void main() {
       await tester.pumpWidget(createTestApp(provider, product: editProduct));
       await pumpUntilSettled(tester);
 
-      // Solo 2 campos en edit mode (sin stock)
-      expect(find.byType(TextFormField), findsNWidgets(2));
+      // 4 campos en edit mode: nombre, stock, costo, ratio
+      expect(find.byType(TextFormField), findsNWidgets(4));
 
       // Los campos deben tener los valores pre-cargados
       expect(find.text('Alcohol'), findsOneWidget);
-      expect(find.text('L'), findsOneWidget);
     });
 
     testWidgets('debe llamar updateBulkProduct al guardar cambios', (

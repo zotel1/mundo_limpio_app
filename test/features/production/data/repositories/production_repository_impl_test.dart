@@ -33,19 +33,27 @@ void main() {
         final json = [
           {
             'id': 1,
-            'finished_product_id': 10,
-            'bulk_product_id': 20,
-            'quantity_used': 5.0,
-            'quantity_produced': 4.0,
-            'date': '2026-05-18T10:00:00Z',
+            'productId': 10,
+            'productName': 'Jabón Líquido',
+            'bulkProductId': 20,
+            'bulkProductName': 'Alcohol',
+            'initialQuantity': 100.0,
+            'currentStock': 85.0,
+            'unitCostAtProduction': 12.5,
+            'rawQuantityUsed': 15.0,
+            'productionDate': '2026-05-18T10:00:00Z',
           },
           {
             'id': 2,
-            'finished_product_id': 11,
-            'bulk_product_id': 21,
-            'quantity_used': 3.0,
-            'quantity_produced': 2.5,
-            'date': '2026-05-18T11:00:00Z',
+            'productId': 11,
+            'productName': 'Detergente',
+            'bulkProductId': 21,
+            'bulkProductName': 'Esencia',
+            'initialQuantity': 50.0,
+            'currentStock': 40.0,
+            'unitCostAtProduction': 10.0,
+            'rawQuantityUsed': 10.0,
+            'productionDate': '2026-05-18T11:00:00Z',
           },
         ];
         when(() => mockDio.get(any())).thenAnswer(
@@ -63,10 +71,12 @@ void main() {
         expect(result, isA<List<ProductionBatch>>());
         expect(result.length, 2);
         expect(result.first.id, 1);
-        expect(result.first.finishedProductId, 10);
+        expect(result.first.productId, 10);
+        expect(result.first.productName, 'Jabón Líquido');
         expect(result.first.bulkProductId, 20);
-        expect(result.first.quantityUsed, 5.0);
-        expect(result.first.quantityProduced, 4.0);
+        expect(result.first.bulkProductName, 'Alcohol');
+        expect(result.first.initialQuantity, 100.0);
+        expect(result.first.rawQuantityUsed, 15.0);
         expect(result.last.id, 2);
         verify(() => mockDio.get('/api/v1/production-batches')).called(1);
       },
@@ -96,11 +106,15 @@ void main() {
         // Arrange
         final json = {
           'id': 1,
-          'finished_product_id': 10,
-          'bulk_product_id': 20,
-          'quantity_used': 5.0,
-          'quantity_produced': 4.0,
-          'date': '2026-05-18T10:00:00Z',
+          'productId': 10,
+          'productName': 'Jabón Líquido',
+          'bulkProductId': 20,
+          'bulkProductName': 'Alcohol',
+          'initialQuantity': 100.0,
+          'currentStock': 85.0,
+          'unitCostAtProduction': 12.5,
+          'rawQuantityUsed': 15.0,
+          'productionDate': '2026-05-18T10:00:00Z',
         };
         when(() => mockDio.get(any())).thenAnswer(
           (_) async => Response(
@@ -118,10 +132,10 @@ void main() {
         // Assert
         expect(result, isA<ProductionBatch>());
         expect(result.id, 1);
-        expect(result.finishedProductId, 10);
+        expect(result.productId, 10);
         expect(result.bulkProductId, 20);
-        expect(result.quantityUsed, 5.0);
-        expect(result.quantityProduced, 4.0);
+        expect(result.initialQuantity, 100.0);
+        expect(result.rawQuantityUsed, 15.0);
         verify(() => mockDio.get('/api/v1/production-batches/1')).called(1);
       },
     );
@@ -137,11 +151,12 @@ void main() {
         );
         final responseJson = {
           'id': 1,
-          'finished_product_id': 10,
-          'bulk_product_id': 20,
-          'quantity_used': 5.0,
-          'quantity_produced': 4.0,
-          'date': '2026-05-18T10:00:00Z',
+          'productId': 10,
+          'initialQuantity': 100.0,
+          'currentStock': 85.0,
+          'unitCostAtProduction': 12.5,
+          'rawQuantityUsed': 15.0,
+          'productionDate': '2026-05-18T10:00:00Z',
         };
         when(() => mockDio.post(any(), data: any(named: 'data'))).thenAnswer(
           (_) async => Response(
@@ -157,10 +172,8 @@ void main() {
         // Assert
         expect(result, isA<ProductionBatch>());
         expect(result.id, 1);
-        expect(result.finishedProductId, 10);
-        expect(result.bulkProductId, 20);
-        expect(result.quantityUsed, 5.0);
-        expect(result.quantityProduced, 4.0);
+        expect(result.productId, 10);
+        expect(result.initialQuantity, 100.0);
         verify(
           () => mockDio.post(
             '/api/v1/production-batches',

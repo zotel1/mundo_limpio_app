@@ -34,15 +34,16 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
   @override
   Future<BulkProduct> createBulkProduct(BulkProduct product) async {
     try {
-      final model = BulkProductModel(
-        id: product.id,
-        name: product.name,
-        unitOfMeasure: product.unitOfMeasure,
-        stock: product.stock,
-      );
       final response = await _dio.post(
         '/api/v1/bulk-products',
-        data: model.toJson(),
+        data: {
+          'name': product.name,
+          'currentStockLiters': product.currentStockLiters,
+          'costperLiter': product.costPerLiter,
+          if (product.conversionRatio != null)
+            'conversionRatio': product.conversionRatio,
+          'active': product.active,
+        },
       );
       return BulkProductModel.fromJson(response.data).toEntity();
     } catch (e) {
@@ -53,15 +54,16 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
   @override
   Future<BulkProduct> updateBulkProduct(BulkProduct product) async {
     try {
-      final model = BulkProductModel(
-        id: product.id,
-        name: product.name,
-        unitOfMeasure: product.unitOfMeasure,
-        stock: product.stock,
-      );
       final response = await _dio.put(
         '/api/v1/bulk-products/${product.id}',
-        data: model.toJson(),
+        data: {
+          'name': product.name,
+          'currentStockLiters': product.currentStockLiters,
+          'costperLiter': product.costPerLiter,
+          if (product.conversionRatio != null)
+            'conversionRatio': product.conversionRatio,
+          'active': product.active,
+        },
       );
       return BulkProductModel.fromJson(response.data).toEntity();
     } catch (e) {

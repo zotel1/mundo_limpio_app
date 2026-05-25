@@ -10,7 +10,7 @@ ProductModel _$ProductModelFromJson(Map<String, dynamic> json) => ProductModel(
   id: (json['id'] as num).toInt(),
   sku: json['sku'] as String?,
   name: json['name'] as String,
-  minPrice: (json['min_price'] as num?)?.toDouble(),
+  minPrice: (json['minPrice'] as num?)?.toDouble(),
   active: json['active'] as bool? ?? true,
 );
 
@@ -19,6 +19,6 @@ Map<String, dynamic> _$ProductModelToJson(ProductModel instance) =>
       'id': instance.id,
       'sku': instance.sku,
       'name': instance.name,
-      'min_price': instance.minPrice,
+      'minPrice': instance.minPrice,
       'active': instance.active,
     };

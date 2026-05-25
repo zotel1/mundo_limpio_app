@@ -24,8 +24,18 @@ void main() {
       () async {
         // Arrange
         final bulkProducts = [
-          BulkProduct(id: 1, name: 'Alcohol', unitOfMeasure: 'L', stock: 10.0),
-          BulkProduct(id: 2, name: 'Agua', unitOfMeasure: 'L', stock: 20.0),
+          BulkProduct(
+            id: 1,
+            name: 'Alcohol',
+            currentStockLiters: 10.0,
+            costPerLiter: 5.0,
+          ),
+          BulkProduct(
+            id: 2,
+            name: 'Agua',
+            currentStockLiters: 20.0,
+            costPerLiter: 8.0,
+          ),
         ];
         when(
           () => mockRepository.getBulkProducts(),
