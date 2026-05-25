@@ -9,8 +9,10 @@ void main() {
     final Map<String, dynamic> json = {
       'id': 1,
       'name': 'Alcohol Etílico',
-      'unit_of_measure': 'Litros',
-      'stock': 100.0,
+      'currentStockLiters': 500.0,
+      'costPerLiter': 12.5,
+      'conversionRatio': 1.0,
+      'active': true,
     };
 
     test(
@@ -20,8 +22,10 @@ void main() {
 
         expect(model.id, 1);
         expect(model.name, 'Alcohol Etílico');
-        expect(model.unitOfMeasure, 'Litros');
-        expect(model.stock, 100.0);
+        expect(model.currentStockLiters, 500.0);
+        expect(model.costPerLiter, 12.5);
+        expect(model.conversionRatio, 1.0);
+        expect(model.active, true);
       },
     );
 
@@ -29,15 +33,19 @@ void main() {
       final model = BulkProductModel(
         id: 1,
         name: 'Alcohol Etílico',
-        unitOfMeasure: 'Litros',
-        stock: 100.0,
+        currentStockLiters: 500.0,
+        costPerLiter: 12.5,
+        conversionRatio: 1.0,
+        active: true,
       );
       final result = model.toJson();
 
       expect(result['id'], 1);
       expect(result['name'], 'Alcohol Etílico');
-      expect(result['unit_of_measure'], 'Litros');
-      expect(result['stock'], 100.0);
+      expect(result['currentStockLiters'], 500.0);
+      expect(result['costPerLiter'], 12.5);
+      expect(result['conversionRatio'], 1.0);
+      expect(result['active'], true);
     });
 
     test(
@@ -46,16 +54,36 @@ void main() {
         final model = BulkProductModel(
           id: 1,
           name: 'Alcohol Etílico',
-          unitOfMeasure: 'Litros',
-          stock: 100.0,
+          currentStockLiters: 500.0,
+          costPerLiter: 12.5,
+          conversionRatio: 1.0,
+          active: true,
         );
         final entity = model.toEntity();
 
         expect(entity, isA<BulkProduct>());
         expect(entity.id, 1);
         expect(entity.name, 'Alcohol Etílico');
-        expect(entity.unitOfMeasure, 'Litros');
-        expect(entity.stock, 100.0);
+        expect(entity.currentStockLiters, 500.0);
+        expect(entity.costPerLiter, 12.5);
+        expect(entity.conversionRatio, 1.0);
+        expect(entity.active, true);
+      },
+    );
+
+    test(
+      'debe manejar conversionRatio ausente como null y active default true',
+      () {
+        final jsonMinimal = {
+          'id': 2,
+          'name': 'Alcohol',
+          'currentStockLiters': 100.0,
+          'costPerLiter': 10.0,
+        };
+        final model = BulkProductModel.fromJson(jsonMinimal);
+
+        expect(model.conversionRatio, isNull);
+        expect(model.active, true);
       },
     );
   });

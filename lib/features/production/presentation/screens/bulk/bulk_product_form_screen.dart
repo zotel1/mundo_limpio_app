@@ -26,8 +26,9 @@ class BulkProductFormScreen extends StatefulWidget {
 class _BulkProductFormScreenState extends State<BulkProductFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _unitController = TextEditingController();
-  final _stockController = TextEditingController();
+  final _currentStockController = TextEditingController();
+  final _costPerLiterController = TextEditingController();
+  final _conversionRatioController = TextEditingController();
   bool _isSaving = false;
 
   @override
@@ -35,15 +36,20 @@ class _BulkProductFormScreenState extends State<BulkProductFormScreen> {
     super.initState();
     if (widget.product != null) {
       _nameController.text = widget.product!.name;
-      _unitController.text = widget.product!.unitOfMeasure;
+      _currentStockController.text = widget.product!.currentStockLiters
+          .toString();
+      _costPerLiterController.text = widget.product!.costPerLiter.toString();
+      _conversionRatioController.text =
+          widget.product!.conversionRatio?.toString() ?? '';
     }
   }
 
   @override
   void dispose() {
     _nameController.dispose();
-    _unitController.dispose();
-    _stockController.dispose();
+    _currentStockController.dispose();
+    _costPerLiterController.dispose();
+    _conversionRatioController.dispose();
     super.dispose();
   }
 
@@ -58,8 +64,11 @@ class _BulkProductFormScreenState extends State<BulkProductFormScreen> {
         BulkProduct(
           id: 0,
           name: _nameController.text.trim(),
-          unitOfMeasure: _unitController.text.trim(),
-          stock: double.parse(_stockController.text.trim()),
+          currentStockLiters: double.parse(_currentStockController.text.trim()),
+          costPerLiter: double.parse(_costPerLiterController.text.trim()),
+          conversionRatio: _conversionRatioController.text.trim().isNotEmpty
+              ? double.parse(_conversionRatioController.text.trim())
+              : null,
         ),
       );
     } else {
@@ -67,8 +76,12 @@ class _BulkProductFormScreenState extends State<BulkProductFormScreen> {
         BulkProduct(
           id: widget.product!.id,
           name: _nameController.text.trim(),
-          unitOfMeasure: _unitController.text.trim(),
-          stock: widget.product!.stock,
+          currentStockLiters: double.parse(_currentStockController.text.trim()),
+          costPerLiter: double.parse(_costPerLiterController.text.trim()),
+          conversionRatio: _conversionRatioController.text.trim().isNotEmpty
+              ? double.parse(_conversionRatioController.text.trim())
+              : null,
+          active: widget.product!.active,
         ),
       );
     }
@@ -112,37 +125,48 @@ class _BulkProductFormScreenState extends State<BulkProductFormScreen> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
-                  controller: _unitController,
+                  controller: _currentStockController,
                   decoration: const InputDecoration(
-                    labelText: 'Unidad de Medida',
+                    labelText: 'Stock Actual (litros)',
                   ),
+                  keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'La unidad de medida es requerida';
+                      return 'El stock es requerido';
+                    }
+                    final stock = double.tryParse(value.trim());
+                    if (stock == null || stock < 0) {
+                      return 'El stock debe ser mayor o igual a 0';
                     }
                     return null;
                   },
                 ),
-                if (widget.product == null) ...[
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _stockController,
-                    decoration: const InputDecoration(
-                      labelText: 'Stock Inicial',
-                    ),
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'El stock es requerido';
-                      }
-                      final stock = double.tryParse(value.trim());
-                      if (stock == null || stock <= 0) {
-                        return 'El stock debe ser mayor a 0';
-                      }
-                      return null;
-                    },
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _costPerLiterController,
+                  decoration: const InputDecoration(
+                    labelText: 'Costo por Litro',
                   ),
-                ],
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'El costo por litro es requerido';
+                    }
+                    final cost = double.tryParse(value.trim());
+                    if (cost == null || cost <= 0) {
+                      return 'El costo debe ser mayor a 0';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _conversionRatioController,
+                  decoration: const InputDecoration(
+                    labelText: 'Ratio de Conversión (opcional)',
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
                 const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: _isSaving ? null : _submit,

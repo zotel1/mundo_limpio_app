@@ -31,6 +31,12 @@ class AuthResponse {
   /// Nombre de usuario visible en la UI.
   final String username;
 
+  /// Email del usuario (opcional, solo en login/register response).
+  final String? email;
+
+  /// Roles del usuario (opcional, solo en login/register response).
+  final List<String>? roles;
+
   /// Fecha y hora ISO 8601 de creación de la sesión/cuenta.
   ///
   /// json_serializable parsea DateTime nativamente con DateTime.parse()
@@ -43,6 +49,8 @@ class AuthResponse {
     required this.refreshToken,
     required this.role,
     required this.username,
+    this.email,
+    this.roles,
     required this.createdAt,
   });
 

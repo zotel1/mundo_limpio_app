@@ -26,7 +26,12 @@ void main() {
       ),
     );
     registerFallbackValue(
-      const BulkProduct(id: 0, name: '', unitOfMeasure: '', stock: 0.0),
+      const BulkProduct(
+        id: 0,
+        name: '',
+        currentStockLiters: 0,
+        costPerLiter: 0,
+      ),
     );
   });
 
@@ -44,8 +49,8 @@ void main() {
       (_) async => const BulkProduct(
         id: 1,
         name: 'Alcohol',
-        unitOfMeasure: 'L',
-        stock: 100.0,
+        currentStockLiters: 100.0,
+        costPerLiter: 10.0,
       ),
     );
   });
@@ -60,11 +65,13 @@ void main() {
       );
       final productionBatch = ProductionBatch(
         id: 1,
-        finishedProductId: 10,
+        productId: 10,
         bulkProductId: 20,
-        quantityUsed: 5.0,
-        quantityProduced: 4.0,
-        date: DateTime.now(),
+        initialQuantity: 5.0,
+        currentStock: 4.0,
+        unitCostAtProduction: 10.0,
+        rawQuantityUsed: 5.0,
+        productionDate: DateTime.now(),
       );
       when(
         () => mockRepository.createProductionBatch(any()),
@@ -148,8 +155,8 @@ void main() {
           (_) async => const BulkProduct(
             id: 20,
             name: 'Alcohol',
-            unitOfMeasure: 'L',
-            stock: 2.0,
+            currentStockLiters: 2.0,
+            costPerLiter: 10.0,
           ),
         );
 

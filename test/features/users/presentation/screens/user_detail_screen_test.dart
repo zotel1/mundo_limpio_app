@@ -43,6 +43,12 @@ class MockAuthProvider extends ChangeNotifier implements AuthProvider {
   String? get role => _mockRole;
 
   @override
+  String? get email => null;
+
+  @override
+  List<String>? get roles => null;
+
+  @override
   String? error;
 
   @override

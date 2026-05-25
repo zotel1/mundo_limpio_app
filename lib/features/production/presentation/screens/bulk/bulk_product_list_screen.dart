@@ -93,7 +93,7 @@ class _BulkProductListScreenState extends State<BulkProductListScreen> {
             child: ListTile(
               title: Text(product.name),
               subtitle: Text(
-                '${product.unitOfMeasure} — Stock: ${product.stock.toStringAsFixed(1)}',
+                'Stock: ${product.currentStockLiters.toStringAsFixed(1)} L — Costo: \$${product.costPerLiter.toStringAsFixed(2)}',
               ),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => _navigateToForm(provider, product: product),

@@ -10,7 +10,7 @@ void main() {
       'id': 1,
       'sku': 'PROD-001',
       'name': 'Jabón Líquido',
-      'min_price': 150.0,
+      'minPrice': 150.0,
       'active': true,
     };
 
@@ -40,7 +40,7 @@ void main() {
       expect(result['id'], 1);
       expect(result['sku'], 'PROD-001');
       expect(result['name'], 'Jabón Líquido');
-      expect(result['min_price'], 150.0);
+      expect(result['minPrice'], 150.0);
       expect(result['active'], true);
     });
 
@@ -70,7 +70,7 @@ void main() {
         'id': 2,
         'sku': null,
         'name': 'Producto sin SKU',
-        'min_price': null,
+        'minPrice': null,
         'active': true,
       };
       final model = ProductModel.fromJson(jsonWithNulls);
@@ -87,7 +87,7 @@ void main() {
         'id': 3,
         'sku': 'PROD-003',
         'name': 'Producto Inactivo',
-        'min_price': null,
+        'minPrice': null,
         'active': false,
       };
       final model = ProductModel.fromJson(jsonInactive);

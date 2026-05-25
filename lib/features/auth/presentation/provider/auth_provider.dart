@@ -43,6 +43,12 @@ class AuthProvider extends ChangeNotifier {
   /// Rol del usuario autenticado (null si no hay sesión activa).
   String? _role;
 
+  /// Email del usuario autenticado (null si no hay sesión activa).
+  String? _email;
+
+  /// Roles del usuario autenticado (null si no hay sesión activa).
+  List<String>? _roles;
+
   /// Nombre de usuario autenticado (null si no hay sesión activa).
   ///
   /// Se usa como identificador para Crashlytics (setUserIdentifier).
@@ -65,7 +71,16 @@ class AuthProvider extends ChangeNotifier {
   /// Retorna null si no hay sesión activa (estado inicial o después de logout).
   /// Se popula después de un login exitoso desde [AuthResponse.role].
   /// T-5.3 lo usa para mostrar botones condicionales según el rol.
-  String? get role => _role;
+  ///
+  /// Si el backend envía múltiples roles via [roles], retorna el primero
+  /// como rol principal para mantener compatibilidad con [role] getter.
+  String? get role => _roles?.first ?? _role;
+
+  /// Email del usuario autenticado (null si no hay sesión activa).
+  String? get email => _email;
+
+  /// Roles completos del usuario autenticado (null si no hay sesión activa).
+  List<String>? get roles => _roles;
 
   /// Nombre de usuario autenticado.
   ///
@@ -105,6 +120,8 @@ class AuthProvider extends ChangeNotifier {
     try {
       final response = await _repository.login(email, password);
       _role = response.role;
+      _email = response.email;
+      _roles = response.roles;
       _username = response.username;
       _status = AuthStatus.authenticated;
       _error = null;
@@ -115,12 +132,16 @@ class AuthProvider extends ChangeNotifier {
     } on ApiException catch (e) {
       // ApiException tiene mensaje amigable via ErrorHandler
       _role = null;
+      _email = null;
+      _roles = null;
       _username = null;
       _error = ErrorHandler.getMessage(e);
       _status = AuthStatus.unauthenticated;
     } catch (e) {
       // Error genérico (no debería ocurrir en condiciones normales)
       _role = null;
+      _email = null;
+      _roles = null;
       _username = null;
       _error = 'Error inesperado. Intentalo de nuevo.';
       _status = AuthStatus.unauthenticated;
@@ -161,6 +182,8 @@ class AuthProvider extends ChangeNotifier {
     }
     _status = AuthStatus.unauthenticated;
     _role = null;
+    _email = null;
+    _roles = null;
     _username = null;
     _error = null;
 

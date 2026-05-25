@@ -40,15 +40,22 @@ void main() {
     registerFallbackValue(
       ProductionBatch(
         id: 0,
-        finishedProductId: 0,
+        productId: 0,
         bulkProductId: 0,
-        quantityUsed: 0.0,
-        quantityProduced: 0.0,
-        date: DateTime(2026, 1, 1),
+        initialQuantity: 0.0,
+        currentStock: 0.0,
+        unitCostAtProduction: 0.0,
+        rawQuantityUsed: 0.0,
+        productionDate: DateTime(2026, 1, 1),
       ),
     );
     registerFallbackValue(
-      const BulkProduct(id: 0, name: '', unitOfMeasure: '', stock: 0.0),
+      const BulkProduct(
+        id: 0,
+        name: '',
+        currentStockLiters: 0,
+        costPerLiter: 0,
+      ),
     );
   });
 
@@ -62,19 +69,21 @@ void main() {
     when(() => mockRepo.createProductionBatch(any())).thenAnswer(
       (_) async => ProductionBatch(
         id: 1,
-        finishedProductId: 1,
+        productId: 1,
         bulkProductId: 1,
-        quantityUsed: 10.0,
-        quantityProduced: 8.0,
-        date: DateTime(2026, 5, 18),
+        initialQuantity: 10.0,
+        currentStock: 8.0,
+        unitCostAtProduction: 12.5,
+        rawQuantityUsed: 10.0,
+        productionDate: DateTime(2026, 5, 18),
       ),
     );
     when(() => mockBulkRepo.getBulkProduct(any())).thenAnswer(
       (_) async => const BulkProduct(
         id: 1,
         name: 'Alcohol',
-        unitOfMeasure: 'L',
-        stock: 100.0,
+        currentStockLiters: 100.0,
+        costPerLiter: 10.0,
       ),
     );
   });
@@ -106,11 +115,13 @@ void main() {
       final batches = [
         ProductionBatch(
           id: 1,
-          finishedProductId: 1,
+          productId: 1,
           bulkProductId: 1,
-          quantityUsed: 10.0,
-          quantityProduced: 8.0,
-          date: DateTime(2026, 5, 18),
+          initialQuantity: 10.0,
+          currentStock: 8.0,
+          unitCostAtProduction: 12.5,
+          rawQuantityUsed: 10.0,
+          productionDate: DateTime(2026, 5, 18),
         ),
       ];
       when(
@@ -146,11 +157,13 @@ void main() {
       );
       final batch = ProductionBatch(
         id: 1,
-        finishedProductId: 1,
+        productId: 1,
         bulkProductId: 1,
-        quantityUsed: 10.0,
-        quantityProduced: 8.0,
-        date: DateTime(2026, 5, 18),
+        initialQuantity: 10.0,
+        currentStock: 8.0,
+        unitCostAtProduction: 12.5,
+        rawQuantityUsed: 10.0,
+        productionDate: DateTime(2026, 5, 18),
       );
       when(
         () => mockRepo.createProductionBatch(request),
