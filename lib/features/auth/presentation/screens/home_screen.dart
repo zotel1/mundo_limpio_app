@@ -51,8 +51,9 @@ class HomeScreen extends StatelessWidget {
               style: TextStyle(fontSize: 18),
               textAlign: TextAlign.center,
             ),
-            // Botón "Nueva Venta" solo para administradores (T-5.3)
-            if (context.read<AuthProvider>().role == 'ADMIN') ...[
+            // Botón "Nueva Venta" solo para administradores y gestores de stock (T-5.3)
+            if (context.read<AuthProvider>().role == 'ADMIN' ||
+                context.read<AuthProvider>().role == 'STOCK_MANAGER') ...[
               const SizedBox(height: 24),
               SizedBox(
                 width: 200,
@@ -101,6 +102,16 @@ class HomeScreen extends StatelessWidget {
                   onPressed: () => context.push('/production/batches'),
                   icon: const Icon(Icons.history),
                   label: const Text('Historial Producción'),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: 200,
+                height: 48,
+                child: ElevatedButton.icon(
+                  onPressed: () => context.push('/products'),
+                  icon: const Icon(Icons.inventory),
+                  label: const Text('Productos'),
                 ),
               ),
               const SizedBox(height: 12),

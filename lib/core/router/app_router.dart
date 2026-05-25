@@ -7,7 +7,7 @@
 // para que los redirects se reevalúen automáticamente cuando cualquiera
 // de los dos providers notifica cambios.
 //
-// TDD: GREEN — PR3: reemplazar _SplashScreen por SplashScreen importado
+// TDD: GREEN — splash-auth-flow: splash guard + splash-first initialLocation
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -21,6 +21,9 @@ import 'package:mundo_limpio_app/features/inventory/presentation/screens/invento
 import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/screens/create_sale_screen.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/screens/sale_result_screen.dart';
+import 'package:mundo_limpio_app/features/products/presentation/screens/products_detail_screen.dart';
+import 'package:mundo_limpio_app/features/products/presentation/screens/products_form_screen.dart';
+import 'package:mundo_limpio_app/features/products/presentation/screens/products_list_screen.dart';
 import 'package:mundo_limpio_app/features/production/presentation/screens/bulk/bulk_product_list_screen.dart';
 import 'package:mundo_limpio_app/features/production/presentation/screens/production/production_batch_list_screen.dart';
 import 'package:mundo_limpio_app/features/production/presentation/screens/production/production_create_screen.dart';
@@ -47,36 +50,43 @@ import 'package:mundo_limpio_app/features/splash/presentation/splash_screen.dart
 /// 2. Notificar cambios via [ChangeNotifier] (refreshListenable)
 ///
 /// [initialLocation] permite arrancar desde una ruta específica
-/// (por defecto: '/').
+/// (por defecto: '/splash').
 ///
 /// Lógica de redirect:
-/// - loading → redirige a /splash si no está ahí
+/// - /splash SIEMPRE retorna null (nunca redirige desde splash)
+/// - loading → null (safety fallthrough — splash ya es la primera ruta)
 /// - unauthenticated → /login y /register libres; el resto redirige a /login
-/// - authenticated → /login, /register y /splash redirigen a /
+/// - authenticated → /login y /register redirigen a /; /splash no entra aquí
 GoRouter createRouter(
   AuthProvider authProvider,
   SplashProvider splashProvider, {
-  String initialLocation = '/',
+  String initialLocation = '/splash',
 }) {
   return GoRouter(
     initialLocation: initialLocation,
     refreshListenable: Listenable.merge([authProvider, splashProvider]),
     redirect: (context, state) {
-      final status = authProvider.status;
       final location = state.matchedLocation;
 
-      // Proteger rutas de producción y recibos: solo ADMIN puede acceder
+      // Splash guard: NUNCA redirigir desde /splash
+      if (location == '/splash') return null;
+
+      final status = authProvider.status;
+
+      // Proteger rutas de administración: ADMIN y STOCK_MANAGER pueden acceder
       if (status == AuthStatus.authenticated &&
           (location.startsWith('/production/') ||
-              location.startsWith('/receipts/')) &&
-          authProvider.role != 'ADMIN') {
+              location.startsWith('/receipts/') ||
+              location == '/products' ||
+              location.startsWith('/products/')) &&
+          authProvider.role != 'ADMIN' &&
+          authProvider.role != 'STOCK_MANAGER') {
         return '/';
       }
 
       switch (status) {
         case AuthStatus.loading:
-          // Mostrar splash mientras se resuelve el estado
-          if (location != '/splash') return '/splash';
+          // Safety fallthrough: splash ya se muestra via initialLocation
           return null;
 
         case AuthStatus.unauthenticated:
@@ -86,9 +96,7 @@ GoRouter createRouter(
 
         case AuthStatus.authenticated:
           // Redirigir al home si está en pantallas de auth (R6.2)
-          if (location == '/login' ||
-              location == '/register' ||
-              location == '/splash') {
+          if (location == '/login' || location == '/register') {
             return '/';
           }
           return null;
@@ -109,6 +117,26 @@ GoRouter createRouter(
         builder: (context, state) {
           final productId = int.parse(state.pathParameters['productId']!);
           return InventoryDetailScreen(productId: productId);
+        },
+      ),
+      GoRoute(path: '/products', builder: (_, _) => const ProductsListScreen()),
+      GoRoute(
+        path: '/products/new',
+        builder: (_, _) => const ProductsFormScreen(),
+      ),
+      GoRoute(
+        path: '/products/:id',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return ProductsDetailScreen(productId: id);
+        },
+      ),
+      GoRoute(
+        path: '/products/:id/edit',
+        builder: (context, state) {
+          // En edit mode via GoRouter, el form recibe null
+          // (se muestra en create mode hasta que se implemente carga por id)
+          return const ProductsFormScreen();
         },
       ),
       GoRoute(

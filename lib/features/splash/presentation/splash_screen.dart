@@ -5,14 +5,15 @@
 // - idle: gato durmiendo con prompt "Tocá para despertar al gato..."
 // - waking: gato despertando (sin texto, la imagen es el indicador)
 // - retry: mensaje de error + botón de reintentar
-// - resolved: vacío (GoRouter se encarga de la navegación)
+// - resolved: navega imperativamente via context.go()
 //
 // También observa AuthProvider y notifica al SplashProvider
 // cuando la autenticación se resuelve (status != loading).
 //
-// TDD: GREEN — implementación mínima para pasar los tests
+// TDD: GREEN — splash-auth-flow: navegación imperativa post-resolución
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/theme/app_colors.dart';
@@ -33,6 +34,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   bool _authNotified = false;
+  bool _navigated = false;
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +47,19 @@ class _SplashScreenState extends State<SplashScreen> {
       _authNotified = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         splash.onAuthResolved();
+      });
+    }
+
+    // Navegación imperativa cuando el splash se resuelve.
+    // Se ejecuta una sola vez gracias al flag _navigated.
+    if (!_navigated && splash.state == SplashState.resolved) {
+      _navigated = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (auth.isAuthenticated) {
+          context.go('/');
+        } else {
+          context.go('/login');
+        }
       });
     }
 

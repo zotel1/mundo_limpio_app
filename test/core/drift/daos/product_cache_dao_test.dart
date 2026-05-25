@@ -32,8 +32,18 @@ void main() {
         // Arrange
         final now = DateTime(2026, 5, 18);
         final products = [
-          ProductCacheData(id: 1, name: 'Producto A', updatedAt: now),
-          ProductCacheData(id: 2, name: 'Producto B', updatedAt: now),
+          ProductCacheData(
+            id: 1,
+            name: 'Producto A',
+            updatedAt: now,
+            active: true,
+          ),
+          ProductCacheData(
+            id: 2,
+            name: 'Producto B',
+            updatedAt: now,
+            active: true,
+          ),
         ];
 
         // Act
@@ -55,6 +65,7 @@ void main() {
             id: 1,
             name: 'Original',
             updatedAt: DateTime(2026, 5, 18),
+            active: true,
           ),
         ]);
 
@@ -64,6 +75,7 @@ void main() {
             id: 1,
             name: 'Actualizado',
             updatedAt: DateTime(2026, 5, 18),
+            active: true,
           ),
         ]);
 
@@ -82,9 +94,24 @@ void main() {
 
       test('debe retornar todos los productos insertados', () async {
         await dao.upsertAll([
-          ProductCacheData(id: 1, name: 'P1', updatedAt: DateTime(2026, 5, 18)),
-          ProductCacheData(id: 2, name: 'P2', updatedAt: DateTime(2026, 5, 18)),
-          ProductCacheData(id: 3, name: 'P3', updatedAt: DateTime(2026, 5, 18)),
+          ProductCacheData(
+            id: 1,
+            name: 'P1',
+            updatedAt: DateTime(2026, 5, 18),
+            active: true,
+          ),
+          ProductCacheData(
+            id: 2,
+            name: 'P2',
+            updatedAt: DateTime(2026, 5, 18),
+            active: true,
+          ),
+          ProductCacheData(
+            id: 3,
+            name: 'P3',
+            updatedAt: DateTime(2026, 5, 18),
+            active: true,
+          ),
         ]);
 
         final all = await dao.getAll();
@@ -99,8 +126,18 @@ void main() {
       test('debe eliminar todos los productos del caché', () async {
         // Arrange
         await dao.upsertAll([
-          ProductCacheData(id: 1, name: 'P1', updatedAt: DateTime(2026, 5, 18)),
-          ProductCacheData(id: 2, name: 'P2', updatedAt: DateTime(2026, 5, 18)),
+          ProductCacheData(
+            id: 1,
+            name: 'P1',
+            updatedAt: DateTime(2026, 5, 18),
+            active: true,
+          ),
+          ProductCacheData(
+            id: 2,
+            name: 'P2',
+            updatedAt: DateTime(2026, 5, 18),
+            active: true,
+          ),
         ]);
 
         // Act
@@ -126,9 +163,24 @@ void main() {
 
       test('debe retornar la cantidad exacta de productos cacheados', () async {
         await dao.upsertAll([
-          ProductCacheData(id: 1, name: 'P1', updatedAt: DateTime(2026, 5, 18)),
-          ProductCacheData(id: 2, name: 'P2', updatedAt: DateTime(2026, 5, 18)),
-          ProductCacheData(id: 3, name: 'P3', updatedAt: DateTime(2026, 5, 18)),
+          ProductCacheData(
+            id: 1,
+            name: 'P1',
+            updatedAt: DateTime(2026, 5, 18),
+            active: true,
+          ),
+          ProductCacheData(
+            id: 2,
+            name: 'P2',
+            updatedAt: DateTime(2026, 5, 18),
+            active: true,
+          ),
+          ProductCacheData(
+            id: 3,
+            name: 'P3',
+            updatedAt: DateTime(2026, 5, 18),
+            active: true,
+          ),
         ]);
 
         final result = await dao.count();

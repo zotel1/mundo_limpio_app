@@ -150,7 +150,12 @@ class SyncService {
 // ─── Mappers ──────────────────────────────────────────────────
 
 ProductCacheData _productToCache(ProductResponse product, DateTime now) {
-  return ProductCacheData(id: product.id, name: product.name, updatedAt: now);
+  return ProductCacheData(
+    id: product.id,
+    name: product.name,
+    updatedAt: now,
+    active: true,
+  );
 }
 
 InventoryCacheData _inventoryToCache(InventoryResponse inv, DateTime now) {
