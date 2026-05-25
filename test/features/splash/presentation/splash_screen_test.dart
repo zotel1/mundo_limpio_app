@@ -11,6 +11,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
@@ -18,6 +19,7 @@ import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provid
 import 'package:mundo_limpio_app/features/splash/domain/splash_repository.dart';
 import 'package:mundo_limpio_app/features/splash/presentation/splash_provider.dart';
 import 'package:mundo_limpio_app/features/splash/presentation/splash_screen.dart';
+
 
 // ── Mocks ───────────────────────────────────────────────────────────────────
 
@@ -74,22 +76,41 @@ class AuthProviderMock extends ChangeNotifier implements AuthProvider {
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
-/// Crea el widget de test con los providers necesarios.
+/// Crea el widget de test con los providers necesarios y GoRouter.
 ///
 /// [splashProvider] controla el estado del splash.
 /// [authProvider] controla el estado de autenticación.
+/// Usa GoRouter para que SplashScreen pueda llamar context.go()
+/// cuando se resuelve, sin depender de createRouter completo.
 Widget createSplashTestWidget({
   required SplashProvider splashProvider,
   required AuthProviderMock authProvider,
 }) {
+  final router = GoRouter(
+    initialLocation: '/splash',
+    routes: [
+      GoRoute(path: '/splash', builder: (_, _) => const SplashScreen()),
+      GoRoute(
+        path: '/',
+        builder: (_, _) =>
+            const Scaffold(body: Center(child: Text('HomePage'))),
+      ),
+      GoRoute(
+        path: '/login',
+        builder: (_, _) =>
+            const Scaffold(body: Center(child: Text('LoginPage'))),
+      ),
+    ],
+  );
+
   return MultiProvider(
     providers: [
       ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
       ChangeNotifierProvider<SplashProvider>.value(value: splashProvider),
     ],
-    child: MaterialApp(
+    child: MaterialApp.router(
+      routerConfig: router,
       theme: ThemeData(splashFactory: NoSplash.splashFactory),
-      home: SplashScreen(),
     ),
   );
 }
@@ -401,6 +422,76 @@ void main() {
 
       // Assert: NO resolvió porque auth sigue en loading
       expect(splashProvider.isResolved, isFalse);
+    });
+  });
+
+  group('SplashScreen — navegación post-resolución', () {
+    testWidgets('navega a / cuando autenticado al resolver', (tester) async {
+      // Arrange: auth autenticado, repo funciona
+      when(() => mockRepo.wakeBackend()).thenAnswer((_) async => true);
+      splashProvider = SplashProvider(
+        mockRepo,
+        animationDuration: Duration.zero,
+      );
+      authProvider = AuthProviderMock(AuthStatus.authenticated);
+
+      // Act: renderizar en GoRouter desde /splash
+      await tester.pumpWidget(
+        createSplashTestWidget(
+          splashProvider: splashProvider,
+          authProvider: authProvider,
+        ),
+      );
+
+      // El build llama onAuthResolved via addPostFrameCallback
+      await tester.pump();
+      expect(find.byType(SplashScreen), findsOneWidget);
+
+      // Iniciar waking — con todas las condiciones OK, resuelve de inmediato
+      splashProvider.startWaking();
+      await tester.pump();
+      await tester.pump();
+      // addPostFrameCallback de _navigated → context.go('/')
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Assert: navegó a / (muestra Text('HomePage'))
+      expect(find.text('HomePage'), findsOneWidget);
+    });
+
+    testWidgets('navega a /login cuando NO autenticado al resolver', (
+      tester,
+    ) async {
+      // Arrange: auth no autenticado, repo funciona
+      when(() => mockRepo.wakeBackend()).thenAnswer((_) async => true);
+      splashProvider = SplashProvider(
+        mockRepo,
+        animationDuration: Duration.zero,
+      );
+      authProvider = AuthProviderMock(AuthStatus.unauthenticated);
+
+      // Act: renderizar en GoRouter desde /splash
+      await tester.pumpWidget(
+        createSplashTestWidget(
+          splashProvider: splashProvider,
+          authProvider: authProvider,
+        ),
+      );
+
+      // El build llama onAuthResolved via addPostFrameCallback
+      await tester.pump();
+      expect(find.byType(SplashScreen), findsOneWidget);
+
+      // Iniciar waking
+      splashProvider.startWaking();
+      await tester.pump();
+      await tester.pump();
+      // addPostFrameCallback de _navigated → context.go()
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Assert: navegó a /login (muestra Text('LoginPage'))
+      expect(find.text('LoginPage'), findsOneWidget);
     });
   });
 }

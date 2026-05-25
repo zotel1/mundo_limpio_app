@@ -213,8 +213,8 @@ void main() async {
             final healthDio = Dio(
               BaseOptions(
                 baseUrl: AppConfig.healthBaseUrl,
-                connectTimeout: const Duration(seconds: 30),
-                receiveTimeout: const Duration(seconds: 30),
+                connectTimeout: AppConfig.connectTimeout,
+                receiveTimeout: AppConfig.receiveTimeout,
               ),
             );
             return SplashRepositoryImpl(dio: healthDio);
