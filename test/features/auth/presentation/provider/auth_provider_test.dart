@@ -35,6 +35,8 @@ void main() {
     refreshToken: 'refresh-456',
     role: 'user',
     username: 'testuser',
+    email: 'testuser@example.com',
+    roles: ['user'],
     createdAt: DateTime(2026, 5, 9),
   );
 
@@ -199,6 +201,30 @@ void main() {
         expect(provider.role, 'user');
       },
     );
+
+    // TDD: RED — verificar que login guarda email y roles del AuthResponse
+    test(
+      'debe guardar email y roles desde AuthResponse después de login exitoso',
+      () async {
+        // Arrange
+        when(
+          () => mockAuthRepository.login(testEmail, testPassword),
+        ).thenAnswer((_) async => authResponse);
+
+        // Act
+        await provider.login(testEmail, testPassword);
+
+        // Assert
+        expect(provider.email, 'testuser@example.com');
+        expect(provider.roles, ['user']);
+      },
+    );
+
+    // TDD: RED — verificar que email y roles son null antes de login
+    test('email y roles deben ser null al iniciar', () {
+      expect(provider.email, isNull);
+      expect(provider.roles, isNull);
+    });
   });
 
   group('register', () {

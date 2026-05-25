@@ -14,6 +14,8 @@ void main() {
     'refreshToken': 'dGhpcyBpcyBhIHJlZnJlc2ggdG9rZW4',
     'role': 'user',
     'username': 'testuser',
+    'email': 'admin@limpieza.com',
+    'roles': ['ROLE_ADMIN', 'ROLE_USER'],
     'createdAt': '2026-05-09T00:00:00.000',
   };
 
@@ -27,6 +29,8 @@ void main() {
       expect(result.refreshToken, jsonValid['refreshToken']);
       expect(result.role, jsonValid['role']);
       expect(result.username, jsonValid['username']);
+      expect(result.email, 'admin@limpieza.com');
+      expect(result.roles, ['ROLE_ADMIN', 'ROLE_USER']);
       expect(result.createdAt, DateTime(2026, 5, 9));
     });
 
@@ -38,6 +42,8 @@ void main() {
         refreshToken: 'refresh-456',
         role: 'admin',
         username: 'adminuser',
+        email: 'admin@limpieza.com',
+        roles: ['ROLE_ADMIN'],
         createdAt: DateTime(2026, 5, 9, 12, 30, 0),
       );
 
@@ -47,6 +53,8 @@ void main() {
       expect(json['refreshToken'], 'refresh-456');
       expect(json['role'], 'admin');
       expect(json['username'], 'adminuser');
+      expect(json['email'], 'admin@limpieza.com');
+      expect(json['roles'], ['ROLE_ADMIN']);
       expect(json['createdAt'], '2026-05-09T12:30:00.000');
     });
 
@@ -62,6 +70,21 @@ void main() {
       expect(restored.role, original.role);
       expect(restored.username, original.username);
       expect(restored.createdAt, original.createdAt);
+    });
+
+    // Edge case: email y roles ausentes deben ser null
+    test('fromJson debe manejar email y roles ausentes como null', () {
+      final json = {
+        'accessToken': 'token',
+        'refreshToken': 'refresh',
+        'role': 'user',
+        'username': 'test',
+        'createdAt': '2026-05-09T00:00:00.000',
+      };
+      final result = AuthResponse.fromJson(json);
+
+      expect(result.email, isNull);
+      expect(result.roles, isNull);
     });
 
     // Triangulación: fecha con diferente formato (sin milisegundos)

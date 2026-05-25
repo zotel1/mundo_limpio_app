@@ -48,6 +48,12 @@ class MockAuthProvider extends ChangeNotifier implements AuthProvider {
   @override
   String? get username => null;
 
+  @override
+  String? get email => null;
+
+  @override
+  List<String>? get roles => null;
+
   /// Indica si register() fue llamado (para asserts en test).
   bool registerCalled = false;
 
