@@ -20,7 +20,6 @@ import 'package:mundo_limpio_app/features/splash/domain/splash_repository.dart';
 import 'package:mundo_limpio_app/features/splash/presentation/splash_provider.dart';
 import 'package:mundo_limpio_app/features/splash/presentation/splash_screen.dart';
 
-
 // ── Mocks ───────────────────────────────────────────────────────────────────
 
 class MockSplashRepository extends Mock implements SplashRepository {}
