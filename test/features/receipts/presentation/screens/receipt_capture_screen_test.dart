@@ -43,7 +43,10 @@ Widget createTestApp(ReceiptsProvider provider) {
 
   return ChangeNotifierProvider<ReceiptsProvider>.value(
     value: provider,
-    child: MaterialApp.router(routerConfig: router),
+    child: MaterialApp.router(
+      theme: ThemeData(splashFactory: NoSplash.splashFactory),
+      routerConfig: router,
+    ),
   );
 }
 

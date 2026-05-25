@@ -33,7 +33,9 @@ void main() {
       };
 
       // TDD: RED — Act
-      UrlLauncherService.launchUrl('https://appdistribution.firebase.dev/i/923159339728');
+      UrlLauncherService.launchUrl(
+        'https://appdistribution.firebase.dev/i/923159339728',
+      );
 
       // TDD: RED — Assert
       expect(capturedUri, isNotNull);

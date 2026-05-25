@@ -44,7 +44,7 @@ import 'package:mundo_limpio_app/features/notifications/domain/push_notification
 /// NotificationsService.testInstance = mockRepo;
 /// ```
 class NotificationsService {
-  // ── Instancia de repositorio ──────────────────────────────────────────
+  //  Instancia de repositorio
 
   /// Mock inyectado para tests (reemplaza al repositorio real).
   static PushNotificationsRepository? __testInstance;
@@ -72,7 +72,7 @@ class NotificationsService {
     __testInstance = repo;
   }
 
-  // ── Delays de retry (configurables para tests) ────────────────────────
+  //  Delays de retry (configurables para tests)
 
   /// Delays entre reintentos de suscripcion.
   ///
@@ -85,7 +85,7 @@ class NotificationsService {
     Duration(seconds: 4),
   ];
 
-  // ── Inicializacion ───────────────────────────────────────────────────
+  //  Inicializacion
 
   /// Inicializa el servicio de notificaciones push.
   ///
@@ -159,8 +159,9 @@ class NotificationsService {
 
     // TDD: GREEN — R4: Deep link — stream para mensajes que abren la app
     // desde background
-    __onMessageOpenedAppSubscription =
-        _repository.onMessageOpenedApp.listen((message) {
+    __onMessageOpenedAppSubscription = _repository.onMessageOpenedApp.listen((
+      message,
+    ) {
       final url = message.data['url'];
       if (url != null && url.toString().trim().isNotEmpty) {
         try {
@@ -172,7 +173,7 @@ class NotificationsService {
     });
   }
 
-  // ── Reset para tests ─────────────────────────────────────────────────
+  //  Reset para tests
 
   /// Restaura el estado por defecto entre tests.
   @visibleForTesting

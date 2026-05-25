@@ -19,7 +19,8 @@ void main() {
   group('BrandedErrorBanner — contenido', () {
     testWidgets('debe mostrar el mensaje de error', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
+          theme: ThemeData(splashFactory: NoSplash.splashFactory),
           home: Scaffold(
             body: BrandedErrorBanner(message: 'Error de conexión'),
           ),
@@ -31,7 +32,8 @@ void main() {
 
     testWidgets('debe mostrar un icono de error', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
+          theme: ThemeData(splashFactory: NoSplash.splashFactory),
           home: Scaffold(body: BrandedErrorBanner(message: 'Algo salió mal')),
         ),
       );
@@ -44,7 +46,8 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
+          theme: ThemeData(splashFactory: NoSplash.splashFactory),
           home: Scaffold(body: BrandedErrorBanner(message: 'Error')),
         ),
       );
@@ -56,7 +59,8 @@ void main() {
 
     testWidgets('debe tener fondo surface (blanco)', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
+          theme: ThemeData(splashFactory: NoSplash.splashFactory),
           home: Scaffold(body: BrandedErrorBanner(message: 'Error')),
         ),
       );
@@ -76,6 +80,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+          theme: ThemeData(splashFactory: NoSplash.splashFactory),
           home: Scaffold(
             body: BrandedErrorBanner(
               message: 'Error temporal',
@@ -86,15 +91,21 @@ void main() {
       );
 
       // Tocar el botón de cierre (IconButton con X o close)
+      expect(
+        find.byIcon(Icons.close),
+        findsOneWidget,
+      ); // Ensure the button is found
       await tester.tap(find.byIcon(Icons.close));
-      await tester.pump();
+      await tester
+          .pumpAndSettle(); // Wait for animations and rebuilds to complete
 
       expect(dismissed, isTrue);
     });
 
     testWidgets('no debe crashear cuando onDismiss es null', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
+          theme: ThemeData(splashFactory: NoSplash.splashFactory),
           home: Scaffold(body: BrandedErrorBanner(message: 'Sin dismiss')),
         ),
       );
@@ -106,7 +117,8 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
+          theme: ThemeData(splashFactory: NoSplash.splashFactory),
           home: Scaffold(body: BrandedErrorBanner(message: 'Sin botón')),
         ),
       );
@@ -119,7 +131,8 @@ void main() {
   group('BrandedErrorBanner — accesibilidad', () {
     testWidgets('debe tener un Semantics label descriptivo', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
+          theme: ThemeData(splashFactory: NoSplash.splashFactory),
           home: Scaffold(body: BrandedErrorBanner(message: 'Timeout de red')),
         ),
       );
@@ -134,7 +147,12 @@ void main() {
   group('BrandedErrorBanner — estructura', () {
     testWidgets('debe ser const-constructible', (tester) async {
       const banner = BrandedErrorBanner(message: 'Test');
-      await tester.pumpWidget(MaterialApp(home: Scaffold(body: banner)));
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData(splashFactory: NoSplash.splashFactory),
+          home: Scaffold(body: banner),
+        ),
+      );
       expect(tester.takeException(), isNull);
     });
   });
