@@ -137,9 +137,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: isUpdating
-                      ? null
-                      : () => _onSaveRoles(context, user),
+                  onPressed: isUpdating ? null : () => _onSaveRoles(user),
                   child: Text(isUpdating ? 'Guardando...' : 'Guardar Roles'),
                 ),
               ),
@@ -151,9 +149,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
-                  onPressed: isResetting
-                      ? null
-                      : () => _onResetPassword(context),
+                  onPressed: isResetting ? null : () => _onResetPassword(),
                   child: Text(
                     isResetting ? 'Reseteando...' : 'Resetear Contraseña',
                   ),
@@ -283,10 +279,14 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
     );
   }
 
-  Future<void> _onSaveRoles(BuildContext context, User user) async {
+  Future<void> _onSaveRoles(User user) async {
+    // Capturar provider y messenger antes de cualquier async gap
+    final usersProvider = context.read<UsersProvider>();
+    final messenger = ScaffoldMessenger.of(context);
+
     // Validar ADMIN exclusivity
     if (_selectedRoles.contains(UserRole.admin) && _selectedRoles.length > 1) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         const SnackBar(
           content: Text('ADMIN no se puede combinar con otros roles'),
         ),
@@ -318,26 +318,28 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
 
     if (confirmed != true || !mounted) return;
 
-    await context.read<UsersProvider>().updateRoles(
-      widget.userId,
-      _selectedRoles,
-    );
+    await usersProvider.updateRoles(widget.userId, _selectedRoles);
 
     if (!mounted) return;
 
-    final provider = context.read<UsersProvider>();
-    if (provider.status == UsersStatus.error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(provider.error ?? 'Error al guardar roles')),
+    if (usersProvider.status == UsersStatus.error) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(usersProvider.error ?? 'Error al guardar roles'),
+        ),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         const SnackBar(content: Text('Roles actualizados correctamente')),
       );
     }
   }
 
-  Future<void> _onResetPassword(BuildContext context) async {
+  Future<void> _onResetPassword() async {
+    // Capturar messenger y provider antes de cualquier async gap
+    final passwordMessenger = ScaffoldMessenger.of(context);
+    final passwordProvider = context.read<UsersProvider>();
+
     final passwordController = TextEditingController();
     final confirmController = TextEditingController();
     final formKey = GlobalKey<FormState>();
@@ -428,21 +430,26 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
       ),
     );
 
-    if (confirmed != true || !mounted) return;
+    if (confirmed != true || !mounted) {
+      passwordController.dispose();
+      confirmController.dispose();
+      return;
+    }
 
-    final provider = context.read<UsersProvider>();
-    await provider.resetPassword(widget.userId, newPassword);
+    await passwordProvider.resetPassword(widget.userId, newPassword);
 
     if (!mounted) return;
 
-    if (provider.status == UsersStatus.error) {
-      ScaffoldMessenger.of(context).showSnackBar(
+    if (passwordProvider.status == UsersStatus.error) {
+      passwordMessenger.showSnackBar(
         SnackBar(
-          content: Text(provider.error ?? 'Error al resetear contraseña'),
+          content: Text(
+            passwordProvider.error ?? 'Error al resetear contraseña',
+          ),
         ),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
+      passwordMessenger.showSnackBar(
         const SnackBar(content: Text('Contraseña reseteada correctamente')),
       );
     }
