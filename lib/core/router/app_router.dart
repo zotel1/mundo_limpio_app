@@ -65,11 +65,13 @@ GoRouter createRouter(
       final status = authProvider.status;
       final location = state.matchedLocation;
 
-      // Proteger rutas de producción y recibos: solo ADMIN puede acceder
+      // Proteger rutas de administración: ADMIN y STOCK_MANAGER pueden acceder
       if (status == AuthStatus.authenticated &&
           (location.startsWith('/production/') ||
-              location.startsWith('/receipts/')) &&
-          authProvider.role != 'ADMIN') {
+              location.startsWith('/receipts/') ||
+              location.startsWith('/products/')) &&
+          authProvider.role != 'ADMIN' &&
+          authProvider.role != 'STOCK_MANAGER') {
         return '/';
       }
 
