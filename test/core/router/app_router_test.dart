@@ -275,7 +275,7 @@ void main() {
     // el test — eso NO afecta la verificación del redirect.
     // Usamos zone para ignorar ProviderNotFoundException de widgets de ruta.
 
-    Future<void> _navigateAndCheckRedirect(
+    Future<void> navigateAndCheckRedirect(
       WidgetTester tester,
       String role,
       String route, {
@@ -311,7 +311,7 @@ void main() {
     }
 
     testWidgets('A9: ADMIN puede acceder a /production/', (tester) async {
-      await _navigateAndCheckRedirect(
+      await navigateAndCheckRedirect(
         tester,
         'ADMIN',
         '/production/batches',
@@ -319,7 +319,7 @@ void main() {
     });
 
     testWidgets('A10: STOCK_MANAGER puede acceder a /production/', (tester) async {
-      await _navigateAndCheckRedirect(
+      await navigateAndCheckRedirect(
         tester,
         'STOCK_MANAGER',
         '/production/batches',
@@ -327,7 +327,7 @@ void main() {
     });
 
     testWidgets('STOCK_MANAGER puede acceder a /receipts/', (tester) async {
-      await _navigateAndCheckRedirect(
+      await navigateAndCheckRedirect(
         tester,
         'STOCK_MANAGER',
         '/receipts/new',
@@ -335,7 +335,7 @@ void main() {
     });
 
     testWidgets('A11: OPERATOR no puede acceder a /production/', (tester) async {
-      await _navigateAndCheckRedirect(
+      await navigateAndCheckRedirect(
         tester,
         'OPERATOR',
         '/production/batches',
