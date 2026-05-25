@@ -89,6 +89,7 @@ void main() {
       expect(find.text('Materias Primas'), findsOneWidget);
       expect(find.text('Nueva Producción'), findsOneWidget);
       expect(find.text('Historial Producción'), findsOneWidget);
+      expect(find.text('Productos'), findsOneWidget);
       expect(find.text('Escanear Recibo'), findsOneWidget);
     });
 
@@ -108,6 +109,7 @@ void main() {
       expect(find.text('Materias Primas'), findsOneWidget);
       expect(find.text('Nueva Producción'), findsOneWidget);
       expect(find.text('Historial Producción'), findsOneWidget);
+      expect(find.text('Productos'), findsOneWidget);
       expect(find.text('Escanear Recibo'), findsOneWidget);
     });
 

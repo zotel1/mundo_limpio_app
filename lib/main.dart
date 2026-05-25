@@ -53,6 +53,12 @@ import 'features/splash/data/splash_repository_impl.dart';
 import 'features/splash/domain/splash_repository.dart';
 import 'features/splash/presentation/splash_provider.dart';
 
+// ── Productos (admin CRUD) ──────────────────────────────────
+import 'features/products/data/api/products_api.dart';
+import 'features/products/data/repositories/products_repository_impl.dart';
+import 'features/products/domain/repositories/i_products_repository.dart';
+import 'features/products/presentation/providers/products_provider.dart';
+
 // ── Producción: bulk products + lotes ────────────────────────
 import 'features/production/domain/repositories/i_production_repository.dart';
 import 'features/production/domain/repositories/i_bulk_product_repository.dart';
@@ -238,6 +244,19 @@ void main() async {
             ctx.read<IProductionRepository>(),
             ctx.read<IBulkProductRepository>(),
           ),
+        ),
+
+        // ── Productos (admin CRUD) ───────────────────────────
+        Provider<ProductsApi>(
+          create: (ctx) => ProductsApi(dio: ctx.read<Dio>()),
+        ),
+
+        Provider<IProductsRepository>(
+          create: (ctx) => ProductsRepositoryImpl(api: ctx.read<ProductsApi>()),
+        ),
+
+        ChangeNotifierProvider<ProductsProvider>(
+          create: (ctx) => ProductsProvider(ctx.read<IProductsRepository>()),
         ),
 
         // ── Recibos OCR ────────────────────────────────────────

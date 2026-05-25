@@ -21,6 +21,9 @@ import 'package:mundo_limpio_app/features/inventory/presentation/screens/invento
 import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/screens/create_sale_screen.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/screens/sale_result_screen.dart';
+import 'package:mundo_limpio_app/features/products/presentation/screens/products_detail_screen.dart';
+import 'package:mundo_limpio_app/features/products/presentation/screens/products_form_screen.dart';
+import 'package:mundo_limpio_app/features/products/presentation/screens/products_list_screen.dart';
 import 'package:mundo_limpio_app/features/production/presentation/screens/bulk/bulk_product_list_screen.dart';
 import 'package:mundo_limpio_app/features/production/presentation/screens/production/production_batch_list_screen.dart';
 import 'package:mundo_limpio_app/features/production/presentation/screens/production/production_create_screen.dart';
@@ -69,6 +72,7 @@ GoRouter createRouter(
       if (status == AuthStatus.authenticated &&
           (location.startsWith('/production/') ||
               location.startsWith('/receipts/') ||
+              location == '/products' ||
               location.startsWith('/products/')) &&
           authProvider.role != 'ADMIN' &&
           authProvider.role != 'STOCK_MANAGER') {
@@ -111,6 +115,26 @@ GoRouter createRouter(
         builder: (context, state) {
           final productId = int.parse(state.pathParameters['productId']!);
           return InventoryDetailScreen(productId: productId);
+        },
+      ),
+      GoRoute(path: '/products', builder: (_, _) => const ProductsListScreen()),
+      GoRoute(
+        path: '/products/new',
+        builder: (_, _) => const ProductsFormScreen(),
+      ),
+      GoRoute(
+        path: '/products/:id',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return ProductsDetailScreen(productId: id);
+        },
+      ),
+      GoRoute(
+        path: '/products/:id/edit',
+        builder: (context, state) {
+          // En edit mode via GoRouter, el form recibe null
+          // (se muestra en create mode hasta que se implemente carga por id)
+          return const ProductsFormScreen();
         },
       ),
       GoRoute(
