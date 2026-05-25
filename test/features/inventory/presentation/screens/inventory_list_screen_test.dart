@@ -59,7 +59,10 @@ Widget createTestApp(
     ],
   );
 
-  return MaterialApp.router(routerConfig: router);
+  return MaterialApp.router(
+    theme: ThemeData(splashFactory: NoSplash.splashFactory),
+    routerConfig: router,
+  );
 }
 
 /// Helper para pump repetido hasta que los async tasks resuelven.

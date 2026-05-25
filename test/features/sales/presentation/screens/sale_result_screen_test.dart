@@ -29,6 +29,7 @@ Widget createTestApp(SalesProvider provider, SaleResponse sale) {
   return ChangeNotifierProvider<SalesProvider>.value(
     value: provider,
     child: MaterialApp(
+      theme: ThemeData(splashFactory: NoSplash.splashFactory),
       home: Builder(
         builder: (context) => Scaffold(
           body: ElevatedButton(

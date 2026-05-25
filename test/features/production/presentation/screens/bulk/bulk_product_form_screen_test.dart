@@ -24,7 +24,10 @@ class MockBulkProductRepository extends Mock
 Widget createTestApp(BulkProductProvider provider, {BulkProduct? product}) {
   return ChangeNotifierProvider<BulkProductProvider>.value(
     value: provider,
-    child: MaterialApp(home: BulkProductFormScreen(product: product)),
+    child: MaterialApp(
+      theme: ThemeData(splashFactory: NoSplash.splashFactory),
+      home: BulkProductFormScreen(product: product),
+    ),
   );
 }
 

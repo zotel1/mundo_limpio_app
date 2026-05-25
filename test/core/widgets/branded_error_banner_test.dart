@@ -11,26 +11,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter/foundation.dart';
 
 import 'package:mundo_limpio_app/core/theme/app_colors.dart';
 import 'package:mundo_limpio_app/core/widgets/branded_error_banner.dart';
 
 void main() {
-  setUpAll(() {
-    // Workaround for shader errors in tests (e.g., ink_sparkle.frag)
-    // Disables CanvasKit in tests to avoid potential shader compilation issues
-    debugDefaultTargetPlatformOverride = TargetPlatform.android; // Or iOS
-  });
-  
-  tearDownAll(() {
-    debugDefaultTargetPlatformOverride = null;
-  });
-
   group('BrandedErrorBanner — contenido', () {
     testWidgets('debe mostrar el mensaje de error', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
+          theme: ThemeData(splashFactory: NoSplash.splashFactory),
           home: Scaffold(
             body: BrandedErrorBanner(message: 'Error de conexión'),
           ),
@@ -42,7 +32,8 @@ void main() {
 
     testWidgets('debe mostrar un icono de error', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
+          theme: ThemeData(splashFactory: NoSplash.splashFactory),
           home: Scaffold(body: BrandedErrorBanner(message: 'Algo salió mal')),
         ),
       );
@@ -55,7 +46,8 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
+          theme: ThemeData(splashFactory: NoSplash.splashFactory),
           home: Scaffold(body: BrandedErrorBanner(message: 'Error')),
         ),
       );
@@ -67,7 +59,8 @@ void main() {
 
     testWidgets('debe tener fondo surface (blanco)', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
+          theme: ThemeData(splashFactory: NoSplash.splashFactory),
           home: Scaffold(body: BrandedErrorBanner(message: 'Error')),
         ),
       );
@@ -87,6 +80,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
+          theme: ThemeData(splashFactory: NoSplash.splashFactory),
           home: Scaffold(
             body: BrandedErrorBanner(
               message: 'Error temporal',
@@ -97,16 +91,21 @@ void main() {
       );
 
       // Tocar el botón de cierre (IconButton con X o close)
-      expect(find.byIcon(Icons.close), findsOneWidget); // Ensure the button is found
+      expect(
+        find.byIcon(Icons.close),
+        findsOneWidget,
+      ); // Ensure the button is found
       await tester.tap(find.byIcon(Icons.close));
-      await tester.pumpAndSettle(); // Wait for animations and rebuilds to complete
+      await tester
+          .pumpAndSettle(); // Wait for animations and rebuilds to complete
 
       expect(dismissed, isTrue);
     });
 
     testWidgets('no debe crashear cuando onDismiss es null', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
+          theme: ThemeData(splashFactory: NoSplash.splashFactory),
           home: Scaffold(body: BrandedErrorBanner(message: 'Sin dismiss')),
         ),
       );
@@ -118,7 +117,8 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
+          theme: ThemeData(splashFactory: NoSplash.splashFactory),
           home: Scaffold(body: BrandedErrorBanner(message: 'Sin botón')),
         ),
       );
@@ -131,7 +131,8 @@ void main() {
   group('BrandedErrorBanner — accesibilidad', () {
     testWidgets('debe tener un Semantics label descriptivo', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
+        MaterialApp(
+          theme: ThemeData(splashFactory: NoSplash.splashFactory),
           home: Scaffold(body: BrandedErrorBanner(message: 'Timeout de red')),
         ),
       );
@@ -146,7 +147,12 @@ void main() {
   group('BrandedErrorBanner — estructura', () {
     testWidgets('debe ser const-constructible', (tester) async {
       const banner = BrandedErrorBanner(message: 'Test');
-      await tester.pumpWidget(MaterialApp(home: Scaffold(body: banner)));
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData(splashFactory: NoSplash.splashFactory),
+          home: Scaffold(body: banner),
+        ),
+      );
       expect(tester.takeException(), isNull);
     });
   });

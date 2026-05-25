@@ -38,7 +38,10 @@ class MockSalesRepository extends Mock implements SalesRepository {}
 Widget createTestApp(SalesProvider provider) {
   return ChangeNotifierProvider<SalesProvider>.value(
     value: provider,
-    child: const MaterialApp(home: CreateSaleScreen()),
+    child: MaterialApp(
+      theme: ThemeData(splashFactory: NoSplash.splashFactory),
+      home: CreateSaleScreen(),
+    ),
   );
 }
 
