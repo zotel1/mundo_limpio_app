@@ -21,8 +21,7 @@ class UrlLauncherService {
   static void Function(Uri)? __testInstance;
 
   /// Launcher activo: el mock de test si existe, sino el real.
-  static void Function(Uri) get _launcher =>
-      __testInstance ?? _realLaunch;
+  static void Function(Uri) get _launcher => __testInstance ?? _realLaunch;
 
   /// Inyecta un callback de [void Function(Uri)] para tests.
   ///
@@ -51,7 +50,10 @@ class UrlLauncherService {
   /// Abre la URL en el browser externo (Chrome, Safari, etc.)
   /// usando [LaunchMode.externalApplication].
   static void _realLaunch(Uri uri) {
-    url_launcher.launchUrl(uri, mode: url_launcher.LaunchMode.externalApplication);
+    url_launcher.launchUrl(
+      uri,
+      mode: url_launcher.LaunchMode.externalApplication,
+    );
   }
 
   /// Restaura el estado por defecto entre tests.

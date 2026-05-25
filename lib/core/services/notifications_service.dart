@@ -159,8 +159,9 @@ class NotificationsService {
 
     // TDD: GREEN — R4: Deep link — stream para mensajes que abren la app
     // desde background
-    __onMessageOpenedAppSubscription =
-        _repository.onMessageOpenedApp.listen((message) {
+    __onMessageOpenedAppSubscription = _repository.onMessageOpenedApp.listen((
+      message,
+    ) {
       final url = message.data['url'];
       if (url != null && url.toString().trim().isNotEmpty) {
         try {
