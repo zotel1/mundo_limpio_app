@@ -7,7 +7,7 @@
 // para que los redirects se reevalúen automáticamente cuando cualquiera
 // de los dos providers notifica cambios.
 //
-// TDD: GREEN — PR3: reemplazar _SplashScreen por SplashScreen importado
+// TDD: GREEN — splash-auth-flow: splash guard + splash-first initialLocation
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -50,23 +50,28 @@ import 'package:mundo_limpio_app/features/splash/presentation/splash_screen.dart
 /// 2. Notificar cambios via [ChangeNotifier] (refreshListenable)
 ///
 /// [initialLocation] permite arrancar desde una ruta específica
-/// (por defecto: '/').
+/// (por defecto: '/splash').
 ///
 /// Lógica de redirect:
-/// - loading → redirige a /splash si no está ahí
+/// - /splash SIEMPRE retorna null (nunca redirige desde splash)
+/// - loading → null (safety fallthrough — splash ya es la primera ruta)
 /// - unauthenticated → /login y /register libres; el resto redirige a /login
-/// - authenticated → /login, /register y /splash redirigen a /
+/// - authenticated → /login y /register redirigen a /; /splash no entra aquí
 GoRouter createRouter(
   AuthProvider authProvider,
   SplashProvider splashProvider, {
-  String initialLocation = '/',
+  String initialLocation = '/splash',
 }) {
   return GoRouter(
     initialLocation: initialLocation,
     refreshListenable: Listenable.merge([authProvider, splashProvider]),
     redirect: (context, state) {
-      final status = authProvider.status;
       final location = state.matchedLocation;
+
+      // Splash guard: NUNCA redirigir desde /splash
+      if (location == '/splash') return null;
+
+      final status = authProvider.status;
 
       // Proteger rutas de administración: ADMIN y STOCK_MANAGER pueden acceder
       if (status == AuthStatus.authenticated &&
@@ -81,8 +86,7 @@ GoRouter createRouter(
 
       switch (status) {
         case AuthStatus.loading:
-          // Mostrar splash mientras se resuelve el estado
-          if (location != '/splash') return '/splash';
+          // Safety fallthrough: splash ya se muestra via initialLocation
           return null;
 
         case AuthStatus.unauthenticated:
@@ -92,9 +96,7 @@ GoRouter createRouter(
 
         case AuthStatus.authenticated:
           // Redirigir al home si está en pantallas de auth (R6.2)
-          if (location == '/login' ||
-              location == '/register' ||
-              location == '/splash') {
+          if (location == '/login' || location == '/register') {
             return '/';
           }
           return null;

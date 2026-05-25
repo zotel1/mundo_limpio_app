@@ -179,17 +179,70 @@ void main() {
       expect(find.byType(LoginScreen), findsNothing);
     });
 
-    testWidgets('R6.3: Loading durante startup muestra splash', (tester) async {
-      // Arrange: estado loading por defecto
+    testWidgets('AR1: initialLocation por defecto es /splash', (tester) async {
+      // Arrange: cualquier estado de auth
+      authProvider.setStatus(AuthStatus.loading);
 
-      // Act: renderizar app desde /
-      await tester.pumpWidget(createTestApp(authProvider, splashProvider));
-      // Solo un frame — SplashScreen debe mostrarse
+      // Act: crear router SIN initialLocation explícito (usa default)
+      final router = createRouter(authProvider, splashProvider);
+
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
+            ChangeNotifierProvider<SplashProvider>.value(value: splashProvider),
+          ],
+          child: MaterialApp.router(routerConfig: router),
+        ),
+      );
       await tester.pump();
 
-      // Assert: debe mostrar SplashScreen (no CircularProgressIndicator)
+      // Assert: debe mostrar SplashScreen (porque default es /splash)
+      expect(find.byType(SplashScreen), findsOneWidget);
+    });
+
+    testWidgets('AR2: Splash nunca redirige — cambia auth y sigue en splash', (
+      tester,
+    ) async {
+      // Arrange: cualquier estado de auth
+      authProvider.setStatus(AuthStatus.loading);
+
+      // Act: arrancar desde /splash
+      await tester.pumpWidget(
+        createTestApp(authProvider, splashProvider, initialLocation: '/splash'),
+      );
+      await tester.pump();
+
+      // Assert: splash visible
+      expect(find.byType(SplashScreen), findsOneWidget);
+
+      // Act: cambiar a autenticado — el splash guard debe retener
+      authProvider.setStatus(AuthStatus.authenticated);
+      await pumpUntilSettled(tester);
+
+      // Assert: sigue en splash, NO navegó a home
       expect(find.byType(SplashScreen), findsOneWidget);
       expect(find.byType(HomeScreen), findsNothing);
+    });
+
+    testWidgets('AR2b: Splash nunca redirige — unauthenticated', (
+      tester,
+    ) async {
+      // Arrange: loading en /splash
+      authProvider.setStatus(AuthStatus.loading);
+      await tester.pumpWidget(
+        createTestApp(authProvider, splashProvider, initialLocation: '/splash'),
+      );
+      await tester.pump();
+      expect(find.byType(SplashScreen), findsOneWidget);
+
+      // Act: cambiar a no autenticado
+      authProvider.setStatus(AuthStatus.unauthenticated);
+      await pumpUntilSettled(tester);
+
+      // Assert: sigue en splash (no redirigió a /login)
+      expect(find.byType(SplashScreen), findsOneWidget);
+      expect(find.byType(LoginScreen), findsNothing);
     });
 
     testWidgets('/login es accesible sin autenticación', (tester) async {
@@ -237,34 +290,21 @@ void main() {
       expect(find.byType(HomeScreen), findsNothing);
     });
 
-    testWidgets('Cambio loading → unauthenticated redirige a /login', (
+    testWidgets('AR3: Ruta no-splash sigue redirigiendo sin auth', (
       tester,
     ) async {
-      // Arrange: empezar en loading (splash)
-      await tester.pumpWidget(createTestApp(authProvider, splashProvider));
-      await tester.pump();
-      expect(find.byType(SplashScreen), findsOneWidget);
-
-      // Act: cambiar a no autenticado
+      // Arrange: no autenticado
       authProvider.setStatus(AuthStatus.unauthenticated);
+
+      // Act: arrancar desde / (no splash)
+      await tester.pumpWidget(
+        createTestApp(authProvider, splashProvider, initialLocation: '/'),
+      );
       await pumpUntilSettled(tester);
 
-      // Assert: ahora en LoginScreen
+      // Assert: redirige a /login
       expect(find.byType(LoginScreen), findsOneWidget);
-    });
-
-    testWidgets('Cambio loading → authenticated redirige a /', (tester) async {
-      // Arrange: empezar en loading
-      await tester.pumpWidget(createTestApp(authProvider, splashProvider));
-      await tester.pump();
-      expect(find.byType(SplashScreen), findsOneWidget);
-
-      // Act: cambiar a autenticado
-      authProvider.setStatus(AuthStatus.authenticated);
-      await pumpUntilSettled(tester);
-
-      // Assert: ahora en HomeScreen
-      expect(find.byType(HomeScreen), findsOneWidget);
+      expect(find.byType(HomeScreen), findsNothing);
     });
 
     // ── Multi-Role Tests (PR1: products-crud) ──────────────────────────
