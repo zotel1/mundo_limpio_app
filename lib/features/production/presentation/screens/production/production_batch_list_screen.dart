@@ -96,17 +96,20 @@ class _ProductionBatchListScreenState extends State<ProductionBatchListScreen> {
   }
 
   Widget _buildBatchCard(ProductionBatch batch) {
-    final dateStr = '${batch.date.day}/${batch.date.month}/${batch.date.year}';
+    final dateStr =
+        '${batch.productionDate.day}/${batch.productionDate.month}/${batch.productionDate.year}';
     return Card(
       child: ListTile(
         title: Text('Lote #${batch.id}'),
-        subtitle: Text('$dateStr — Producto: ${batch.finishedProductId}'),
+        subtitle: Text(
+          '${batch.productName ?? 'Prod. #${batch.productId}'} — ${batch.bulkProductName ?? 'Bulk #${batch.bulkProductId ?? '-'}'}',
+        ),
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text('${batch.quantityProduced} uds'),
-            Text('${batch.quantityUsed} kg'),
+            Text(dateStr),
+            Text('Inicial: ${batch.initialQuantity} L'),
           ],
         ),
       ),

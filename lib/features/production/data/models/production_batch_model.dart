@@ -6,23 +6,27 @@ part 'production_batch_model.g.dart';
 @JsonSerializable()
 class ProductionBatchModel {
   final int id;
-  @JsonKey(name: 'finished_product_id')
-  final int finishedProductId;
-  @JsonKey(name: 'bulk_product_id')
-  final int bulkProductId;
-  @JsonKey(name: 'quantity_used')
-  final double quantityUsed;
-  @JsonKey(name: 'quantity_produced')
-  final double quantityProduced;
-  final DateTime date;
+  final int productId;
+  final String? productName;
+  final int? bulkProductId;
+  final String? bulkProductName;
+  final double initialQuantity;
+  final double currentStock;
+  final double unitCostAtProduction;
+  final double rawQuantityUsed;
+  final DateTime productionDate;
 
   const ProductionBatchModel({
     required this.id,
-    required this.finishedProductId,
-    required this.bulkProductId,
-    required this.quantityUsed,
-    required this.quantityProduced,
-    required this.date,
+    required this.productId,
+    this.productName,
+    this.bulkProductId,
+    this.bulkProductName,
+    required this.initialQuantity,
+    required this.currentStock,
+    required this.unitCostAtProduction,
+    required this.rawQuantityUsed,
+    required this.productionDate,
   });
 
   factory ProductionBatchModel.fromJson(Map<String, dynamic> json) =>
@@ -33,11 +37,15 @@ class ProductionBatchModel {
   ProductionBatch toEntity() {
     return ProductionBatch(
       id: id,
-      finishedProductId: finishedProductId,
+      productId: productId,
+      productName: productName,
       bulkProductId: bulkProductId,
-      quantityUsed: quantityUsed,
-      quantityProduced: quantityProduced,
-      date: date,
+      bulkProductName: bulkProductName,
+      initialQuantity: initialQuantity,
+      currentStock: currentStock,
+      unitCostAtProduction: unitCostAtProduction,
+      rawQuantityUsed: rawQuantityUsed,
+      productionDate: productionDate,
     );
   }
 }

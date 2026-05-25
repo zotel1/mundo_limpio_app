@@ -64,7 +64,12 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      const BulkProduct(id: 0, name: '', unitOfMeasure: '', stock: 0.0),
+      const BulkProduct(
+        id: 0,
+        name: '',
+        currentStockLiters: 0,
+        costPerLiter: 0,
+      ),
     );
     registerFallbackValue(
       ProductionBatchRequest(
@@ -76,11 +81,13 @@ void main() {
     registerFallbackValue(
       ProductionBatch(
         id: 0,
-        finishedProductId: 0,
+        productId: 0,
         bulkProductId: 0,
-        quantityUsed: 0.0,
-        quantityProduced: 0.0,
-        date: DateTime.now(),
+        initialQuantity: 0.0,
+        currentStock: 0.0,
+        unitCostAtProduction: 0.0,
+        rawQuantityUsed: 0.0,
+        productionDate: DateTime.now(),
       ),
     );
   });
@@ -96,19 +103,27 @@ void main() {
       (_) async => [
         ProductionBatch(
           id: 1,
-          finishedProductId: 10,
+          productId: 10,
+          productName: 'Jabón Líquido',
           bulkProductId: 1,
-          quantityUsed: 5.0,
-          quantityProduced: 4.0,
-          date: DateTime(2026, 5, 18),
+          bulkProductName: 'Alcohol',
+          initialQuantity: 100.0,
+          currentStock: 85.0,
+          unitCostAtProduction: 12.5,
+          rawQuantityUsed: 15.0,
+          productionDate: DateTime(2026, 5, 18),
         ),
         ProductionBatch(
           id: 2,
-          finishedProductId: 10,
+          productId: 10,
+          productName: 'Jabón Líquido',
           bulkProductId: 2,
-          quantityUsed: 3.0,
-          quantityProduced: 2.5,
-          date: DateTime(2026, 5, 17),
+          bulkProductName: 'Esencia',
+          initialQuantity: 50.0,
+          currentStock: 40.0,
+          unitCostAtProduction: 10.0,
+          rawQuantityUsed: 10.0,
+          productionDate: DateTime(2026, 5, 17),
         ),
       ],
     );
@@ -119,16 +134,16 @@ void main() {
       (_) async => const BulkProduct(
         id: 1,
         name: 'Test',
-        unitOfMeasure: 'L',
-        stock: 10.0,
+        currentStockLiters: 10.0,
+        costPerLiter: 5.0,
       ),
     );
     when(() => mockBulkRepo.updateBulkProduct(any())).thenAnswer(
       (_) async => const BulkProduct(
         id: 1,
         name: 'Updated',
-        unitOfMeasure: 'L',
-        stock: 20.0,
+        currentStockLiters: 20.0,
+        costPerLiter: 6.0,
       ),
     );
     when(() => mockBulkRepo.deleteBulkProduct(any())).thenAnswer((_) async {});
@@ -136,8 +151,8 @@ void main() {
       (_) async => const BulkProduct(
         id: 1,
         name: 'Alcohol',
-        unitOfMeasure: 'L',
-        stock: 100.0,
+        currentStockLiters: 100.0,
+        costPerLiter: 10.0,
       ),
     );
   });
