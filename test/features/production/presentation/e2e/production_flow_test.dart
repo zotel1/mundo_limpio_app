@@ -26,7 +26,12 @@ class MockProductionRepository extends Mock implements IProductionRepository {}
 void main() {
   setUpAll(() {
     registerFallbackValue(
-      const BulkProduct(id: 0, name: '', unitOfMeasure: '', stock: 0.0),
+      const BulkProduct(
+        id: 0,
+        name: '',
+        currentStockLiters: 0,
+        costPerLiter: 0,
+      ),
     );
     registerFallbackValue(
       ProductionBatchRequest(
@@ -38,11 +43,13 @@ void main() {
     registerFallbackValue(
       ProductionBatch(
         id: 0,
-        finishedProductId: 0,
+        productId: 0,
         bulkProductId: 0,
-        quantityUsed: 0.0,
-        quantityProduced: 0.0,
-        date: DateTime.now(),
+        initialQuantity: 0.0,
+        currentStock: 0.0,
+        unitCostAtProduction: 0.0,
+        rawQuantityUsed: 0.0,
+        productionDate: DateTime.now(),
       ),
     );
   });
@@ -65,8 +72,8 @@ void main() {
         (_) async => const BulkProduct(
           id: 1,
           name: 'Alcohol',
-          unitOfMeasure: 'L',
-          stock: 100.0,
+          currentStockLiters: 100.0,
+          costPerLiter: 10.0,
         ),
       );
       when(
@@ -75,19 +82,21 @@ void main() {
       when(() => mockProdRepo.createProductionBatch(any())).thenAnswer(
         (_) async => ProductionBatch(
           id: 1,
-          finishedProductId: 10,
+          productId: 10,
           bulkProductId: 1,
-          quantityUsed: 5.0,
-          quantityProduced: 4.0,
-          date: DateTime.now(),
+          initialQuantity: 5.0,
+          currentStock: 4.0,
+          unitCostAtProduction: 10.0,
+          rawQuantityUsed: 5.0,
+          productionDate: DateTime.now(),
         ),
       );
       when(() => mockBulkRepo.getBulkProduct(any())).thenAnswer(
         (_) async => const BulkProduct(
           id: 1,
           name: 'Alcohol',
-          unitOfMeasure: 'L',
-          stock: 100.0,
+          currentStockLiters: 100.0,
+          costPerLiter: 10.0,
         ),
       );
     });
@@ -100,8 +109,8 @@ void main() {
           const BulkProduct(
             id: 0,
             name: 'Alcohol',
-            unitOfMeasure: 'L',
-            stock: 100.0,
+            currentStockLiters: 100.0,
+            costPerLiter: 10.0,
           ),
         );
 
@@ -129,7 +138,7 @@ void main() {
         expect(prodProvider.status, ProductionStatus.loaded);
         expect(prodProvider.lastCreatedBatch, isNotNull);
         expect(prodProvider.lastCreatedBatch!.id, 1);
-        expect(prodProvider.lastCreatedBatch!.finishedProductId, 10);
+        expect(prodProvider.lastCreatedBatch!.productId, 10);
 
         // Step 4: Obtener lista de batches
         await prodProvider.getProductionBatches();
@@ -176,8 +185,8 @@ void main() {
           const BulkProduct(
             id: 0,
             name: 'Alcohol',
-            unitOfMeasure: 'L',
-            stock: 100.0,
+            currentStockLiters: 100.0,
+            costPerLiter: 10.0,
           ),
         );
         expect(bulkNotifyCount, greaterThan(0));

@@ -12,7 +12,12 @@ class MockBulkProductRepository extends Mock
 void main() {
   setUpAll(() {
     registerFallbackValue(
-      const BulkProduct(id: 0, name: '', unitOfMeasure: '', stock: 0.0),
+      const BulkProduct(
+        id: 0,
+        name: '',
+        currentStockLiters: 0,
+        costPerLiter: 0,
+      ),
     );
   });
 
@@ -30,8 +35,8 @@ void main() {
       final bulkProduct = BulkProduct(
         id: 1,
         name: 'Alcohol',
-        unitOfMeasure: 'L',
-        stock: 10.0,
+        currentStockLiters: 10.0,
+        costPerLiter: 5.0,
       );
       when(
         () => mockRepository.createBulkProduct(any()),

@@ -10,14 +10,18 @@ BulkProductModel _$BulkProductModelFromJson(Map<String, dynamic> json) =>
     BulkProductModel(
       id: (json['id'] as num).toInt(),
       name: json['name'] as String,
-      unitOfMeasure: json['unit_of_measure'] as String,
-      stock: (json['stock'] as num).toDouble(),
+      currentStockLiters: (json['currentStockLiters'] as num).toDouble(),
+      costPerLiter: (json['costPerLiter'] as num).toDouble(),
+      conversionRatio: (json['conversionRatio'] as num?)?.toDouble(),
+      active: json['active'] as bool? ?? true,
     );
 
 Map<String, dynamic> _$BulkProductModelToJson(BulkProductModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
-      'unit_of_measure': instance.unitOfMeasure,
-      'stock': instance.stock,
+      'currentStockLiters': instance.currentStockLiters,
+      'costPerLiter': instance.costPerLiter,
+      'conversionRatio': instance.conversionRatio,
+      'active': instance.active,
     };

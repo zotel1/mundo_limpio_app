@@ -7,15 +7,19 @@ part 'bulk_product_model.g.dart';
 class BulkProductModel {
   final int id;
   final String name;
-  @JsonKey(name: 'unit_of_measure')
-  final String unitOfMeasure;
-  final double stock;
+  final double currentStockLiters;
+  final double costPerLiter;
+  final double? conversionRatio;
+  @JsonKey(defaultValue: true)
+  final bool active;
 
   const BulkProductModel({
     required this.id,
     required this.name,
-    required this.unitOfMeasure,
-    required this.stock,
+    required this.currentStockLiters,
+    required this.costPerLiter,
+    this.conversionRatio,
+    this.active = true,
   });
 
   factory BulkProductModel.fromJson(Map<String, dynamic> json) =>
@@ -27,8 +31,10 @@ class BulkProductModel {
     return BulkProduct(
       id: id,
       name: name,
-      unitOfMeasure: unitOfMeasure,
-      stock: stock,
+      currentStockLiters: currentStockLiters,
+      costPerLiter: costPerLiter,
+      conversionRatio: conversionRatio,
+      active: active,
     );
   }
 }
