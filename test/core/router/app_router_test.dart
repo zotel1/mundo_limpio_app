@@ -334,5 +334,50 @@ void main() {
         expectRedirect: true,
       );
     });
+
+    // ── Products Routes (PR2) ─────────────────────────────────────
+    testWidgets('ADMIN puede acceder a /products/', (tester) async {
+      await navigateAndCheckRedirect(tester, 'ADMIN', '/products');
+    });
+
+    testWidgets('STOCK_MANAGER puede acceder a /products/', (tester) async {
+      await navigateAndCheckRedirect(tester, 'STOCK_MANAGER', '/products');
+    });
+
+    testWidgets('OPERATOR no puede acceder a /products/', (tester) async {
+      await navigateAndCheckRedirect(
+        tester,
+        'OPERATOR',
+        '/products',
+        expectRedirect: true,
+      );
+    });
+
+    testWidgets('ADMIN puede acceder a /products/new', (tester) async {
+      await navigateAndCheckRedirect(tester, 'ADMIN', '/products/new');
+    });
+
+    testWidgets('ADMIN puede acceder a /products/1', (tester) async {
+      await navigateAndCheckRedirect(tester, 'ADMIN', '/products/1');
+    });
+
+    testWidgets('STOCK_MANAGER puede acceder a /products/1/edit', (
+      tester,
+    ) async {
+      await navigateAndCheckRedirect(
+        tester,
+        'STOCK_MANAGER',
+        '/products/1/edit',
+      );
+    });
+
+    testWidgets('OPERATOR no puede acceder a /products/new', (tester) async {
+      await navigateAndCheckRedirect(
+        tester,
+        'OPERATOR',
+        '/products/new',
+        expectRedirect: true,
+      );
+    });
   });
 }
