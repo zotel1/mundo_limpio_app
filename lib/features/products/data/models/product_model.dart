@@ -8,7 +8,6 @@ class ProductModel {
   final int id;
   final String? sku;
   final String name;
-  @JsonKey(name: 'min_price')
   final double? minPrice;
   final bool active;
 
