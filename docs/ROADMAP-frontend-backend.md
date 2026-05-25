@@ -6,11 +6,11 @@
 
 ## Estado Actual
 
-**Frontend**: 19 endpoints consumidos, 7 features funcionales, todos los providers cableados en `main.dart`.
+**Frontend**: 27 endpoints consumidos (+8 productos), 8 features funcionales, todos los providers cableados en `main.dart`.
 
 **Backend**: 31 endpoints, 12 tablas PostgreSQL, 8 controladores, 6 roles JWT.
 
-**Brecha**: 12 endpoints del backend **no tienen frontend**. Algunos son features enteras (Users, Products CRUD, Sales History, Purchases History, Audit Log).
+**Brecha**: 4 endpoints del backend **sin frontend** (Users CRUD, Sales History, Purchase History, Audit Log). Products CRUD completado ✅.
 
 ---
 
@@ -24,18 +24,18 @@
 | `/api/v1/auth/login` | POST | ✅ Login/Register | Público |
 | `/api/v1/auth/refresh` | POST | ✅ AuthInterceptor | Público |
 
-### Products (8 endpoints, 1/8 consumidos ⚠️)
+### Products (8/8 endpoints consumidos ✅)
 
 | Endpoint | Método | Frontend | Roles |
 |----------|--------|----------|-------|
-| `GET /api/v1/products` | GET | ✅ (Sales screen) | Público |
-| `GET /api/v1/products/all` | GET | ❌ | Público |
-| `GET /api/v1/products/{id}` | GET | ❌ | Público |
-| `GET /api/v1/products/sku/{sku}` | GET | ❌ | Público |
-| `POST /api/v1/products` | POST | ❌ | ADMIN, STOCK_MANAGER |
-| `PUT /api/v1/products/{id}` | PUT | ❌ | ADMIN, STOCK_MANAGER |
-| `DELETE /api/v1/products/{id}` | DELETE | ❌ | ADMIN, STOCK_MANAGER |
-| `PATCH /api/v1/products/{id}/reactivate` | PATCH | ❌ | ADMIN, STOCK_MANAGER |
+| `GET /api/v1/products` | GET | ✅ ProductsListScreen | Público |
+| `GET /api/v1/products/all` | GET | ✅ ProductsListScreen | Público |
+| `GET /api/v1/products/{id}` | GET | ✅ ProductsDetailScreen | Público |
+| `GET /api/v1/products/sku/{sku}` | GET | ✅ ProductsApi (uniqueness) | Público |
+| `POST /api/v1/products` | POST | ✅ ProductsFormScreen | ADMIN, STOCK_MANAGER |
+| `PUT /api/v1/products/{id}` | PUT | ✅ ProductsFormScreen (edit) | ADMIN, STOCK_MANAGER |
+| `DELETE /api/v1/products/{id}` | DELETE | ✅ ProductsDetailScreen | ADMIN, STOCK_MANAGER |
+| `PATCH /api/v1/products/{id}/reactivate` | PATCH | ✅ ProductsDetailScreen | ADMIN, STOCK_MANAGER |
 
 ### Bulk Products (7 endpoints, 7/7 consumidos ✅)
 
@@ -189,7 +189,7 @@ Orden recomendado por **dependencia + valor de negocio**:
 
 | # | SDD | Frontend | Backend | Esfuerzo | Prioridad |
 |---|-----|----------|---------|----------|-----------|
-| 1 | Products CRUD | Nuevo feature | ✅ Existe | Medio | 🔴 Alta |
+| 1 | Products CRUD | ✅ Completado | ✅ Existe | Medio | 🔴 Alta |
 | 2 | User Management | Nuevo feature | ✅ Existe | Medio | 🔴 Alta |
 | 3 | Sales History | Nuevo feature | ❌ Crear endpoint | Medio-Alto | 🟡 Media |
 | 4 | Purchase History | Nuevo feature | ❌ Crear endpoint | Medio | 🟡 Media |
