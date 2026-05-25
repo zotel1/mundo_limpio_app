@@ -15,6 +15,9 @@
 //
 // Capa de test: Unit — mocktail mock de PushNotificationsRepository.
 // Crashlytics se mockea via CrashlyticsService.testInstance (patron existente).
+// UrlLauncherService se mockea via testInstance callback (patron identico).
+
+import 'dart:async';
 
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -25,20 +28,23 @@ import 'package:mocktail/mocktail.dart';
 // hasta que se cree el archivo en la fase GREEN.
 import 'package:mundo_limpio_app/core/services/notifications_service.dart';
 import 'package:mundo_limpio_app/core/crashlytics/crashlytics_service.dart';
+import 'package:mundo_limpio_app/core/services/url_launcher_service.dart';
 
 import 'package:mundo_limpio_app/features/notifications/domain/push_notifications_repository.dart';
 
-// ── Mocks ──────────────────────────────────────────────────────────────────
+//  Mocks
 
 class MockPushNotificationsRepository extends Mock
     implements PushNotificationsRepository {}
 
 class MockNotificationSettings extends Mock implements NotificationSettings {}
 
+class MockRemoteMessage extends Mock implements RemoteMessage {}
+
 // FirebaseCrashlytics no es final — mocktail puede mockearlo.
 class MockFirebaseCrashlytics extends Mock implements FirebaseCrashlytics {}
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+//  Helpers
 
 /// Crea un [NotificationSettings] mock con el [AuthorizationStatus] dado.
 NotificationSettings _settingsWith(AuthorizationStatus status) {
@@ -47,15 +53,18 @@ NotificationSettings _settingsWith(AuthorizationStatus status) {
   return settings;
 }
 
-// ── Tests ──────────────────────────────────────────────────────────────────
+//  Tests
 
 void main() {
   late MockPushNotificationsRepository mockRepo;
   late MockFirebaseCrashlytics mockCrashlytics;
+  late StreamController<RemoteMessage> onMessageOpenedAppController;
+  Uri? capturedLaunchUri;
 
   setUp(() {
     mockRepo = MockPushNotificationsRepository();
     mockCrashlytics = MockFirebaseCrashlytics();
+    onMessageOpenedAppController = StreamController<RemoteMessage>.broadcast();
 
     // Inyectar mock de repositorio en NotificationsService
     NotificationsService.testInstance = mockRepo;
@@ -64,11 +73,25 @@ void main() {
     CrashlyticsService.testInstance = mockCrashlytics;
     CrashlyticsService.setOptOut(false);
 
+    // Inyectar spy en UrlLauncherService para capturar URLs
+    capturedLaunchUri = null;
+    UrlLauncherService.testInstance = (Uri uri) {
+      capturedLaunchUri = uri;
+    };
+
     // Stubs por defecto: permiso autorizado, suscripcion exitosa
     when(
       () => mockRepo.requestPermission(),
     ).thenAnswer((_) async => _settingsWith(AuthorizationStatus.authorized));
     when(() => mockRepo.subscribeToTopic(any())).thenAnswer((_) async => true);
+
+    // Stubs por defecto para R4 deep link:
+    // - getInitialMessage retorna null (sin mensaje pendiente)
+    // - onMessageOpenedApp expone un stream controlado
+    when(() => mockRepo.getInitialMessage()).thenAnswer((_) async => null);
+    when(
+      () => mockRepo.onMessageOpenedApp,
+    ).thenAnswer((_) => onMessageOpenedAppController.stream);
 
     // Stubs void de Crashlytics
     when(
@@ -86,11 +109,13 @@ void main() {
   });
 
   tearDown(() {
+    onMessageOpenedAppController.close();
     NotificationsService.resetForTesting();
     CrashlyticsService.resetForTesting();
+    UrlLauncherService.resetForTesting();
   });
 
-  // ── Permiso denegado ────────────────────────────────────────────────────
+  //  Permiso denegado
 
   group('initialize — permiso denegado', () {
     test('debe retornar temprano sin intentar subscribeToTopic cuando el '
@@ -128,7 +153,7 @@ void main() {
     });
   });
 
-  // ── Permiso concedido + suscripcion exitosa ─────────────────────────────
+  //  Permiso concedido + suscripcion exitosa
 
   group('initialize — permiso concedido, suscripcion exitosa', () {
     test('debe suscribirse al topic "app-updates" cuando el permiso es '
@@ -161,8 +186,7 @@ void main() {
     });
   });
 
-  // ── Retry: falla 1 vez, exito en 2do intento ────────────────────────────
-
+  //  Retry: falla 1 vez, exito en 2do intento
   group('initialize — retry con backoff exponencial', () {
     test('debe reintentar si el primer subscribeToTopic falla y tener exito '
         'en el segundo intento', () async {
@@ -237,7 +261,7 @@ void main() {
     });
   });
 
-  // ── Fallo persistente (3 intentos fallidos) ─────────────────────────────
+  //  Fallo persistente (3 intentos fallidos)
 
   group('initialize — fallo persistente', () {
     test('debe loguear a Crashlytics cuando los 3 intentos de suscripcion '
@@ -290,7 +314,7 @@ void main() {
     );
   });
 
-  // ── Error inesperado al pedir permiso ───────────────────────────────────
+  //  Error inesperado al pedir permiso
 
   group('initialize — error inesperado en requestPermission', () {
     test('debe loguear a Crashlytics y retornar limpiamente cuando '
@@ -327,7 +351,7 @@ void main() {
     });
   });
 
-  // ── Backoff exponencial ─────────────────────────────────────────────────
+  //  Backoff exponencial
 
   group('initialize — backoff exponencial', () {
     test(
@@ -380,7 +404,7 @@ void main() {
     });
   });
 
-  // ── testInstance override ───────────────────────────────────────────────
+  //  testInstance override
 
   group('testInstance — inyeccion para tests', () {
     test('debe usar el repositorio inyectado via testInstance', () async {
@@ -392,6 +416,11 @@ void main() {
       when(
         () => otherMock.subscribeToTopic(any()),
       ).thenAnswer((_) async => true);
+      // Stub R4 para el otherMock tambien
+      when(() => otherMock.getInitialMessage()).thenAnswer((_) async => null);
+      when(
+        () => otherMock.onMessageOpenedApp,
+      ).thenAnswer((_) => onMessageOpenedAppController.stream);
 
       NotificationsService.testInstance = otherMock;
 
@@ -401,6 +430,288 @@ void main() {
       // Assert — el mock original NO fue usado
       verifyNever(() => mockRepo.subscribeToTopic(any()));
       verify(() => otherMock.subscribeToTopic('app-updates')).called(1);
+    });
+  });
+
+  // ── R4 Deep Link: terminated state ─────────────────────────────────────
+
+  group('initialize — R4 deep link from terminated', () {
+    // TDD: RED — test escrito ANTES que la implementacion.
+    test('debe llamar a UrlLauncherService.launchUrl() cuando '
+        'getInitialMessage tiene data.url valido', () async {
+      // Arrange: getInitialMessage retorna mensaje con URL
+      final mockMessage = MockRemoteMessage();
+      when(() => mockMessage.data).thenReturn({
+        'url': 'https://appdistribution.firebase.dev/i/923159339728',
+        'type': 'app_update',
+      });
+      when(
+        () => mockRepo.getInitialMessage(),
+      ).thenAnswer((_) async => mockMessage);
+
+      // Act
+      await NotificationsService.initialize();
+
+      // Assert: UrlLauncherService fue llamado con la URL correcta
+      expect(capturedLaunchUri, isNotNull);
+      expect(
+        capturedLaunchUri!.toString(),
+        'https://appdistribution.firebase.dev/i/923159339728',
+      );
+    });
+
+    test('NO debe llamar a UrlLauncherService.launchUrl() cuando '
+        'getInitialMessage retorna null', () async {
+      // Arrange: getInitialMessage ya esta stubbed como null en setUp
+
+      // Act
+      await NotificationsService.initialize();
+
+      // Assert
+      expect(capturedLaunchUri, isNull);
+    });
+
+    test('NO debe llamar a UrlLauncherService.launchUrl() cuando '
+        'data.url es null', () async {
+      // Arrange: mensaje sin clave url
+      final mockMessage = MockRemoteMessage();
+      when(() => mockMessage.data).thenReturn({'type': 'app_update'});
+      when(
+        () => mockRepo.getInitialMessage(),
+      ).thenAnswer((_) async => mockMessage);
+
+      // Act
+      await NotificationsService.initialize();
+
+      // Assert
+      expect(capturedLaunchUri, isNull);
+    });
+
+    test('NO debe llamar a UrlLauncherService.launchUrl() cuando '
+        'data.url es string vacio', () async {
+      // TDD: RED — TRIANGULATE: URL vacia
+      final mockMessage = MockRemoteMessage();
+      when(
+        () => mockMessage.data,
+      ).thenReturn({'url': '', 'type': 'app_update'});
+      when(
+        () => mockRepo.getInitialMessage(),
+      ).thenAnswer((_) async => mockMessage);
+
+      // Act
+      await NotificationsService.initialize();
+
+      // Assert
+      expect(capturedLaunchUri, isNull);
+    });
+
+    test('NO debe lanzar excepcion cuando UrlLauncherService.launchUrl() '
+        'falla (R6: notificaciones no bloquean la app)', () async {
+      // TDD: RED — TRIANGULATE: error recovery
+      final mockMessage = MockRemoteMessage();
+      when(() => mockMessage.data).thenReturn({
+        'url': 'https://appdistribution.firebase.dev/i/923159339728',
+      });
+      when(
+        () => mockRepo.getInitialMessage(),
+      ).thenAnswer((_) async => mockMessage);
+
+      // Arrange: UrlLauncherService lanza excepcion
+      UrlLauncherService.testInstance = (Uri uri) {
+        throw Exception('No browser available');
+      };
+
+      // Act & Assert: initialize() no debe lanzar
+      await expectLater(NotificationsService.initialize(), completes);
+    });
+
+    test(
+      'debe loguear a Crashlytics cuando launchUrl lanza excepcion',
+      () async {
+        // TDD: RED — TRIANGULATE: error logged to Crashlytics
+        final mockMessage = MockRemoteMessage();
+        when(() => mockMessage.data).thenReturn({
+          'url': 'https://appdistribution.firebase.dev/i/923159339728',
+        });
+        when(
+          () => mockRepo.getInitialMessage(),
+        ).thenAnswer((_) async => mockMessage);
+
+        // Arrange: UrlLauncherService lanza excepcion
+        UrlLauncherService.testInstance = (Uri uri) {
+          throw Exception('No browser available');
+        };
+
+        // Act
+        await NotificationsService.initialize();
+
+        // Assert: Crashlytics fue notificado del error
+        verify(
+          () => mockCrashlytics.recordError(
+            any(),
+            any(),
+            fatal: any(named: 'fatal'),
+          ),
+        ).called(1);
+      },
+    );
+
+    test('debe loguear a Crashlytics cuando getInitialMessage() lanza '
+        'excepcion', () async {
+      // TDD: RED — TRIANGULATE: FCM error in getInitialMessage
+      when(
+        () => mockRepo.getInitialMessage(),
+      ).thenThrow(Exception('FCM service error'));
+
+      // Act & Assert: no crashea
+      await NotificationsService.initialize();
+
+      // Assert: Crashlytics fue notificado
+      verify(
+        () => mockCrashlytics.recordError(
+          any(),
+          any(),
+          fatal: any(named: 'fatal'),
+        ),
+      ).called(1);
+    });
+  });
+
+  // ── R4 Deep Link: background stream ────────────────────────────────────
+
+  group('initialize — R4 deep link from background', () {
+    // TDD: RED — test escrito ANTES que la implementacion.
+    test('debe llamar a UrlLauncherService.launchUrl() cuando '
+        'onMessageOpenedApp emite mensaje con data.url valido', () async {
+      // Arrange: inicializar primero para que el listener se registre
+      await NotificationsService.initialize();
+
+      // Resetear el spy para capturar solo la llamada del stream
+      capturedLaunchUri = null;
+
+      // Act: emitir mensaje con URL en el stream
+      final mockMessage = MockRemoteMessage();
+      when(() => mockMessage.data).thenReturn({
+        'url': 'https://appdistribution.firebase.dev/i/923159339728',
+      });
+      onMessageOpenedAppController.add(mockMessage);
+
+      // Esperar a que el stream se procese
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+
+      // Assert
+      expect(capturedLaunchUri, isNotNull);
+      expect(
+        capturedLaunchUri!.toString(),
+        'https://appdistribution.firebase.dev/i/923159339728',
+      );
+    });
+
+    test('NO debe llamar a UrlLauncherService.launchUrl() cuando '
+        'data.url es null', () async {
+      // Arrange
+      await NotificationsService.initialize();
+      capturedLaunchUri = null;
+
+      // Act: emitir mensaje sin url
+      final mockMessage = MockRemoteMessage();
+      when(() => mockMessage.data).thenReturn({'type': 'app_update'});
+      onMessageOpenedAppController.add(mockMessage);
+
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+
+      // Assert
+      expect(capturedLaunchUri, isNull);
+    });
+
+    test('NO debe lanzar excepcion cuando UrlLauncherService.launchUrl() '
+        'falla (R6)', () async {
+      // Arrange: inicializar con listener
+      await NotificationsService.initialize();
+
+      // Arrange: testInstance lanza excepcion
+      UrlLauncherService.testInstance = (Uri uri) {
+        throw Exception('No browser available');
+      };
+
+      // Act: emitir mensaje con URL
+      final mockMessage = MockRemoteMessage();
+      when(() => mockMessage.data).thenReturn({
+        'url': 'https://appdistribution.firebase.dev/i/923159339728',
+      });
+      onMessageOpenedAppController.add(mockMessage);
+
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+
+      // Assert: no crashea (si llego hasta aca, el test paso)
+      expect(true, isTrue); // llegó sin excepción
+    });
+
+    test('debe loguear a Crashlytics cuando launchUrl lanza excepcion '
+        'en el stream listener', () async {
+      // Arrange: inicializar con listener
+      await NotificationsService.initialize();
+
+      // Arrange: testInstance lanza excepcion
+      UrlLauncherService.testInstance = (Uri uri) {
+        throw Exception('No browser available');
+      };
+
+      // Resetear contador de Crashlytics (ya fue llamado por los stubs)
+      // Nota: Crashlytics se llama 0 veces en el listener porque
+      // aun no se emitio ningun mensaje que cause launchUrl.
+
+      // Act: emitir mensaje con URL
+      final mockMessage = MockRemoteMessage();
+      when(() => mockMessage.data).thenReturn({
+        'url': 'https://appdistribution.firebase.dev/i/923159339728',
+      });
+      onMessageOpenedAppController.add(mockMessage);
+
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+
+      // Assert: Crashlytics fue notificado del error
+      verify(
+        () => mockCrashlytics.recordError(
+          any(),
+          any(),
+          fatal: any(named: 'fatal'),
+        ),
+      ).called(1);
+    });
+  });
+
+  // ── T-2.5 RED: resetForTesting cancela stream subscription ────────────
+
+  group('resetForTesting — limpieza de suscripcion R4', () {
+    test('debe cancelar el stream subscription de onMessageOpenedApp '
+        'al llamar a resetForTesting', () async {
+      // TDD: RED — Arrange: inicializar y registrar listener
+      await NotificationsService.initialize();
+
+      // Act: resetear
+      NotificationsService.resetForTesting();
+
+      // Reinyectar mock tras reset (resetForTesting limpia __testInstance)
+      NotificationsService.testInstance = mockRepo;
+
+      // Assert: emitir mensaje — el listener viejo no deberia dispararse
+      capturedLaunchUri = null;
+      UrlLauncherService.testInstance = (Uri uri) {
+        capturedLaunchUri = uri;
+      };
+
+      final mockMessage = MockRemoteMessage();
+      when(() => mockMessage.data).thenReturn({
+        'url': 'https://appdistribution.firebase.dev/i/923159339728',
+      });
+      onMessageOpenedAppController.add(mockMessage);
+
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+
+      // El listener fue cancelado por resetForTesting, asi que
+      // NO deberia haberse llamado a launchUrl
+      expect(capturedLaunchUri, isNull);
     });
   });
 }

@@ -1,0 +1,25 @@
+# Normalizar finales de linea a LF para todos los archivos de texto
+* text=auto eol=lf
+
+# Archivos binarios (no deben modificarse)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+
+# Android signing / certificados
+*.keystore binary
+*.jks binary
+
+# PDFs y documentos binarios
+*.pdf binary
+
+# Fuentes
+*.ttf binary
+*.otf binary
+
+# Archivos comprimidos
+*.zip binary
+*.jar binary

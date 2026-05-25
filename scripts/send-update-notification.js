@@ -53,7 +53,7 @@ async function main() {
     },
     data: {
       type: 'app_update',
-      url: 'market://details?id=com.mundolimpio.app',
+      url: 'https://appdistribution.firebase.dev/i/923159339728',
     },
     android: {
       notification: {

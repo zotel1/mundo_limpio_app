@@ -43,7 +43,10 @@ Widget createTestApp(
       ChangeNotifierProvider<ProductionProvider>.value(value: prodProvider),
       ChangeNotifierProvider<BulkProductProvider>.value(value: bpProvider),
     ],
-    child: const MaterialApp(home: ProductionBatchListScreen()),
+    child: MaterialApp(
+      theme: ThemeData(splashFactory: NoSplash.splashFactory),
+      home: ProductionBatchListScreen(),
+    ),
   );
 }
 

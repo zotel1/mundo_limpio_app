@@ -87,7 +87,10 @@ Widget createSplashTestWidget({
       ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
       ChangeNotifierProvider<SplashProvider>.value(value: splashProvider),
     ],
-    child: const MaterialApp(home: SplashScreen()),
+    child: MaterialApp(
+      theme: ThemeData(splashFactory: NoSplash.splashFactory),
+      home: SplashScreen(),
+    ),
   );
 }
 

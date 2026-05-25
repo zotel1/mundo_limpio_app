@@ -38,7 +38,10 @@ class MockAuthRepository extends Mock implements AuthRepository {}
 Widget createTestApp(AuthProvider authProvider) {
   return ChangeNotifierProvider<AuthProvider>.value(
     value: authProvider,
-    child: const MaterialApp(home: LoginScreen()),
+    child: MaterialApp(
+      theme: ThemeData(splashFactory: NoSplash.splashFactory),
+      home: LoginScreen(),
+    ),
   );
 }
 

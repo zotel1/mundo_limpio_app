@@ -30,7 +30,10 @@ class MockInventoryRepository extends Mock implements InventoryRepository {}
 Widget createTestApp(InventoryProvider provider, {required int productId}) {
   return ChangeNotifierProvider<InventoryProvider>.value(
     value: provider,
-    child: MaterialApp(home: InventoryDetailScreen(productId: productId)),
+    child: MaterialApp(
+      theme: ThemeData(splashFactory: NoSplash.splashFactory),
+      home: InventoryDetailScreen(productId: productId),
+    ),
   );
 }
 
