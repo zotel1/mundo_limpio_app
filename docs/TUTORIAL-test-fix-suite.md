@@ -150,4 +150,78 @@ dart format --set-exit-if-changed lib/ test/  # → 0 files changed ✅
 
 ---
 
-*Este tutorial fue generado a partir del SDD `test-fix-suite`, completado el 2026-05-25.*
+## Bonus: Error de `dart format` en CI post-rebase
+
+Después de mergear los fixes, el CI de GitHub Actions falló con:
+
+```
+dart format --set-exit-if-changed lib/ test/
+Formatted 204 files (4 changed) in 0.73 seconds.
+Error: Process completed with exit code 1.
+```
+
+### ¿Por qué pasó?
+
+El workflow de CI corre sobre **el merge commit** del PR (tu branch + develop mergeados por GitHub). Entre que nosotros arrancamos el SDD y creamos el PR, **otro branch se mergeó a develop** (`feat/r4-deep-link`). Ese merge trajo archivos nuevos con formato no estandarizado:
+
+- `lib/core/services/url_launcher_service.dart`
+- `test/core/services/url_launcher_service_test.dart`
+- `lib/core/services/notifications_service.dart` (ya existía pero con formato viejo)
+- `test/core/services/notifications_service_test.dart`
+
+Al calcular el merge commit del PR, GitHub mezcla nuestro código + develop, y esos 4 archivos aparecen con formato incorrecto. `dart format --set-exit-if-changed` los detecta, los corrige, y como los cambió... sale con exit code 1 (fail).
+
+### ¿Qué hay que hacer?
+
+**Paso 1 — No asustarse**. No es un error nuestro, es que develop avanzó mientras tanto.
+
+**Paso 2 — Rebasear la branch sobre develop actualizado**:
+
+```bash
+git fetch origin develop
+git rebase origin/develop
+```
+
+Esto reaplica nuestros commits encima del develop más reciente, incorporando todos los cambios nuevos (incluyendo los archivos con formato incorrecto).
+
+**Paso 3 — Correr `dart format` en TODO el proyecto**:
+
+```bash
+dart format --set-exit-if-changed lib/ test/
+```
+
+Si muestra archivos como "Formatted", esos son los que necesitan commit.
+
+**Paso 4 — Commitear los format fixes y pushear con fuerza**:
+
+```bash
+git add -A
+git commit -m "style: fix dart formatting after rebase on develop"
+git push --force-with-lease origin feat/main-di-wiring
+```
+
+⚠️ **`--force-with-lease`** es obligatorio porque el rebase reescribe la historia. No usar `--force` a secas — `--force-with-lease` es más seguro porque verifica que nadie más haya pusheado cambios mientras tanto.
+
+### ¿Por qué `dart format` no se puede safear?
+
+Porque el CI corre `--set-exit-if-changed`. Ese flag hace que `dart format`:
+1. Formatee los archivos que encuentra
+2. Pero si formateó AL MENOS UNO, sale con exit code 1
+
+No importa si los archivos son nuestros o no — el CI los ve a todos. La postura correcta: **formatear todo lo que el CI ve, sin importar de quién sea el código**. Es un commit mecánico, no toca lógica.
+
+### Lección
+
+Cuando trabajás en una rama por varios días, develop avanza. Al crear el PR pueden aparecer falsos positivos de formato de archivos que no tocaste. La solución es siempre la misma:
+
+```
+git fetch origin develop
+git rebase origin/develop
+dart format --set-exit-if-changed lib/ test/
+git add -A && git commit -m "style: format after rebase"
+git push --force-with-lease origin <tu-rama>
+```
+
+---
+
+*Este tutorial fue generado a partir del SDD `test-fix-suite`, completado el 2026-05-25. Actualizado con el bonus del error de formato CI.*
