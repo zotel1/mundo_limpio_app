@@ -114,6 +114,19 @@ class HomeScreen extends StatelessWidget {
                   label: const Text('Productos'),
                 ),
               ),
+              // Botón "Usuarios" solo para ADMIN
+              if (context.read<AuthProvider>().role == 'ADMIN') ...[
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: 200,
+                  height: 48,
+                  child: ElevatedButton.icon(
+                    onPressed: () => context.push('/users'),
+                    icon: const Icon(Icons.people),
+                    label: const Text('Usuarios'),
+                  ),
+                ),
+              ],
               const SizedBox(height: 12),
               SizedBox(
                 width: 200,

@@ -24,6 +24,7 @@ import 'package:mundo_limpio_app/features/sales/presentation/screens/sale_result
 import 'package:mundo_limpio_app/features/products/presentation/screens/products_detail_screen.dart';
 import 'package:mundo_limpio_app/features/products/presentation/screens/products_form_screen.dart';
 import 'package:mundo_limpio_app/features/products/presentation/screens/products_list_screen.dart';
+import 'package:mundo_limpio_app/features/users/presentation/screens/users_list_screen.dart';
 import 'package:mundo_limpio_app/features/production/presentation/screens/bulk/bulk_product_list_screen.dart';
 import 'package:mundo_limpio_app/features/production/presentation/screens/production/production_batch_list_screen.dart';
 import 'package:mundo_limpio_app/features/production/presentation/screens/production/production_create_screen.dart';
@@ -78,9 +79,19 @@ GoRouter createRouter(
           (location.startsWith('/production/') ||
               location.startsWith('/receipts/') ||
               location == '/products' ||
-              location.startsWith('/products/')) &&
-          authProvider.role != 'ADMIN' &&
-          authProvider.role != 'STOCK_MANAGER') {
+              location.startsWith('/products/'))) {
+        if (authProvider.role == 'ADMIN' ||
+            authProvider.role == 'STOCK_MANAGER') {
+          // allow
+        } else {
+          return '/';
+        }
+      }
+
+      // /users es solo ADMIN
+      if (status == AuthStatus.authenticated &&
+          location.startsWith('/users') &&
+          authProvider.role != 'ADMIN') {
         return '/';
       }
 
@@ -139,6 +150,7 @@ GoRouter createRouter(
           return const ProductsFormScreen();
         },
       ),
+      GoRoute(path: '/users', builder: (_, _) => const UsersListScreen()),
       GoRoute(
         path: '/production/bulk-products',
         builder: (_, _) => const BulkProductListScreen(),
