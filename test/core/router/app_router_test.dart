@@ -285,11 +285,7 @@ void main() {
       authProvider.setRole(role);
 
       await tester.pumpWidget(
-        createTestApp(
-          authProvider,
-          splashProvider,
-          initialLocation: route,
-        ),
+        createTestApp(authProvider, splashProvider, initialLocation: route),
       );
       await pumpUntilSettled(tester);
 
@@ -311,14 +307,12 @@ void main() {
     }
 
     testWidgets('A9: ADMIN puede acceder a /production/', (tester) async {
-      await navigateAndCheckRedirect(
-        tester,
-        'ADMIN',
-        '/production/batches',
-      );
+      await navigateAndCheckRedirect(tester, 'ADMIN', '/production/batches');
     });
 
-    testWidgets('A10: STOCK_MANAGER puede acceder a /production/', (tester) async {
+    testWidgets('A10: STOCK_MANAGER puede acceder a /production/', (
+      tester,
+    ) async {
       await navigateAndCheckRedirect(
         tester,
         'STOCK_MANAGER',
@@ -327,14 +321,12 @@ void main() {
     });
 
     testWidgets('STOCK_MANAGER puede acceder a /receipts/', (tester) async {
-      await navigateAndCheckRedirect(
-        tester,
-        'STOCK_MANAGER',
-        '/receipts/new',
-      );
+      await navigateAndCheckRedirect(tester, 'STOCK_MANAGER', '/receipts/new');
     });
 
-    testWidgets('A11: OPERATOR no puede acceder a /production/', (tester) async {
+    testWidgets('A11: OPERATOR no puede acceder a /production/', (
+      tester,
+    ) async {
       await navigateAndCheckRedirect(
         tester,
         'OPERATOR',

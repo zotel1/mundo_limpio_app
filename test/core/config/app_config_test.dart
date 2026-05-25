@@ -12,7 +12,10 @@ void main() {
     // R1 (indirecto): La URL base debe tener un valor por defecto
     // que apunte al backend en Render.
     test('should provide default baseUrl pointing to Render backend', () {
-      expect(AppConfig.baseUrl, 'https://mundo-limpio-backend.onrender.com/api/v1');
+      expect(
+        AppConfig.baseUrl,
+        'https://mundo-limpio-backend.onrender.com/api/v1',
+      );
     });
 
     // TDD: RED — timeout actualizado para tolerar cold starts de Render (~30-60s).
