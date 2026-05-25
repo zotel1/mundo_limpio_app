@@ -11,11 +11,22 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:mundo_limpio_app/core/theme/app_colors.dart';
 import 'package:mundo_limpio_app/core/widgets/branded_error_banner.dart';
 
 void main() {
+  setUpAll(() {
+    // Workaround for shader errors in tests (e.g., ink_sparkle.frag)
+    // Disables CanvasKit in tests to avoid potential shader compilation issues
+    debugDefaultTargetPlatformOverride = TargetPlatform.android; // Or iOS
+  });
+  
+  tearDownAll(() {
+    debugDefaultTargetPlatformOverride = null;
+  });
+
   group('BrandedErrorBanner — contenido', () {
     testWidgets('debe mostrar el mensaje de error', (tester) async {
       await tester.pumpWidget(
@@ -86,8 +97,9 @@ void main() {
       );
 
       // Tocar el botón de cierre (IconButton con X o close)
+      expect(find.byIcon(Icons.close), findsOneWidget); // Ensure the button is found
       await tester.tap(find.byIcon(Icons.close));
-      await tester.pump();
+      await tester.pumpAndSettle(); // Wait for animations and rebuilds to complete
 
       expect(dismissed, isTrue);
     });
