@@ -60,9 +60,7 @@ class UsersApi {
     try {
       final response = await _dio.patch(
         '/api/v1/users/$userId/roles',
-        data: {
-          'roles': roles.map((r) => r.jsonValue).toList(),
-        },
+        data: {'roles': roles.map((r) => r.jsonValue).toList()},
       );
       return UserModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {

@@ -20,37 +20,34 @@ void main() {
 
   group('UsersApi', () {
     group('getUsers', () {
-      test(
-        'debe retornar lista de UserModel en GET /api/v1/users',
-        () async {
-          // Arrange
-          final json = [
-            {
-              'id': 1,
-              'username': 'Usuario123',
-              'email': 'user@email.com',
-              'roles': ['STOCK_MANAGER'],
-              'createdAt': '2026-05-25T12:00:00.000Z',
-            },
-          ];
-          when(() => mockDio.get('/api/v1/users')).thenAnswer(
-            (_) async => Response(
-              data: json,
-              statusCode: 200,
-              requestOptions: RequestOptions(path: '/api/v1/users'),
-            ),
-          );
+      test('debe retornar lista de UserModel en GET /api/v1/users', () async {
+        // Arrange
+        final json = [
+          {
+            'id': 1,
+            'username': 'Usuario123',
+            'email': 'user@email.com',
+            'roles': ['STOCK_MANAGER'],
+            'createdAt': '2026-05-25T12:00:00.000Z',
+          },
+        ];
+        when(() => mockDio.get('/api/v1/users')).thenAnswer(
+          (_) async => Response(
+            data: json,
+            statusCode: 200,
+            requestOptions: RequestOptions(path: '/api/v1/users'),
+          ),
+        );
 
-          // Act
-          final result = await api.getUsers();
+        // Act
+        final result = await api.getUsers();
 
-          // Assert
-          expect(result, isA<List<UserModel>>());
-          expect(result, hasLength(1));
-          expect(result.first.username, 'Usuario123');
-          verify(() => mockDio.get('/api/v1/users')).called(1);
-        },
-      );
+        // Assert
+        expect(result, isA<List<UserModel>>());
+        expect(result, hasLength(1));
+        expect(result.first.username, 'Usuario123');
+        verify(() => mockDio.get('/api/v1/users')).called(1);
+      });
 
       test('debe lanzar ApiException cuando Dio falla', () async {
         // Arrange
@@ -66,43 +63,37 @@ void main() {
         );
 
         // Act & Assert
-        expect(
-          () async => await api.getUsers(),
-          throwsA(isA<ApiException>()),
-        );
+        expect(() async => await api.getUsers(), throwsA(isA<ApiException>()));
       });
     });
 
     group('getUser', () {
-      test(
-        'debe retornar UserModel en GET /api/v1/users/{id}',
-        () async {
-          // Arrange
-          final json = {
-            'id': 1,
-            'username': 'Usuario123',
-            'email': 'user@email.com',
-            'roles': ['ADMIN'],
-            'createdAt': '2026-05-25T12:00:00.000Z',
-          };
-          when(() => mockDio.get('/api/v1/users/1')).thenAnswer(
-            (_) async => Response(
-              data: json,
-              statusCode: 200,
-              requestOptions: RequestOptions(path: '/api/v1/users/1'),
-            ),
-          );
+      test('debe retornar UserModel en GET /api/v1/users/{id}', () async {
+        // Arrange
+        final json = {
+          'id': 1,
+          'username': 'Usuario123',
+          'email': 'user@email.com',
+          'roles': ['ADMIN'],
+          'createdAt': '2026-05-25T12:00:00.000Z',
+        };
+        when(() => mockDio.get('/api/v1/users/1')).thenAnswer(
+          (_) async => Response(
+            data: json,
+            statusCode: 200,
+            requestOptions: RequestOptions(path: '/api/v1/users/1'),
+          ),
+        );
 
-          // Act
-          final result = await api.getUser(1);
+        // Act
+        final result = await api.getUser(1);
 
-          // Assert
-          expect(result, isA<UserModel>());
-          expect(result.id, 1);
-          expect(result.roles, [UserRole.admin]);
-          verify(() => mockDio.get('/api/v1/users/1')).called(1);
-        },
-      );
+        // Assert
+        expect(result, isA<UserModel>());
+        expect(result.id, 1);
+        expect(result.roles, [UserRole.admin]);
+        verify(() => mockDio.get('/api/v1/users/1')).called(1);
+      });
 
       test('debe lanzar ApiException cuando Dio falla', () async {
         when(() => mockDio.get('/api/v1/users/999')).thenThrow(
@@ -149,14 +140,17 @@ void main() {
           );
 
           // Act
-          final result = await api.updateRoles(
-            1,
-            {UserRole.admin, UserRole.stockManager},
-          );
+          final result = await api.updateRoles(1, {
+            UserRole.admin,
+            UserRole.stockManager,
+          });
 
           // Assert
           expect(result, isA<UserModel>());
-          expect(result.roles, containsAll([UserRole.admin, UserRole.stockManager]));
+          expect(
+            result.roles,
+            containsAll([UserRole.admin, UserRole.stockManager]),
+          );
           verify(
             () => mockDio.patch(
               '/api/v1/users/1/roles',
@@ -170,26 +164,22 @@ void main() {
         // Arrange
         Object? capturedBody;
         when(
-          () => mockDio.patch(
-            '/api/v1/users/1/roles',
-            data: any(named: 'data'),
-          ),
-        ).thenAnswer(
-          (invocation) async {
-            capturedBody = invocation.namedArguments[#data];
-            return Response(
-              data: {
-                'id': 1,
-                'username': 'User',
-                'email': 'user@email.com',
-                'roles': ['ADMIN', 'STOCK_MANAGER'],
-                'createdAt': '2026-05-25T12:00:00.000Z',
-              },
-              statusCode: 200,
-              requestOptions: RequestOptions(path: '/api/v1/users/1/roles'),
-            );
-          },
-        );
+          () =>
+              mockDio.patch('/api/v1/users/1/roles', data: any(named: 'data')),
+        ).thenAnswer((invocation) async {
+          capturedBody = invocation.namedArguments[#data];
+          return Response(
+            data: {
+              'id': 1,
+              'username': 'User',
+              'email': 'user@email.com',
+              'roles': ['ADMIN', 'STOCK_MANAGER'],
+              'createdAt': '2026-05-25T12:00:00.000Z',
+            },
+            statusCode: 200,
+            requestOptions: RequestOptions(path: '/api/v1/users/1/roles'),
+          );
+        });
 
         // Act
         await api.updateRoles(1, {UserRole.admin, UserRole.stockManager});
@@ -201,10 +191,8 @@ void main() {
 
       test('debe lanzar ApiException cuando Dio falla', () async {
         when(
-          () => mockDio.patch(
-            '/api/v1/users/1/roles',
-            data: any(named: 'data'),
-          ),
+          () =>
+              mockDio.patch('/api/v1/users/1/roles', data: any(named: 'data')),
         ).thenThrow(
           DioException(
             requestOptions: RequestOptions(path: '/api/v1/users/1/roles'),
@@ -234,16 +222,14 @@ void main() {
               '/api/v1/users/1/password',
               data: any(named: 'data'),
             ),
-          ).thenAnswer(
-            (invocation) async {
-              capturedBody = invocation.namedArguments[#data];
-              return Response(
-                data: null,
-                statusCode: 204,
-                requestOptions: RequestOptions(path: '/api/v1/users/1/password'),
-              );
-            },
-          );
+          ).thenAnswer((invocation) async {
+            capturedBody = invocation.namedArguments[#data];
+            return Response(
+              data: null,
+              statusCode: 204,
+              requestOptions: RequestOptions(path: '/api/v1/users/1/password'),
+            );
+          });
 
           // Act
           await api.resetPassword(1, 'nuevaPass123');

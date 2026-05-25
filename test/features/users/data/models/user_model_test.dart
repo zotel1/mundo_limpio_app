@@ -40,26 +40,23 @@ void main() {
       expect(result['createdAt'], '2026-05-25T12:00:00.000Z');
     });
 
-    test(
-      'debe convertir un UserModel a la entidad User correctamente',
-      () {
-        final model = UserModel(
-          id: 1,
-          username: 'Usuario123',
-          email: 'user@email.com',
-          roles: [UserRole.stockManager, UserRole.admin],
-          createdAt: DateTime.utc(2026, 5, 25, 12, 0, 0),
-        );
-        final entity = model.toEntity();
+    test('debe convertir un UserModel a la entidad User correctamente', () {
+      final model = UserModel(
+        id: 1,
+        username: 'Usuario123',
+        email: 'user@email.com',
+        roles: [UserRole.stockManager, UserRole.admin],
+        createdAt: DateTime.utc(2026, 5, 25, 12, 0, 0),
+      );
+      final entity = model.toEntity();
 
-        expect(entity, isA<User>());
-        expect(entity.id, 1);
-        expect(entity.username, 'Usuario123');
-        expect(entity.email, 'user@email.com');
-        expect(entity.roles, [UserRole.stockManager, UserRole.admin]);
-        expect(entity.createdAt, DateTime.utc(2026, 5, 25, 12, 0, 0));
-      },
-    );
+      expect(entity, isA<User>());
+      expect(entity.id, 1);
+      expect(entity.username, 'Usuario123');
+      expect(entity.email, 'user@email.com');
+      expect(entity.roles, [UserRole.stockManager, UserRole.admin]);
+      expect(entity.createdAt, DateTime.utc(2026, 5, 25, 12, 0, 0));
+    });
 
     test('debe manejar roles múltiples correctamente', () {
       final jsonMultiRole = {

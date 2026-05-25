@@ -113,14 +113,17 @@ void main() {
         ).thenAnswer((_) async => updatedModel);
 
         // Act
-        final result = await repository.updateRoles(
-          1,
-          {UserRole.admin, UserRole.accountant},
-        );
+        final result = await repository.updateRoles(1, {
+          UserRole.admin,
+          UserRole.accountant,
+        });
 
         // Assert
         expect(result, isA<User>());
-        expect(result.roles, containsAll([UserRole.admin, UserRole.accountant]));
+        expect(
+          result.roles,
+          containsAll([UserRole.admin, UserRole.accountant]),
+        );
         verify(
           () => mockApi.updateRoles(1, {UserRole.admin, UserRole.accountant}),
         ).called(1);
@@ -149,9 +152,7 @@ void main() {
         await repository.resetPassword(1, 'nuevaPass123');
 
         // Assert
-        verify(
-          () => mockApi.resetPassword(1, 'nuevaPass123'),
-        ).called(1);
+        verify(() => mockApi.resetPassword(1, 'nuevaPass123')).called(1);
       });
 
       test('debe lanzar ApiException cuando la API falla', () async {
