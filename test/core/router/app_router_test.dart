@@ -419,5 +419,31 @@ void main() {
         expectRedirect: true,
       );
     });
+
+    // ── Users Routes (PR3) ─────────────────────────────────────────
+    testWidgets('ADMIN puede acceder a /users', (tester) async {
+      await navigateAndCheckRedirect(tester, 'ADMIN', '/users');
+    });
+
+    testWidgets('STOCK_MANAGER no puede acceder a /users', (tester) async {
+      await navigateAndCheckRedirect(
+        tester,
+        'STOCK_MANAGER',
+        '/users',
+        expectRedirect: true,
+      );
+    });
+
+    testWidgets('No autenticado en /users redirige a /login', (tester) async {
+      authProvider.setStatus(AuthStatus.unauthenticated);
+
+      await tester.pumpWidget(
+        createTestApp(authProvider, splashProvider, initialLocation: '/users'),
+      );
+      await pumpUntilSettled(tester);
+
+      expect(find.byType(LoginScreen), findsOneWidget);
+      expect(find.byType(HomeScreen), findsNothing);
+    });
   });
 }

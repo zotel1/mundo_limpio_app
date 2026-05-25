@@ -76,6 +76,9 @@ void main() {
 
   group('HomeScreen role-based buttons', () {
     testWidgets('ADMIN debe ver los botones de administración', (tester) async {
+      // Aumentar tamaño para que quepan todos los botones
+      tester.view.physicalSize = const Size(800, 4000);
+      addTearDown(() => tester.view.resetPhysicalSize());
       // Arrange
       authProvider.setRole('ADMIN');
 
@@ -90,6 +93,8 @@ void main() {
       expect(find.text('Nueva Producción'), findsOneWidget);
       expect(find.text('Historial Producción'), findsOneWidget);
       expect(find.text('Productos'), findsOneWidget);
+      // Botón "Usuarios" solo para ADMIN
+      expect(find.text('Usuarios'), findsOneWidget);
       expect(find.text('Escanear Recibo'), findsOneWidget);
     });
 
@@ -110,6 +115,8 @@ void main() {
       expect(find.text('Nueva Producción'), findsOneWidget);
       expect(find.text('Historial Producción'), findsOneWidget);
       expect(find.text('Productos'), findsOneWidget);
+      // Botón "Usuarios" NO debe estar visible para STOCK_MANAGER
+      expect(find.text('Usuarios'), findsNothing);
       expect(find.text('Escanear Recibo'), findsOneWidget);
     });
 
