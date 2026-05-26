@@ -21,6 +21,7 @@
 import 'dart:async';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:mundo_limpio_app/core/crashlytics/crashlytics_service.dart';
@@ -174,6 +175,30 @@ class NotificationsService {
   }
 
   //  Reset para tests
+
+  /// Verifica si hay una actualización disponible via Remote Config.
+  ///
+  /// Lee el valor `update_url` de Firebase Remote Config. Si no está vacío,
+  /// abre la URL en el navegador o Play Store para que el usuario descargue
+  /// la nueva versión.
+  ///
+  /// Debe llamarse después de [initialize] para asegurar que Firebase esté listo.
+  ///
+  /// Si Remote Config no está disponible (ej: emulador sin configuración),
+  /// el error se captura silenciosamente para no romper el flujo.
+  static Future<void> checkForUpdate() async {
+    try {
+      final remoteConfig = FirebaseRemoteConfig.instance;
+      await remoteConfig.fetchAndActivate();
+      final updateUrl = remoteConfig.getString('update_url');
+
+      if (updateUrl.isNotEmpty) {
+        UrlLauncherService.launchUrl(updateUrl);
+      }
+    } catch (_) {
+      // No bloqueante — la app sigue funcionando sin actualización
+    }
+  }
 
   /// Restaura el estado por defecto entre tests.
   @visibleForTesting

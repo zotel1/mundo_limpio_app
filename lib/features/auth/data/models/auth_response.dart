@@ -25,8 +25,11 @@ class AuthResponse {
   /// Token JWT de larga duración para renovar el access token.
   final String refreshToken;
 
-  /// Rol del usuario (ej: 'user', 'admin', 'moderator').
-  final String role;
+  /// Rol del usuario (deprecated, usar [roles]).
+  ///
+  /// El backend aún envía este campo para compatibilidad, pero
+  /// la fuente de verdad es [roles].
+  final String? role;
 
   /// Nombre de usuario visible en la UI.
   final String username;
@@ -34,8 +37,8 @@ class AuthResponse {
   /// Email del usuario (opcional, solo en login/register response).
   final String? email;
 
-  /// Roles del usuario (opcional, solo en login/register response).
-  final List<String>? roles;
+  /// Roles del usuario (requerido, fuente de verdad).
+  final List<String> roles;
 
   /// Fecha y hora ISO 8601 de creación de la sesión/cuenta.
   ///
@@ -47,16 +50,30 @@ class AuthResponse {
   const AuthResponse({
     required this.accessToken,
     required this.refreshToken,
-    required this.role,
+    this.role,
     required this.username,
     this.email,
-    this.roles,
+    required this.roles,
     required this.createdAt,
   });
 
   /// Construye un [AuthResponse] desde un mapa JSON (del backend).
-  factory AuthResponse.fromJson(Map<String, dynamic> json) =>
-      _$AuthResponseFromJson(json);
+  ///
+  /// Si `roles` no está presente en el JSON, se usa `[role]` como fallback
+  /// para mantener compatibilidad con backends que aún envían `role`.
+  factory AuthResponse.fromJson(Map<String, dynamic> json) {
+    // Fallback: si roles es null, usar [role] o lista vacía.
+    // Crea un nuevo map para no mutar el original (que podría ser
+    // Map<String, String> desde Dio y no aceptaría List como valor).
+    final role = json['role'] as String?;
+    if (json['roles'] == null) {
+      return _$AuthResponseFromJson(<String, dynamic>{
+        ...json,
+        'roles': role != null ? [role] : <String>[],
+      });
+    }
+    return _$AuthResponseFromJson(json);
+  }
 
   /// Serializa a mapa JSON para enviar al backend.
   Map<String, dynamic> toJson() => _$AuthResponseToJson(this);

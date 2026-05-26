@@ -72,8 +72,9 @@ void main() {
       expect(restored.createdAt, original.createdAt);
     });
 
-    // Edge case: email y roles ausentes deben ser null
-    test('fromJson debe manejar email y roles ausentes como null', () {
+    // Edge case: email ausente debe ser null, roles ausente debe
+    // usar [role] como fallback (R2.1)
+    test('fromJson debe usar [role] como fallback cuando roles es null', () {
       final json = {
         'accessToken': 'token',
         'refreshToken': 'refresh',
@@ -84,7 +85,7 @@ void main() {
       final result = AuthResponse.fromJson(json);
 
       expect(result.email, isNull);
-      expect(result.roles, isNull);
+      expect(result.roles, ['user']); // fallback de role
     });
 
     // Triangulación: fecha con diferente formato (sin milisegundos)

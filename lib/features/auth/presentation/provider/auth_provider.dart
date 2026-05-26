@@ -16,6 +16,7 @@ import 'package:flutter/foundation.dart';
 import 'package:mundo_limpio_app/core/crashlytics/crashlytics_service.dart';
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/core/network/error_handler.dart';
+import 'package:mundo_limpio_app/core/storage/token_storage.dart';
 import 'package:mundo_limpio_app/features/auth/domain/repository/auth_repository.dart';
 
 /// Estados posibles del flujo de autenticación.
@@ -36,6 +37,7 @@ enum AuthStatus { loading, authenticated, unauthenticated }
 /// 3. Setea status/error y notifica
 class AuthProvider extends ChangeNotifier {
   final AuthRepository _repository;
+  final TokenStorage _tokenStorage;
 
   AuthStatus _status = AuthStatus.loading;
   String? _error;
@@ -88,17 +90,25 @@ class AuthProvider extends ChangeNotifier {
   /// Se usa para Crashlytics.setUserIdentifier en el reporte de crashes.
   String? get username => _username;
 
-  /// Crea un [AuthProvider] con el [repository] inyectado.
-  AuthProvider(this._repository);
+  /// Crea un [AuthProvider] con el [repository] y [tokenStorage] inyectados.
+  AuthProvider(this._repository, this._tokenStorage);
 
   /// Verifica si hay tokens locales al iniciar la app.
   ///
   /// Se llama desde el splash screen o desde el redirect de go_router.
-  /// Usa [AuthRepository.isLoggedIn] para determinar el estado inicial.
+  /// Usa [AuthRepository.isLoggedIn] para determinar el estado inicial
+  /// y restaura roles, username y email desde [TokenStorage].
   Future<void> checkAuth() async {
     _setLoading();
     try {
       final loggedIn = await _repository.isLoggedIn();
+      if (loggedIn) {
+        // Restaurar metadata desde TokenStorage
+        _roles = await _tokenStorage.readRoles();
+        _username = await _tokenStorage.readUsername();
+        _email = await _tokenStorage.readEmail();
+        _role = _roles?.firstOrNull;
+      }
       _status = loggedIn
           ? AuthStatus.authenticated
           : AuthStatus.unauthenticated;
@@ -126,9 +136,16 @@ class AuthProvider extends ChangeNotifier {
       _status = AuthStatus.authenticated;
       _error = null;
 
+      // Persistir roles, username y email en TokenStorage
+      await _tokenStorage.saveRoles(response.roles);
+      await _tokenStorage.saveUsername(response.username);
+      if (response.email != null) {
+        await _tokenStorage.saveEmail(response.email!);
+      }
+
       // Vincular metadata de usuario a Crashlytics para diagnósticos
       // TDD: GREEN — el try-catch en setUser() protege si Firebase no está disponible
-      CrashlyticsService.setUser(response.username, response.role);
+      CrashlyticsService.setUser(response.username, response.roles.join(','));
     } on ApiException catch (e) {
       // ApiException tiene mensaje amigable via ErrorHandler
       _role = null;
@@ -156,7 +173,20 @@ class AuthProvider extends ChangeNotifier {
   Future<void> register(String email, String password) async {
     _setLoading();
     try {
-      await _repository.register(email, password);
+      final response = await _repository.register(email, password);
+      // Guardar metadata del usuario incluso sin autenticar
+      _role = response.role;
+      _email = response.email;
+      _roles = response.roles;
+      _username = response.username;
+
+      // Persistir roles, username y email en TokenStorage
+      await _tokenStorage.saveRoles(response.roles);
+      await _tokenStorage.saveUsername(response.username);
+      if (response.email != null) {
+        await _tokenStorage.saveEmail(response.email!);
+      }
+
       // No autenticar automáticamente — el usuario debe
       // iniciar sesión después del registro (R2.1)
       _status = AuthStatus.unauthenticated;
@@ -175,6 +205,7 @@ class AuthProvider extends ChangeNotifier {
   Future<void> logout() async {
     _setLoading();
     try {
+      await _tokenStorage.clearAll();
       await _repository.logout();
     } catch (_) {
       // Si falla el logout, igual desautenticamos al usuario

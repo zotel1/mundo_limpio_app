@@ -173,7 +173,10 @@ void main() async {
 
         ChangeNotifierProvider<AuthProvider>(
           create: (ctx) {
-            final authProvider = AuthProvider(ctx.read<AuthRepository>());
+            final authProvider = AuthProvider(
+              ctx.read<AuthRepository>(),
+              ctx.read<TokenStorage>(),
+            );
             authProvider.checkAuth();
             return authProvider;
           },
@@ -252,7 +255,11 @@ void main() async {
         ),
 
         Provider<IProductsRepository>(
-          create: (ctx) => ProductsRepositoryImpl(api: ctx.read<ProductsApi>()),
+          create: (ctx) => ProductsRepositoryImpl(
+            api: ctx.read<ProductsApi>(),
+            connectivityService: ctx.read<ConnectivityService>(),
+            productCacheDao: ctx.read<ProductCacheDao>(),
+          ),
         ),
 
         ChangeNotifierProvider<ProductsProvider>(

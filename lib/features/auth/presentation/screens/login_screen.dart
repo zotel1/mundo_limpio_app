@@ -15,6 +15,7 @@
 // Navigator.pushReplacement para navegación simple.
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
@@ -24,8 +25,6 @@ import 'package:mundo_limpio_app/core/widgets/logo_widget.dart';
 
 import '../helpers/validators.dart';
 import '../provider/auth_provider.dart';
-import 'home_screen.dart';
-import 'register_screen.dart';
 
 /// Pantalla de login con formulario email+contraseña.
 class LoginScreen extends StatefulWidget {
@@ -61,10 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (auth.isAuthenticated) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
+      context.go('/');
     }
   }
 
@@ -151,14 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 TextButton(
                   onPressed: auth.isLoading
                       ? null
-                      : () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const RegisterScreen(),
-                            ),
-                          );
-                        },
+                      : () => context.go('/register'),
                   child: const Text("¿No tenés cuenta? Registrate"),
                 ),
               ],

@@ -48,4 +48,19 @@ class ProductCacheDao {
     final row = await query.getSingle();
     return row.read(_db.productCache.id.count()) ?? 0;
   }
+
+  /// Obtiene un producto del caché por su ID, o null si no existe.
+  Future<ProductCacheData?> getById(int id) {
+    return (_db.select(
+      _db.productCache,
+    )..where((t) => t.id.equals(id))).getSingleOrNull();
+  }
+
+  /// Inserta o reemplaza un único producto en el caché.
+  ///
+  /// Usa [InsertMode.insertOnConflictUpdate] para que si el registro
+  /// ya existe (misma PK), se actualice en lugar de fallar.
+  Future<void> upsert(ProductCacheData product) {
+    return _db.into(_db.productCache).insertOnConflictUpdate(product);
+  }
 }
