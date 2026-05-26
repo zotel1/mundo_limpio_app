@@ -15,9 +15,17 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
+import 'package:mundo_limpio_app/features/users/domain/entities/user_role.dart';
 
 import '../provider/auth_provider.dart';
-import 'login_screen.dart';
+
+/// Verifica si el usuario autenticado tiene acceso a rutas de stock.
+bool _canAccess(AuthProvider auth) {
+  final roles = auth.roles;
+  if (roles == null) return false;
+  return roles.contains(UserRole.admin.jsonValue) ||
+      roles.contains(UserRole.stockManager.jsonValue);
+}
 
 /// Pantalla de inicio después de autenticación exitosa.
 class HomeScreen extends StatelessWidget {
@@ -25,6 +33,10 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    final hasAccess = _canAccess(auth);
+    final isAdmin = auth.roles?.contains(UserRole.admin.jsonValue) == true;
+
     return Scaffold(
       appBar: BrandedAppBar(
         title: 'MundoLimpio',
@@ -51,9 +63,8 @@ class HomeScreen extends StatelessWidget {
               style: TextStyle(fontSize: 18),
               textAlign: TextAlign.center,
             ),
-            // Botón "Nueva Venta" solo para administradores y gestores de stock (T-5.3)
-            if (context.read<AuthProvider>().role == 'ADMIN' ||
-                context.read<AuthProvider>().role == 'STOCK_MANAGER') ...[
+            // Botones solo para administradores y gestores de stock
+            if (hasAccess) ...[
               const SizedBox(height: 24),
               SizedBox(
                 width: 200,
@@ -115,7 +126,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               // Botón "Usuarios" solo para ADMIN
-              if (context.read<AuthProvider>().role == 'ADMIN') ...[
+              if (isAdmin) ...[
                 const SizedBox(height: 12),
                 SizedBox(
                   width: 200,
@@ -167,10 +178,7 @@ class HomeScreen extends StatelessWidget {
         // Limpiar sesión y redirigir al login
         await context.read<AuthProvider>().logout();
         if (context.mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const LoginScreen()),
-          );
+          context.go('/login');
         }
       }
     });

@@ -20,7 +20,9 @@ enum UserRole {
   @JsonValue('PRODUCTION_OP')
   productionOp,
   @JsonValue('ACCOUNTANT')
-  accountant;
+  accountant,
+  @JsonValue('CUSTOMER')
+  customer;
 
   /// Representación UPPER_SNAKE_CASE para enviar al backend.
   String get jsonValue {
@@ -31,6 +33,7 @@ enum UserRole {
       UserRole.salesClerk => 'SALES_CLERK',
       UserRole.productionOp => 'PRODUCTION_OP',
       UserRole.accountant => 'ACCOUNTANT',
+      UserRole.customer => 'CUSTOMER',
     };
   }
 }

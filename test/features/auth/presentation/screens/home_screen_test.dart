@@ -18,6 +18,7 @@ import 'package:mundo_limpio_app/features/auth/presentation/screens/home_screen.
 class MockAuthProvider extends ChangeNotifier implements AuthProvider {
   final AuthStatus _status = AuthStatus.authenticated;
   String? _role;
+  List<String>? _roles;
 
   @override
   AuthStatus get status => _status;
@@ -32,7 +33,7 @@ class MockAuthProvider extends ChangeNotifier implements AuthProvider {
   String? get email => null;
 
   @override
-  List<String>? get roles => null;
+  List<String>? get roles => _roles;
 
   @override
   String? error;
@@ -45,6 +46,7 @@ class MockAuthProvider extends ChangeNotifier implements AuthProvider {
 
   void setRole(String? role) {
     _role = role;
+    _roles = role != null ? [role] : null;
     notifyListeners();
   }
 

@@ -19,6 +19,7 @@ class TestAuthRepository implements AuthRepository {
       refreshToken: 'test-refresh',
       role: 'user',
       username: 'test',
+      roles: ['user'],
       createdAt: DateTime(2026, 1, 1),
     );
   }
@@ -30,6 +31,7 @@ class TestAuthRepository implements AuthRepository {
       refreshToken: 'test-refresh',
       role: 'user',
       username: 'test',
+      roles: ['user'],
       createdAt: DateTime(2026, 1, 1),
     );
   }
@@ -46,6 +48,7 @@ class TestAuthRepository implements AuthRepository {
       refreshToken: 'refreshed-refresh',
       role: 'user',
       username: 'test',
+      roles: ['user'],
       createdAt: DateTime(2026, 1, 1),
     );
   }

@@ -312,11 +312,18 @@ void main() {
 
     testWidgets('debe mostrar diálogo de reset de contraseña', (tester) async {
       // Use larger surface to fit all content
-      tester.view.physicalSize = const Size(800, 4000);
+      tester.view.physicalSize = const Size(800, 6000);
       addTearDown(() => tester.view.resetPhysicalSize());
 
       await tester.pumpWidget(createTestApp(usersProvider, authProvider));
       await pumpUntilSettled(tester);
+
+      // Hacer scroll para que el botón sea visible
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -300),
+      );
+      await tester.pump();
 
       // Tocar botón Resetear Contraseña
       await tester.tap(
@@ -333,11 +340,18 @@ void main() {
     testWidgets('debe validar que la contraseña tenga al menos 6 caracteres', (
       tester,
     ) async {
-      tester.view.physicalSize = const Size(800, 4000);
+      tester.view.physicalSize = const Size(800, 6000);
       addTearDown(() => tester.view.resetPhysicalSize());
 
       await tester.pumpWidget(createTestApp(usersProvider, authProvider));
       await pumpUntilSettled(tester);
+
+      // Hacer scroll para que el botón sea visible
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -300),
+      );
+      await tester.pump();
 
       // Abrir diálogo de reset
       await tester.tap(
@@ -366,11 +380,18 @@ void main() {
     });
 
     testWidgets('debe validar que las contraseñas coincidan', (tester) async {
-      tester.view.physicalSize = const Size(800, 4000);
+      tester.view.physicalSize = const Size(800, 6000);
       addTearDown(() => tester.view.resetPhysicalSize());
 
       await tester.pumpWidget(createTestApp(usersProvider, authProvider));
       await pumpUntilSettled(tester);
+
+      // Hacer scroll para que el botón sea visible
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -300),
+      );
+      await tester.pump();
 
       // Abrir diálogo de reset
       await tester.tap(
@@ -401,11 +422,18 @@ void main() {
     testWidgets('debe confirmar reseteo de contraseña y mostrar éxito', (
       tester,
     ) async {
-      tester.view.physicalSize = const Size(800, 4000);
+      tester.view.physicalSize = const Size(800, 6000);
       addTearDown(() => tester.view.resetPhysicalSize());
 
       await tester.pumpWidget(createTestApp(usersProvider, authProvider));
       await pumpUntilSettled(tester);
+
+      // Hacer scroll para que el botón sea visible
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -300),
+      );
+      await tester.pump();
 
       // Abrir diálogo de reset
       await tester.tap(
@@ -444,7 +472,7 @@ void main() {
     testWidgets('debe mostrar snackbar de error si falla resetPassword', (
       tester,
     ) async {
-      tester.view.physicalSize = const Size(800, 4000);
+      tester.view.physicalSize = const Size(800, 6000);
       addTearDown(() => tester.view.resetPhysicalSize());
 
       when(

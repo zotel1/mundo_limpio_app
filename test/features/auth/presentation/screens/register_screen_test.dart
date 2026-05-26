@@ -16,10 +16,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
+import 'package:mundo_limpio_app/core/storage/token_storage.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/auth/data/models/auth_response.dart';
 import 'package:mundo_limpio_app/features/auth/domain/repository/auth_repository.dart';
@@ -29,24 +31,37 @@ import 'package:mundo_limpio_app/features/auth/presentation/screens/register_scr
 
 class MockAuthRepository extends Mock implements AuthRepository {}
 
-/// Crea la app de test con AuthProvider real y mock repository.
+class MockTokenStorage extends Mock implements TokenStorage {}
+
+/// Crea la app de test con AuthProvider real, mock repository
+/// y GoRouter para soportar context.go().
 Widget createTestApp(AuthProvider authProvider) {
+  final router = GoRouter(
+    initialLocation: '/register',
+    routes: [
+      GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
+      GoRoute(path: '/register', builder: (_, _) => const RegisterScreen()),
+    ],
+  );
+
   return ChangeNotifierProvider<AuthProvider>.value(
     value: authProvider,
-    child: MaterialApp(
+    child: MaterialApp.router(
       theme: ThemeData(splashFactory: NoSplash.splashFactory),
-      home: RegisterScreen(),
+      routerConfig: router,
     ),
   );
 }
 
 void main() {
   late MockAuthRepository mockRepo;
+  late MockTokenStorage mockTokenStorage;
   late AuthProvider authProvider;
 
   setUp(() async {
     mockRepo = MockAuthRepository();
-    authProvider = AuthProvider(mockRepo);
+    mockTokenStorage = MockTokenStorage();
+    authProvider = AuthProvider(mockRepo, mockTokenStorage);
 
     // Stubs por defecto
     when(() => mockRepo.isLoggedIn()).thenAnswer((_) async => false);
@@ -56,10 +71,18 @@ void main() {
         refreshToken: 'test-refresh',
         role: 'user',
         username: 'newuser',
+        roles: ['user'],
         createdAt: DateTime(2026, 5, 9),
       ),
     );
     when(() => mockRepo.logout()).thenAnswer((_) async {});
+    when(() => mockTokenStorage.readRoles()).thenAnswer((_) async => null);
+    when(() => mockTokenStorage.readUsername()).thenAnswer((_) async => null);
+    when(() => mockTokenStorage.readEmail()).thenAnswer((_) async => null);
+    when(() => mockTokenStorage.saveRoles(any())).thenAnswer((_) async {});
+    when(() => mockTokenStorage.saveUsername(any())).thenAnswer((_) async {});
+    when(() => mockTokenStorage.saveEmail(any())).thenAnswer((_) async {});
+    when(() => mockTokenStorage.clearAll()).thenAnswer((_) async {});
 
     // Resolver el estado inicial: loading → unauthenticated
     await authProvider.checkAuth();
@@ -326,6 +349,7 @@ void main() {
           refreshToken: 'r',
           role: 'user',
           username: 'u',
+          roles: ['user'],
           createdAt: DateTime(2026, 1, 1),
         ),
       );

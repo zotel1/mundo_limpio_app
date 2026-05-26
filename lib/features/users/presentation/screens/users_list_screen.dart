@@ -130,6 +130,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
       UserRole.salesClerk => 'Sales Clerk',
       UserRole.productionOp => 'Producción',
       UserRole.accountant => 'Contador',
+      UserRole.customer => 'Cliente',
     };
   }
 }
