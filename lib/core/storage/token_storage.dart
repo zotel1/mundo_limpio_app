@@ -26,6 +26,15 @@ class TokenStorage {
   /// Clave para el refresh token en el storage.
   static const _refreshTokenKey = 'refresh_token';
 
+  /// Clave para la lista de roles en el storage.
+  static const _rolesListKey = 'roles_list';
+
+  /// Clave para el nombre de usuario en el storage.
+  static const _usernameKey = 'username';
+
+  /// Clave para el email en el storage.
+  static const _emailKey = 'email';
+
   /// Instancia de FlutterSecureStorage (real o mockeada en tests).
   final FlutterSecureStorage _storage;
 
@@ -63,12 +72,61 @@ class TokenStorage {
     return (access: access, refresh: refresh);
   }
 
+  /// Guarda la lista de roles del usuario en el storage seguro.
+  Future<void> saveRoles(List<String> roles) async {
+    await _storage.write(key: _rolesListKey, value: roles.join(','));
+  }
+
+  /// Lee la lista de roles del storage.
+  ///
+  /// Retorna `null` si no hay roles guardados.
+  Future<List<String>?> readRoles() async {
+    final value = await _storage.read(key: _rolesListKey);
+    if (value == null || value.isEmpty) return null;
+    return value.split(',');
+  }
+
+  /// Guarda el nombre de usuario en el storage seguro.
+  Future<void> saveUsername(String username) async {
+    await _storage.write(key: _usernameKey, value: username);
+  }
+
+  /// Lee el nombre de usuario del storage.
+  ///
+  /// Retorna `null` si no hay username guardado.
+  Future<String?> readUsername() async {
+    return _storage.read(key: _usernameKey);
+  }
+
+  /// Guarda el email del usuario en el storage seguro.
+  Future<void> saveEmail(String email) async {
+    await _storage.write(key: _emailKey, value: email);
+  }
+
+  /// Lee el email del storage.
+  ///
+  /// Retorna `null` si no hay email guardado.
+  Future<String?> readEmail() async {
+    return _storage.read(key: _emailKey);
+  }
+
   /// Elimina TODOS los tokens del storage seguro.
   ///
   /// Se usa en logout (R5.1) y cuando el refresh falla (R4.2).
   Future<void> clear() async {
     await _storage.delete(key: _accessTokenKey);
     await _storage.delete(key: _refreshTokenKey);
+  }
+
+  /// Elimina TODOS los datos del storage seguro (tokens + metadata).
+  ///
+  /// Se usa en logout completo del AuthProvider.
+  Future<void> clearAll() async {
+    await _storage.delete(key: _accessTokenKey);
+    await _storage.delete(key: _refreshTokenKey);
+    await _storage.delete(key: _rolesListKey);
+    await _storage.delete(key: _usernameKey);
+    await _storage.delete(key: _emailKey);
   }
 
   /// Verifica si existen AMBOS tokens en el storage.

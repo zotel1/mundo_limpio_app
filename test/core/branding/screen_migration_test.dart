@@ -17,6 +17,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mundo_limpio_app/core/storage/token_storage.dart';
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/core/widgets/logo_widget.dart';
 import 'package:mundo_limpio_app/features/auth/domain/repository/auth_repository.dart';
@@ -50,6 +51,7 @@ import 'package:mundo_limpio_app/features/sales/presentation/screens/sale_result
 // ───────────────────────── Mocks ─────────────────────────
 
 class MockAuthRepository extends Mock implements AuthRepository {}
+class MockTokenStorage extends Mock implements TokenStorage {}
 
 class MockInventoryRepository extends Mock implements InventoryRepository {}
 
@@ -119,11 +121,13 @@ void main() {
 
   group('Auth screens branding', () {
     late MockAuthRepository mockAuthRepo;
+    late MockTokenStorage mockTokenStorage;
     late AuthProvider authProvider;
 
     setUp(() {
       mockAuthRepo = MockAuthRepository();
-      authProvider = AuthProvider(mockAuthRepo);
+      mockTokenStorage = MockTokenStorage();
+      authProvider = AuthProvider(mockAuthRepo, mockTokenStorage);
 
       when(() => mockAuthRepo.isLoggedIn()).thenAnswer((_) async => false);
     });

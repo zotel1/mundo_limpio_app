@@ -31,6 +31,7 @@ void main() {
     refreshToken: 'refresh-456',
     role: 'user',
     username: 'testuser',
+    roles: ['user'],
     createdAt: DateTime(2026, 5, 9),
   );
 
@@ -142,6 +143,7 @@ void main() {
         refreshToken: 'new-refresh-012',
         role: 'user',
         username: 'testuser',
+        roles: ['user'],
         createdAt: DateTime(2026, 5, 9),
       );
       when(

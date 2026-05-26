@@ -9,10 +9,10 @@ part of 'auth_response.dart';
 AuthResponse _$AuthResponseFromJson(Map<String, dynamic> json) => AuthResponse(
   accessToken: json['accessToken'] as String,
   refreshToken: json['refreshToken'] as String,
-  role: json['role'] as String,
+  role: json['role'] as String?,
   username: json['username'] as String,
   email: json['email'] as String?,
-  roles: (json['roles'] as List<dynamic>?)?.map((e) => e as String).toList(),
+  roles: (json['roles'] as List<dynamic>).map((e) => e as String).toList(),
   createdAt: DateTime.parse(json['createdAt'] as String),
 );
 

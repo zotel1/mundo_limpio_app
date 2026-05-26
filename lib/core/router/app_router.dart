@@ -13,9 +13,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
+import 'package:mundo_limpio_app/features/auth/presentation/screens/home_screen.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/screens/register_screen.dart';
-import 'package:mundo_limpio_app/features/auth/presentation/screens/home_screen.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/screens/inventory_detail_screen.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/screens/inventory_list_screen.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
@@ -74,25 +74,29 @@ GoRouter createRouter(
 
       final status = authProvider.status;
 
+      // Roles de stock que pueden acceder a producción y recibos
+      const stockRoles = ['ADMIN', 'STOCK_MANAGER'];
+
       // Proteger rutas de administración: ADMIN y STOCK_MANAGER pueden acceder
       if (status == AuthStatus.authenticated &&
           (location.startsWith('/production/') ||
               location.startsWith('/receipts/') ||
               location == '/products' ||
               location.startsWith('/products/'))) {
-        if (authProvider.role == 'ADMIN' ||
-            authProvider.role == 'STOCK_MANAGER') {
-          // allow
-        } else {
+        final roles = authProvider.roles;
+        if (roles == null ||
+            !roles.any((r) => stockRoles.contains(r))) {
           return '/';
         }
       }
 
       // /users es solo ADMIN
       if (status == AuthStatus.authenticated &&
-          location.startsWith('/users') &&
-          authProvider.role != 'ADMIN') {
-        return '/';
+          location.startsWith('/users')) {
+        final roles = authProvider.roles;
+        if (roles == null || !roles.contains('ADMIN')) {
+          return '/';
+        }
       }
 
       switch (status) {

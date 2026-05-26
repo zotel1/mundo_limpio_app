@@ -36,6 +36,7 @@ class MockSplashRepository extends Mock implements SplashRepository {}
 class AuthProviderMock extends ChangeNotifier implements AuthProvider {
   AuthStatus _status = AuthStatus.loading;
   String? _role;
+  List<String>? _roles;
 
   @override
   AuthStatus get status => _status;
@@ -53,7 +54,7 @@ class AuthProviderMock extends ChangeNotifier implements AuthProvider {
   String? get email => null;
 
   @override
-  List<String>? get roles => null;
+  List<String>? get roles => _roles;
 
   @override
   bool get isLoading => _status == AuthStatus.loading;
@@ -70,6 +71,7 @@ class AuthProviderMock extends ChangeNotifier implements AuthProvider {
   /// Cambia el rol y notifica a los listeners.
   void setRole(String? role) {
     _role = role;
+    _roles = role != null ? [role] : null;
     notifyListeners();
   }
 

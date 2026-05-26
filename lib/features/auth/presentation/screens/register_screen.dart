@@ -15,6 +15,7 @@
 // TDD: GREEN — creado después de que AuthProvider pasa los tests
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
@@ -24,7 +25,6 @@ import 'package:mundo_limpio_app/core/widgets/logo_widget.dart';
 
 import '../helpers/validators.dart';
 import '../provider/auth_provider.dart';
-import 'login_screen.dart';
 
 /// Pantalla de registro con formulario email+contraseña+confirmación.
 class RegisterScreen extends StatefulWidget {
@@ -70,10 +70,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           backgroundColor: Colors.green,
         ),
       );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
+      context.go('/login');
     }
   }
 
@@ -177,14 +174,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 TextButton(
                   onPressed: auth.isLoading
                       ? null
-                      : () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const LoginScreen(),
-                            ),
-                          );
-                        },
+                      : () => context.go('/login'),
                   child: const Text('¿Ya tenés cuenta? Iniciá Sesión'),
                 ),
               ],

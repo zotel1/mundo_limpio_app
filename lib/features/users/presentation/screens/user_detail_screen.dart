@@ -466,6 +466,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
       UserRole.salesClerk => 'Sales Clerk',
       UserRole.productionOp => 'Producción',
       UserRole.accountant => 'Contador',
+      UserRole.customer => 'Cliente',
     };
   }
 
