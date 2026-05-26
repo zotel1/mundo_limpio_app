@@ -84,15 +84,13 @@ GoRouter createRouter(
               location == '/products' ||
               location.startsWith('/products/'))) {
         final roles = authProvider.roles;
-        if (roles == null ||
-            !roles.any((r) => stockRoles.contains(r))) {
+        if (roles == null || !roles.any((r) => stockRoles.contains(r))) {
           return '/';
         }
       }
 
       // /users es solo ADMIN
-      if (status == AuthStatus.authenticated &&
-          location.startsWith('/users')) {
+      if (status == AuthStatus.authenticated && location.startsWith('/users')) {
         final roles = authProvider.roles;
         if (roles == null || !roles.contains('ADMIN')) {
           return '/';

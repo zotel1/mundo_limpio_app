@@ -319,7 +319,10 @@ void main() {
       await pumpUntilSettled(tester);
 
       // Hacer scroll para que el botón sea visible
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -300));
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -300),
+      );
       await tester.pump();
 
       // Tocar botón Resetear Contraseña
@@ -344,7 +347,10 @@ void main() {
       await pumpUntilSettled(tester);
 
       // Hacer scroll para que el botón sea visible
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -300));
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -300),
+      );
       await tester.pump();
 
       // Abrir diálogo de reset
@@ -381,7 +387,10 @@ void main() {
       await pumpUntilSettled(tester);
 
       // Hacer scroll para que el botón sea visible
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -300));
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -300),
+      );
       await tester.pump();
 
       // Abrir diálogo de reset
@@ -420,7 +429,10 @@ void main() {
       await pumpUntilSettled(tester);
 
       // Hacer scroll para que el botón sea visible
-      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -300));
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -300),
+      );
       await tester.pump();
 
       // Abrir diálogo de reset

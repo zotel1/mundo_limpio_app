@@ -95,12 +95,15 @@ void main() {
     test('debe setear authenticated cuando hay tokens locales', () async {
       // Arrange: hay tokens guardados
       when(() => mockAuthRepository.isLoggedIn()).thenAnswer((_) async => true);
-      when(() => mockTokenStorage.readRoles())
-          .thenAnswer((_) async => ['user']);
-      when(() => mockTokenStorage.readUsername())
-          .thenAnswer((_) async => 'testuser');
-      when(() => mockTokenStorage.readEmail())
-          .thenAnswer((_) async => 'test@example.com');
+      when(
+        () => mockTokenStorage.readRoles(),
+      ).thenAnswer((_) async => ['user']);
+      when(
+        () => mockTokenStorage.readUsername(),
+      ).thenAnswer((_) async => 'testuser');
+      when(
+        () => mockTokenStorage.readEmail(),
+      ).thenAnswer((_) async => 'test@example.com');
 
       // Act
       await provider.checkAuth();
@@ -114,12 +117,15 @@ void main() {
     test('debe restaurar roles, username y email desde TokenStorage', () async {
       // Arrange
       when(() => mockAuthRepository.isLoggedIn()).thenAnswer((_) async => true);
-      when(() => mockTokenStorage.readRoles())
-          .thenAnswer((_) async => ['ADMIN', 'STOCK_MANAGER']);
-      when(() => mockTokenStorage.readUsername())
-          .thenAnswer((_) async => 'adminuser');
-      when(() => mockTokenStorage.readEmail())
-          .thenAnswer((_) async => 'admin@test.com');
+      when(
+        () => mockTokenStorage.readRoles(),
+      ).thenAnswer((_) async => ['ADMIN', 'STOCK_MANAGER']);
+      when(
+        () => mockTokenStorage.readUsername(),
+      ).thenAnswer((_) async => 'adminuser');
+      when(
+        () => mockTokenStorage.readEmail(),
+      ).thenAnswer((_) async => 'admin@test.com');
 
       // Act
       await provider.checkAuth();
@@ -273,8 +279,9 @@ void main() {
       // Assert
       verify(() => mockTokenStorage.saveRoles(['user'])).called(1);
       verify(() => mockTokenStorage.saveUsername('testuser')).called(1);
-      verify(() => mockTokenStorage.saveEmail('testuser@example.com'))
-          .called(1);
+      verify(
+        () => mockTokenStorage.saveEmail('testuser@example.com'),
+      ).called(1);
     });
 
     // Edge case: email null en response no debe llamar saveEmail
@@ -346,8 +353,9 @@ void main() {
       expect(provider.email, 'testuser@example.com');
       verify(() => mockTokenStorage.saveRoles(['user'])).called(1);
       verify(() => mockTokenStorage.saveUsername('testuser')).called(1);
-      verify(() => mockTokenStorage.saveEmail('testuser@example.com'))
-          .called(1);
+      verify(
+        () => mockTokenStorage.saveEmail('testuser@example.com'),
+      ).called(1);
     });
 
     test(
@@ -403,12 +411,15 @@ void main() {
     test('debe limpiar roles, email y username después de logout', () async {
       // Arrange: simular estado autenticado con datos
       when(() => mockAuthRepository.isLoggedIn()).thenAnswer((_) async => true);
-      when(() => mockTokenStorage.readRoles())
-          .thenAnswer((_) async => ['ADMIN']);
-      when(() => mockTokenStorage.readUsername())
-          .thenAnswer((_) async => 'admin');
-      when(() => mockTokenStorage.readEmail())
-          .thenAnswer((_) async => 'admin@test.com');
+      when(
+        () => mockTokenStorage.readRoles(),
+      ).thenAnswer((_) async => ['ADMIN']);
+      when(
+        () => mockTokenStorage.readUsername(),
+      ).thenAnswer((_) async => 'admin');
+      when(
+        () => mockTokenStorage.readEmail(),
+      ).thenAnswer((_) async => 'admin@test.com');
       await provider.checkAuth();
 
       // Act

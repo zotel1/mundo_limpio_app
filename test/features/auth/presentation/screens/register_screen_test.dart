@@ -30,6 +30,7 @@ import 'package:mundo_limpio_app/features/auth/presentation/screens/login_screen
 import 'package:mundo_limpio_app/features/auth/presentation/screens/register_screen.dart';
 
 class MockAuthRepository extends Mock implements AuthRepository {}
+
 class MockTokenStorage extends Mock implements TokenStorage {}
 
 /// Crea la app de test con AuthProvider real, mock repository

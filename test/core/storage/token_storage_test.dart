@@ -168,8 +168,7 @@ void main() {
             invocation.namedArguments[#value] as String;
       });
       when(() => mockStorage.read(key: any(named: 'key'))).thenAnswer(
-        (invocation) async =>
-            store[invocation.namedArguments[#key] as String],
+        (invocation) async => store[invocation.namedArguments[#key] as String],
       );
 
       await tokenStorage.saveRoles(['ADMIN', 'STOCK_MANAGER']);
@@ -200,8 +199,9 @@ void main() {
           value: any(named: 'value'),
         ),
       ).thenAnswer((_) async {});
-      when(() => mockStorage.read(key: any(named: 'key')))
-          .thenAnswer((_) async => null);
+      when(
+        () => mockStorage.read(key: any(named: 'key')),
+      ).thenAnswer((_) async => null);
 
       await tokenStorage.saveUsername('testuser');
 
@@ -209,8 +209,9 @@ void main() {
         () => mockStorage.write(key: 'username', value: 'testuser'),
       ).called(1);
       // readUsername retorna lo que mockStorage.read devuelva
-      when(() => mockStorage.read(key: 'username'))
-          .thenAnswer((_) async => 'testuser');
+      when(
+        () => mockStorage.read(key: 'username'),
+      ).thenAnswer((_) async => 'testuser');
       final readResult = await tokenStorage.readUsername();
       expect(readResult, 'testuser');
     });
@@ -218,8 +219,9 @@ void main() {
 
   group('saveEmail / readEmail', () {
     test('should persist and read back email', () async {
-      when(() => mockStorage.read(key: 'email'))
-          .thenAnswer((_) async => 'user@test.com');
+      when(
+        () => mockStorage.read(key: 'email'),
+      ).thenAnswer((_) async => 'user@test.com');
 
       await tokenStorage.saveEmail('user@test.com');
       final result = await tokenStorage.readEmail();

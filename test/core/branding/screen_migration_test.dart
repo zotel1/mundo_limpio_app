@@ -51,6 +51,7 @@ import 'package:mundo_limpio_app/features/sales/presentation/screens/sale_result
 // ───────────────────────── Mocks ─────────────────────────
 
 class MockAuthRepository extends Mock implements AuthRepository {}
+
 class MockTokenStorage extends Mock implements TokenStorage {}
 
 class MockInventoryRepository extends Mock implements InventoryRepository {}

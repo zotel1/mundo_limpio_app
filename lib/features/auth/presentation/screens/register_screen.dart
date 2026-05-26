@@ -172,9 +172,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 // Link a login
                 TextButton(
-                  onPressed: auth.isLoading
-                      ? null
-                      : () => context.go('/login'),
+                  onPressed: auth.isLoading ? null : () => context.go('/login'),
                   child: const Text('¿Ya tenés cuenta? Iniciá Sesión'),
                 ),
               ],
