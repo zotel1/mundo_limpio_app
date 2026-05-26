@@ -53,28 +53,28 @@ class ApiException implements Exception {
   }
 }
 
-  /// Error de autenticación (HTTP 401 Unauthorized o 403 Forbidden).
-  ///
-  /// Indica que el token falta, expiró o es inválido.
-  /// El AuthInterceptor captura esta excepción para gatillar el refresh.
-  class AuthException extends ApiException {
-    /// El código SIEMPRE es 401 (no autorizado).
-    const AuthException(String message) : super(message, 401);
-  }
+/// Error de autenticación (HTTP 401 Unauthorized o 403 Forbidden).
+///
+/// Indica que el token falta, expiró o es inválido.
+/// El AuthInterceptor captura esta excepción para gatillar el refresh.
+class AuthException extends ApiException {
+  /// El código SIEMPRE es 401 (no autorizado).
+  const AuthException(String message) : super(message, 401);
+}
 
-  /// Error de conectividad de red (sin internet, timeout, DNS).
-  ///
-  /// Código 0 porque no hay un código HTTP asociado.
-  class NetworkException extends ApiException {
-    /// El código SIEMPRE es 0 (sin clasificación HTTP).
-    const NetworkException(String message) : super(message, 0);
-  }
+/// Error de conectividad de red (sin internet, timeout, DNS).
+///
+/// Código 0 porque no hay un código HTTP asociado.
+class NetworkException extends ApiException {
+  /// El código SIEMPRE es 0 (sin clasificación HTTP).
+  const NetworkException(String message) : super(message, 0);
+}
 
-  /// Error interno del servidor (HTTP 5xx).
-  ///
-  /// Indica que el backend falló. La UI debe mostrar un mensaje
-  /// genérico sin exponer detalles internos.
-  class ServerException extends ApiException {
-    /// El código SIEMPRE es 500 (error interno del servidor).
-    const ServerException(String message) : super(message, 500);
-  }
+/// Error interno del servidor (HTTP 5xx).
+///
+/// Indica que el backend falló. La UI debe mostrar un mensaje
+/// genérico sin exponer detalles internos.
+class ServerException extends ApiException {
+  /// El código SIEMPRE es 500 (error interno del servidor).
+  const ServerException(String message) : super(message, 500);
+}

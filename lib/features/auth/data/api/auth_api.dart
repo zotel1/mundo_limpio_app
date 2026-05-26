@@ -42,9 +42,7 @@ class AuthApi {
         '/api/v1/auth/login',
         data: {'email': email, 'password': password},
       );
-      return AuthResponse.fromJson(
-        response.data as Map<String, dynamic>,
-      );
+      return AuthResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
     }
@@ -60,9 +58,7 @@ class AuthApi {
         '/api/v1/auth/register',
         data: {'email': email, 'password': password},
       );
-      return AuthResponse.fromJson(
-        response.data as Map<String, dynamic>,
-      );
+      return AuthResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
     }
@@ -78,9 +74,7 @@ class AuthApi {
         '/api/v1/auth/refresh',
         data: {'refreshToken': refreshToken},
       );
-      return AuthResponse.fromJson(
-        response.data as Map<String, dynamic>,
-      );
+      return AuthResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
     }

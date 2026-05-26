@@ -26,18 +26,15 @@ class AuthRepositoryImpl implements AuthRepository {
   const AuthRepositoryImpl({
     required AuthApi authApi,
     required TokenStorage tokenStorage,
-  })  : _authApi = authApi,
-        _tokenStorage = tokenStorage;
+  }) : _authApi = authApi,
+       _tokenStorage = tokenStorage;
 
   @override
   Future<AuthResponse> login(String email, String password) async {
     final response = await _authApi.login(email, password);
 
     // Persistir tokens localmente para requests futuros (R3.1)
-    await _tokenStorage.saveTokens(
-      response.accessToken,
-      response.refreshToken,
-    );
+    await _tokenStorage.saveTokens(response.accessToken, response.refreshToken);
 
     return response;
   }
@@ -62,10 +59,7 @@ class AuthRepositoryImpl implements AuthRepository {
     final response = await _authApi.refresh(refreshToken);
 
     // Guardar los nuevos tokens (R4.1)
-    await _tokenStorage.saveTokens(
-      response.accessToken,
-      response.refreshToken,
-    );
+    await _tokenStorage.saveTokens(response.accessToken, response.refreshToken);
 
     return response;
   }

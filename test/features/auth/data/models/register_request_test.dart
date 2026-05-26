@@ -24,10 +24,7 @@ void main() {
 
     // Verifica que fromJson construye el objeto desde un mapa JSON.
     test('fromJson debe crear RegisterRequest con todos los campos', () {
-      final json = {
-        'email': 'register@domain.com',
-        'password': 'RegP@ss789',
-      };
+      final json = {'email': 'register@domain.com', 'password': 'RegP@ss789'};
 
       final result = RegisterRequest.fromJson(json);
 
@@ -64,10 +61,7 @@ void main() {
     // Triangulación: contraseña corta (la validación se hace en UI,
     // el modelo solo transporta datos)
     test('debe aceptar contraseña corta (sin validación en modelo)', () {
-      final request = RegisterRequest(
-        email: 'test@test.com',
-        password: 'ab',
-      );
+      final request = RegisterRequest(email: 'test@test.com', password: 'ab');
 
       final json = request.toJson();
 

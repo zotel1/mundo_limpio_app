@@ -17,6 +17,7 @@ import 'package:mundo_limpio_app/features/auth/data/repository/auth_repository_i
 
 // Mocks para las dependencias del repositorio
 class MockAuthApi extends Mock implements AuthApi {}
+
 class MockTokenStorage extends Mock implements TokenStorage {}
 
 void main() {
@@ -45,63 +46,76 @@ void main() {
     );
 
     // Stubs por defecto para evitar UnexpectedNullError en mocktail
-    when(() => mockTokenStorage.saveTokens(any(), any()))
-        .thenAnswer((_) async {});
-    when(() => mockTokenStorage.clear())
-        .thenAnswer((_) async {});
-    when(() => mockTokenStorage.hasTokens())
-        .thenAnswer((_) async => false);
+    when(
+      () => mockTokenStorage.saveTokens(any(), any()),
+    ).thenAnswer((_) async {});
+    when(() => mockTokenStorage.clear()).thenAnswer((_) async {});
+    when(() => mockTokenStorage.hasTokens()).thenAnswer((_) async => false);
   });
 
   group('login', () {
     // Verifica que login llama a AuthApi.login y guarda tokens
-    test('debe llamar AuthApi.login y guardar tokens en login exitoso', () async {
-      // Arrange
-      when(() => mockAuthApi.login(testEmail, testPassword))
-          .thenAnswer((_) async => authResponse);
+    test(
+      'debe llamar AuthApi.login y guardar tokens en login exitoso',
+      () async {
+        // Arrange
+        when(
+          () => mockAuthApi.login(testEmail, testPassword),
+        ).thenAnswer((_) async => authResponse);
 
-      // Act
-      final result = await repository.login(testEmail, testPassword);
+        // Act
+        final result = await repository.login(testEmail, testPassword);
 
-      // Assert: retorna el AuthResponse correcto
-      expect(result.accessToken, 'access-123');
-      expect(result.refreshToken, 'refresh-456');
+        // Assert: retorna el AuthResponse correcto
+        expect(result.accessToken, 'access-123');
+        expect(result.refreshToken, 'refresh-456');
 
-      // Assert: guarda ambos tokens en storage
-      verify(() => mockTokenStorage.saveTokens('access-123', 'refresh-456')).called(1);
-    });
+        // Assert: guarda ambos tokens en storage
+        verify(
+          () => mockTokenStorage.saveTokens('access-123', 'refresh-456'),
+        ).called(1);
+      },
+    );
 
     // Triangulación: login con diferentes credenciales
     test('debe pasar las credenciales correctas a AuthApi.login', () async {
-      when(() => mockAuthApi.login('other@test.com', 'OtherPass456!'))
-          .thenAnswer((_) async => authResponse);
+      when(
+        () => mockAuthApi.login('other@test.com', 'OtherPass456!'),
+      ).thenAnswer((_) async => authResponse);
 
       await repository.login('other@test.com', 'OtherPass456!');
 
-      verify(() => mockAuthApi.login('other@test.com', 'OtherPass456!')).called(1);
+      verify(
+        () => mockAuthApi.login('other@test.com', 'OtherPass456!'),
+      ).called(1);
     });
   });
 
   group('register', () {
     // Verifica que register llama a AuthApi.register y retorna el AuthResponse
-    test('debe llamar AuthApi.register y retornar AuthResponse (R2.1)', () async {
-      // Arrange
-      when(() => mockAuthApi.register(testEmail, testPassword))
-          .thenAnswer((_) async => authResponse);
+    test(
+      'debe llamar AuthApi.register y retornar AuthResponse (R2.1)',
+      () async {
+        // Arrange
+        when(
+          () => mockAuthApi.register(testEmail, testPassword),
+        ).thenAnswer((_) async => authResponse);
 
-      // Act
-      final result = await repository.register(testEmail, testPassword);
+        // Act
+        final result = await repository.register(testEmail, testPassword);
 
-      // Assert
-      expect(result.accessToken, 'access-123');
-      expect(result.username, 'testuser');
-      verify(() => mockAuthApi.register(testEmail, testPassword)).called(1);
-    });
+        // Assert
+        expect(result.accessToken, 'access-123');
+        expect(result.username, 'testuser');
+        verify(() => mockAuthApi.register(testEmail, testPassword)).called(1);
+      },
+    );
 
     // Triangulación: register no debe guardar tokens
     test('NO debe guardar tokens después de register', () async {
-      when(() => mockAuthApi.register(testEmail, testPassword))
-          .thenAnswer((_) async => authResponse);
+      when(
+        () => mockAuthApi.register(testEmail, testPassword),
+      ).thenAnswer((_) async => authResponse);
 
       await repository.register(testEmail, testPassword);
 
@@ -130,23 +144,25 @@ void main() {
         username: 'testuser',
         createdAt: DateTime(2026, 5, 9),
       );
-      when(() => mockAuthApi.refresh(refreshToken))
-          .thenAnswer((_) async => newResponse);
+      when(
+        () => mockAuthApi.refresh(refreshToken),
+      ).thenAnswer((_) async => newResponse);
 
       // Act
       final result = await repository.refreshToken(refreshToken);
 
       // Assert: guarda los NUEVOS tokens
       expect(result.accessToken, 'new-access-789');
-      verify(() => mockTokenStorage.saveTokens('new-access-789', 'new-refresh-012')).called(1);
+      verify(
+        () => mockTokenStorage.saveTokens('new-access-789', 'new-refresh-012'),
+      ).called(1);
     });
   });
 
   group('isLoggedIn', () {
     // Verifica que isLoggedIn delega en TokenStorage.hasTokens
     test('debe retornar true cuando hay tokens (R1.1)', () async {
-      when(() => mockTokenStorage.hasTokens())
-          .thenAnswer((_) async => true);
+      when(() => mockTokenStorage.hasTokens()).thenAnswer((_) async => true);
 
       final result = await repository.isLoggedIn();
 

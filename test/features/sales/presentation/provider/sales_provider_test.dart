@@ -70,44 +70,52 @@ void main() {
   // loadProducts
   // ──────────────────────────────────────────────
   group('loadProducts', () {
-    test('debe transitar idle → loading → productsLoaded y exponer lista (R4-1)', () async {
-      // Arrange
-      when(() => mockRepo.getProducts())
-          .thenAnswer((_) async => [productA, productB]);
+    test(
+      'debe transitar idle → loading → productsLoaded y exponer lista (R4-1)',
+      () async {
+        // Arrange
+        when(
+          () => mockRepo.getProducts(),
+        ).thenAnswer((_) async => [productA, productB]);
 
-      // Act
-      await provider.loadProducts();
+        // Act
+        await provider.loadProducts();
 
-      // Assert
-      expect(provider.status, SalesStatus.productsLoaded);
-      expect(provider.products, hasLength(2));
-      expect(provider.products[0].name, 'Producto A');
-      expect(provider.products[1].id, 2);
-    });
+        // Assert
+        expect(provider.status, SalesStatus.productsLoaded);
+        expect(provider.products, hasLength(2));
+        expect(provider.products[0].name, 'Producto A');
+        expect(provider.products[1].id, 2);
+      },
+    );
 
-    test('debe fallar con error cuando getProducts lanza ApiException (R4-2)', () async {
-      // Arrange
-      when(() => mockRepo.getProducts())
-          .thenThrow(const ApiException('Error al cargar productos', 500));
+    test(
+      'debe fallar con error cuando getProducts lanza ApiException (R4-2)',
+      () async {
+        // Arrange
+        when(
+          () => mockRepo.getProducts(),
+        ).thenThrow(const ApiException('Error al cargar productos', 500));
 
-      // Act
-      await provider.loadProducts();
+        // Act
+        await provider.loadProducts();
 
-      // Assert
-      expect(provider.status, SalesStatus.error);
-      expect(provider.errorMessage, contains('Error al cargar productos'));
-    });
+        // Assert
+        expect(provider.status, SalesStatus.error);
+        expect(provider.errorMessage, contains('Error al cargar productos'));
+      },
+    );
 
     test('debe limpiar errorMessage antes de cargar (triangulación)', () async {
       // Arrange: fallo primero
-      when(() => mockRepo.getProducts())
-          .thenThrow(const ApiException('Error previo', 500));
+      when(
+        () => mockRepo.getProducts(),
+      ).thenThrow(const ApiException('Error previo', 500));
       await provider.loadProducts();
       expect(provider.errorMessage, isNotNull);
 
       // Arrange: éxito después
-      when(() => mockRepo.getProducts())
-          .thenAnswer((_) async => [productA]);
+      when(() => mockRepo.getProducts()).thenAnswer((_) async => [productA]);
 
       // Act
       await provider.loadProducts();
@@ -117,96 +125,119 @@ void main() {
       expect(provider.errorMessage, isNull);
     });
 
-    test('debe retornar lista vacía cuando no hay productos (triangulación)', () async {
-      // Arrange
-      when(() => mockRepo.getProducts())
-          .thenAnswer((_) async => []);
+    test(
+      'debe retornar lista vacía cuando no hay productos (triangulación)',
+      () async {
+        // Arrange
+        when(() => mockRepo.getProducts()).thenAnswer((_) async => []);
 
-      // Act
-      await provider.loadProducts();
+        // Act
+        await provider.loadProducts();
 
-      // Assert
-      expect(provider.status, SalesStatus.productsLoaded);
-      expect(provider.products, isEmpty);
-    });
+        // Assert
+        expect(provider.status, SalesStatus.productsLoaded);
+        expect(provider.products, isEmpty);
+      },
+    );
 
-    test('debe manejar errores genéricos en loadProducts (no ApiException)', () async {
-      // Arrange
-      when(() => mockRepo.getProducts())
-          .thenThrow(Exception('Algo salió mal'));
+    test(
+      'debe manejar errores genéricos en loadProducts (no ApiException)',
+      () async {
+        // Arrange
+        when(
+          () => mockRepo.getProducts(),
+        ).thenThrow(Exception('Algo salió mal'));
 
-      // Act
-      await provider.loadProducts();
+        // Act
+        await provider.loadProducts();
 
-      // Assert
-      expect(provider.status, SalesStatus.error);
-      expect(provider.errorMessage, isNotNull);
-    });
+        // Assert
+        expect(provider.status, SalesStatus.error);
+        expect(provider.errorMessage, isNotNull);
+      },
+    );
   });
 
   // ──────────────────────────────────────────────
   // loadStock
   // ──────────────────────────────────────────────
   group('loadStock', () {
-    test('debe transitar productsLoaded → loading → stockLoaded y exponer batches (R4-3)', () async {
-      // Arrange: productsLoaded primero
-      when(() => mockRepo.getProducts())
-          .thenAnswer((_) async => [productA]);
-      await provider.loadProducts();
+    test(
+      'debe transitar productsLoaded → loading → stockLoaded y exponer batches (R4-3)',
+      () async {
+        // Arrange: productsLoaded primero
+        when(() => mockRepo.getProducts()).thenAnswer((_) async => [productA]);
+        await provider.loadProducts();
 
-      final batches = [
-        const ProductionBatchResponse(id: 1, productId: 1, currentStock: 100.0),
-        const ProductionBatchResponse(id: 2, productId: 1, currentStock: 50.0),
-      ];
-      when(() => mockRepo.getBatchesByProduct(1))
-          .thenAnswer((_) async => batches);
+        final batches = [
+          const ProductionBatchResponse(
+            id: 1,
+            productId: 1,
+            currentStock: 100.0,
+          ),
+          const ProductionBatchResponse(
+            id: 2,
+            productId: 1,
+            currentStock: 50.0,
+          ),
+        ];
+        when(
+          () => mockRepo.getBatchesByProduct(1),
+        ).thenAnswer((_) async => batches);
 
-      // Act
-      await provider.loadStock(1);
+        // Act
+        await provider.loadStock(1);
 
-      // Assert
-      expect(provider.status, SalesStatus.stockLoaded);
-      expect(provider.selectedProductId, 1);
-      expect(provider.batches, hasLength(2));
-      expect(provider.batches[0].currentStock, 100.0);
-      expect(provider.batches[1].currentStock, 50.0);
-    });
+        // Assert
+        expect(provider.status, SalesStatus.stockLoaded);
+        expect(provider.selectedProductId, 1);
+        expect(provider.batches, hasLength(2));
+        expect(provider.batches[0].currentStock, 100.0);
+        expect(provider.batches[1].currentStock, 50.0);
+      },
+    );
 
-    test('debe fallar con error cuando getBatchesByProduct lanza ApiException', () async {
-      // Arrange
-      when(() => mockRepo.getProducts())
-          .thenAnswer((_) async => [productA]);
-      await provider.loadProducts();
+    test(
+      'debe fallar con error cuando getBatchesByProduct lanza ApiException',
+      () async {
+        // Arrange
+        when(() => mockRepo.getProducts()).thenAnswer((_) async => [productA]);
+        await provider.loadProducts();
 
-      when(() => mockRepo.getBatchesByProduct(1))
-          .thenThrow(const ApiException('Producto no encontrado', 404));
+        when(
+          () => mockRepo.getBatchesByProduct(1),
+        ).thenThrow(const ApiException('Producto no encontrado', 404));
 
-      // Act
-      await provider.loadStock(1);
+        // Act
+        await provider.loadStock(1);
 
-      // Assert
-      expect(provider.status, SalesStatus.error);
-      expect(provider.errorMessage, contains('Producto no encontrado'));
-      // selectedProductId se setea ANTES del error
-      expect(provider.selectedProductId, 1);
-    });
+        // Assert
+        expect(provider.status, SalesStatus.error);
+        expect(provider.errorMessage, contains('Producto no encontrado'));
+        // selectedProductId se setea ANTES del error
+        expect(provider.selectedProductId, 1);
+      },
+    );
 
-    test('debe manejar errores genéricos en loadStock (triangulación)', () async {
-      // Arrange
-      when(() => mockRepo.getProducts())
-          .thenAnswer((_) async => [productA]);
-      await provider.loadProducts();
+    test(
+      'debe manejar errores genéricos en loadStock (triangulación)',
+      () async {
+        // Arrange
+        when(() => mockRepo.getProducts()).thenAnswer((_) async => [productA]);
+        await provider.loadProducts();
 
-      when(() => mockRepo.getBatchesByProduct(1))
-          .thenThrow(Exception('Error de red'));
+        when(
+          () => mockRepo.getBatchesByProduct(1),
+        ).thenThrow(Exception('Error de red'));
 
-      // Act
-      await provider.loadStock(1);
+        // Act
+        await provider.loadStock(1);
 
-      // Assert
-      expect(provider.status, SalesStatus.error);
-      expect(provider.errorMessage, isNotNull);
-    });
+        // Assert
+        expect(provider.status, SalesStatus.error);
+        expect(provider.errorMessage, isNotNull);
+      },
+    );
   });
 
   // ──────────────────────────────────────────────
@@ -215,98 +246,116 @@ void main() {
   group('createSale', () {
     // Helper: pone el provider en stockLoaded
     Future<void> setupLoaded() async {
-      when(() => mockRepo.getProducts())
-          .thenAnswer((_) async => [productA]);
+      when(() => mockRepo.getProducts()).thenAnswer((_) async => [productA]);
       await provider.loadProducts();
 
-      when(() => mockRepo.getBatchesByProduct(1))
-          .thenAnswer((_) async => [
-            const ProductionBatchResponse(id: 1, productId: 1, currentStock: 100.0),
-          ]);
-      await provider.loadStock(1);
-    }
-
-    test('debe transitar stockLoaded → loading → success y exponer SaleResponse (R4-4)', () async {
-      // Arrange
-      await setupLoaded();
-
-      final response = SaleResponse(
-        id: 1,
-        totalAmount: 375.00,
-        createdAt: DateTime(2026, 5, 10, 10, 30, 0),
-        items: const [
-          SaleItemResponse(
-            batchId: 42,
-            quantity: 30.0,
-            unitPrice: 150.00,
-            unitCost: 100.00,
+      when(() => mockRepo.getBatchesByProduct(1)).thenAnswer(
+        (_) async => [
+          const ProductionBatchResponse(
+            id: 1,
+            productId: 1,
+            currentStock: 100.0,
           ),
         ],
       );
-      when(() => mockRepo.createSale(any()))
-          .thenAnswer((_) async => response);
+      await provider.loadStock(1);
+    }
 
-      // Act
-      await provider.createSale(30.0);
+    test(
+      'debe transitar stockLoaded → loading → success y exponer SaleResponse (R4-4)',
+      () async {
+        // Arrange
+        await setupLoaded();
 
-      // Assert
-      expect(provider.status, SalesStatus.success);
-      expect(provider.lastSale, isNotNull);
-      expect(provider.lastSale!.id, 1);
-      expect(provider.lastSale!.totalAmount, 375.00);
-      expect(provider.lastSale!.items, hasLength(1));
-    });
+        final response = SaleResponse(
+          id: 1,
+          totalAmount: 375.00,
+          createdAt: DateTime(2026, 5, 10, 10, 30, 0),
+          items: const [
+            SaleItemResponse(
+              batchId: 42,
+              quantity: 30.0,
+              unitPrice: 150.00,
+              unitCost: 100.00,
+            ),
+          ],
+        );
+        when(
+          () => mockRepo.createSale(any()),
+        ).thenAnswer((_) async => response);
 
-    test('debe fallar con error cuando createSale lanza ApiException (R4-5)', () async {
-      // Arrange
-      await setupLoaded();
+        // Act
+        await provider.createSale(30.0);
 
-      when(() => mockRepo.createSale(any()))
-          .thenThrow(const ApiException('Stock insuficiente', 400));
+        // Assert
+        expect(provider.status, SalesStatus.success);
+        expect(provider.lastSale, isNotNull);
+        expect(provider.lastSale!.id, 1);
+        expect(provider.lastSale!.totalAmount, 375.00);
+        expect(provider.lastSale!.items, hasLength(1));
+      },
+    );
 
-      // Act
-      await provider.createSale(100.0);
+    test(
+      'debe fallar con error cuando createSale lanza ApiException (R4-5)',
+      () async {
+        // Arrange
+        await setupLoaded();
 
-      // Assert
-      expect(provider.status, SalesStatus.error);
-      expect(provider.errorMessage, contains('Stock insuficiente'));
-    });
+        when(
+          () => mockRepo.createSale(any()),
+        ).thenThrow(const ApiException('Stock insuficiente', 400));
 
-    test('debe crear SaleRequest con los campos correctos (triangulación)', () async {
-      // Arrange
-      await setupLoaded();
-      when(() => mockRepo.createSale(any()))
-          .thenAnswer((_) async => SaleResponse(
+        // Act
+        await provider.createSale(100.0);
+
+        // Assert
+        expect(provider.status, SalesStatus.error);
+        expect(provider.errorMessage, contains('Stock insuficiente'));
+      },
+    );
+
+    test(
+      'debe crear SaleRequest con los campos correctos (triangulación)',
+      () async {
+        // Arrange
+        await setupLoaded();
+        when(() => mockRepo.createSale(any())).thenAnswer(
+          (_) async => SaleResponse(
             id: 1,
             totalAmount: 100,
             createdAt: DateTime(2026),
             items: [],
-          ));
+          ),
+        );
 
-      // Act
-      await provider.createSale(30.0);
+        // Act
+        await provider.createSale(30.0);
 
-      // Assert: verifica que se llamó con un SaleRequest válido
-      verify(() => mockRepo.createSale(
-        any(that: isA<SaleRequest>()),
-      )).called(1);
-      expect(provider.status, SalesStatus.success);
-    });
+        // Assert: verifica que se llamó con un SaleRequest válido
+        verify(
+          () => mockRepo.createSale(any(that: isA<SaleRequest>())),
+        ).called(1);
+        expect(provider.status, SalesStatus.success);
+      },
+    );
 
-    test('no debe hacer nada si status no es stockLoaded (precondición)', () async {
-      // Arrange: solo productsLoaded, no stock
-      when(() => mockRepo.getProducts())
-          .thenAnswer((_) async => [productA]);
-      await provider.loadProducts();
+    test(
+      'no debe hacer nada si status no es stockLoaded (precondición)',
+      () async {
+        // Arrange: solo productsLoaded, no stock
+        when(() => mockRepo.getProducts()).thenAnswer((_) async => [productA]);
+        await provider.loadProducts();
 
-      // Act
-      await provider.createSale(30.0);
+        // Act
+        await provider.createSale(30.0);
 
-      // Assert: estado no cambia
-      expect(provider.status, SalesStatus.productsLoaded);
-      expect(provider.lastSale, isNull);
-      verifyNever(() => mockRepo.createSale(any()));
-    });
+        // Assert: estado no cambia
+        expect(provider.status, SalesStatus.productsLoaded);
+        expect(provider.lastSale, isNull);
+        verifyNever(() => mockRepo.createSale(any()));
+      },
+    );
   });
 
   // ──────────────────────────────────────────────
@@ -315,23 +364,28 @@ void main() {
   group('reset', () {
     test('debe volver a idle con todos los campos limpios (R4-6)', () async {
       // Arrange: flujo completo exitoso
-      when(() => mockRepo.getProducts())
-          .thenAnswer((_) async => [productA]);
+      when(() => mockRepo.getProducts()).thenAnswer((_) async => [productA]);
       await provider.loadProducts();
 
-      when(() => mockRepo.getBatchesByProduct(1))
-          .thenAnswer((_) async => [
-            const ProductionBatchResponse(id: 1, productId: 1, currentStock: 100.0),
-          ]);
+      when(() => mockRepo.getBatchesByProduct(1)).thenAnswer(
+        (_) async => [
+          const ProductionBatchResponse(
+            id: 1,
+            productId: 1,
+            currentStock: 100.0,
+          ),
+        ],
+      );
       await provider.loadStock(1);
 
-      when(() => mockRepo.createSale(any()))
-          .thenAnswer((_) async => SaleResponse(
-            id: 1,
-            totalAmount: 100,
-            createdAt: DateTime(2026),
-            items: [],
-          ));
+      when(() => mockRepo.createSale(any())).thenAnswer(
+        (_) async => SaleResponse(
+          id: 1,
+          totalAmount: 100,
+          createdAt: DateTime(2026),
+          items: [],
+        ),
+      );
       await provider.createSale(30.0);
       expect(provider.status, SalesStatus.success);
 
@@ -352,15 +406,15 @@ void main() {
   // stockTotal
   // ──────────────────────────────────────────────
   group('stockTotal', () {
-    test('debe sumar currentStock de todos los batches cuando hay lotes',
-        () async {
-      // Arrange
-      when(() => mockRepo.getProducts())
-          .thenAnswer((_) async => [productA]);
-      await provider.loadProducts();
+    test(
+      'debe sumar currentStock de todos los batches cuando hay lotes',
+      () async {
+        // Arrange
+        when(() => mockRepo.getProducts()).thenAnswer((_) async => [productA]);
+        await provider.loadProducts();
 
-      when(() => mockRepo.getBatchesByProduct(1))
-          .thenAnswer((_) async => [
+        when(() => mockRepo.getBatchesByProduct(1)).thenAnswer(
+          (_) async => [
             const ProductionBatchResponse(
               id: 1,
               productId: 1,
@@ -371,12 +425,14 @@ void main() {
               productId: 1,
               currentStock: 50.0,
             ),
-          ]);
-      await provider.loadStock(1);
+          ],
+        );
+        await provider.loadStock(1);
 
-      // Assert
-      expect(provider.stockTotal, 150.0);
-    });
+        // Assert
+        expect(provider.stockTotal, 150.0);
+      },
+    );
 
     test('debe ser 0 cuando no hay batches', () async {
       // Arrange: estado inicial sin lotes cargados
@@ -392,8 +448,9 @@ void main() {
   group('clearError', () {
     test('debe setear status idle y null errorMessage', () async {
       // Arrange: forzar error
-      when(() => mockRepo.getProducts())
-          .thenThrow(const ApiException('Error', 500));
+      when(
+        () => mockRepo.getProducts(),
+      ).thenThrow(const ApiException('Error', 500));
       await provider.loadProducts();
       expect(provider.status, SalesStatus.error);
 
@@ -424,8 +481,7 @@ void main() {
     });
 
     test('debe llamar notifyListeners durante loadProducts', () async {
-      when(() => mockRepo.getProducts())
-          .thenAnswer((_) async => [productA]);
+      when(() => mockRepo.getProducts()).thenAnswer((_) async => [productA]);
 
       var notifyCount = 0;
       provider.addListener(() => notifyCount++);
@@ -436,11 +492,9 @@ void main() {
     });
 
     test('debe llamar notifyListeners durante loadStock', () async {
-      when(() => mockRepo.getProducts())
-          .thenAnswer((_) async => [productA]);
+      when(() => mockRepo.getProducts()).thenAnswer((_) async => [productA]);
       await provider.loadProducts();
-      when(() => mockRepo.getBatchesByProduct(1))
-          .thenAnswer((_) async => []);
+      when(() => mockRepo.getBatchesByProduct(1)).thenAnswer((_) async => []);
 
       var notifyCount = 0;
       provider.addListener(() => notifyCount++);
@@ -451,16 +505,18 @@ void main() {
     });
 
     test('debe llamar notifyListeners durante createSale', () async {
-      when(() => mockRepo.getProducts())
-          .thenAnswer((_) async => [productA]);
+      when(() => mockRepo.getProducts()).thenAnswer((_) async => [productA]);
       await provider.loadProducts();
-      when(() => mockRepo.getBatchesByProduct(1))
-          .thenAnswer((_) async => []);
+      when(() => mockRepo.getBatchesByProduct(1)).thenAnswer((_) async => []);
       await provider.loadStock(1);
-      when(() => mockRepo.createSale(any()))
-          .thenAnswer((_) async => SaleResponse(
-            id: 1, totalAmount: 100, createdAt: DateTime(2026), items: [],
-          ));
+      when(() => mockRepo.createSale(any())).thenAnswer(
+        (_) async => SaleResponse(
+          id: 1,
+          totalAmount: 100,
+          createdAt: DateTime(2026),
+          items: [],
+        ),
+      );
 
       var notifyCount = 0;
       provider.addListener(() => notifyCount++);
@@ -480,8 +536,9 @@ void main() {
     });
 
     test('debe llamar notifyListeners en clearError', () async {
-      when(() => mockRepo.getProducts())
-          .thenThrow(const ApiException('Error', 500));
+      when(
+        () => mockRepo.getProducts(),
+      ).thenThrow(const ApiException('Error', 500));
       await provider.loadProducts();
 
       var notifyCount = 0;

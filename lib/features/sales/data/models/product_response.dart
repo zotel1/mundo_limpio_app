@@ -17,16 +17,10 @@ class ProductResponse {
   final String name;
 
   /// Crea un [ProductResponse] con todos los campos requeridos.
-  const ProductResponse({
-    required this.id,
-    required this.name,
-  });
+  const ProductResponse({required this.id, required this.name});
 
   /// Construye un [ProductResponse] desde un mapa JSON.
   factory ProductResponse.fromJson(Map<String, dynamic> json) {
-    return ProductResponse(
-      id: json['id'] as int,
-      name: json['name'] as String,
-    );
+    return ProductResponse(id: json['id'] as int, name: json['name'] as String);
   }
 }

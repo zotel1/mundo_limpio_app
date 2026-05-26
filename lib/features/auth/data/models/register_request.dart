@@ -25,10 +25,7 @@ class RegisterRequest {
   final String password;
 
   /// Crea un [RegisterRequest] con email y password.
-  const RegisterRequest({
-    required this.email,
-    required this.password,
-  });
+  const RegisterRequest({required this.email, required this.password});
 
   /// Construye desde un mapa JSON.
   factory RegisterRequest.fromJson(Map<String, dynamic> json) =>

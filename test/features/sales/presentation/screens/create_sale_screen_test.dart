@@ -37,15 +37,12 @@ class MockSalesRepository extends Mock implements SalesRepository {}
 Widget createTestApp(SalesProvider provider) {
   return ChangeNotifierProvider<SalesProvider>.value(
     value: provider,
-    child: const MaterialApp(
-      home: CreateSaleScreen(),
-    ),
+    child: const MaterialApp(home: CreateSaleScreen()),
   );
 }
 
 /// Helper para pump repetido hasta que los async tasks resuelven.
-Future<void> pumpUntilSettled(WidgetTester tester,
-    {int maxFrames = 20}) async {
+Future<void> pumpUntilSettled(WidgetTester tester, {int maxFrames = 20}) async {
   for (int i = 0; i < maxFrames; i++) {
     await tester.pump(const Duration(milliseconds: 100));
   }
@@ -79,25 +76,29 @@ void main() {
     provider = SalesProvider(mockRepo);
 
     // Stubs por defecto: carga exitosa de productos y stock
-    when(() => mockRepo.getProducts())
-        .thenAnswer((_) async => [productA, productB]);
-    when(() => mockRepo.getBatchesByProduct(any()))
-        .thenAnswer((_) async => [batch]);
-    when(() => mockRepo.createSale(any()))
-        .thenAnswer((_) async => SaleResponse(
-              id: 1,
-              totalAmount: 375.00,
-              createdAt: testDate,
-              items: const [saleItem],
-            ));
+    when(
+      () => mockRepo.getProducts(),
+    ).thenAnswer((_) async => [productA, productB]);
+    when(
+      () => mockRepo.getBatchesByProduct(any()),
+    ).thenAnswer((_) async => [batch]);
+    when(() => mockRepo.createSale(any())).thenAnswer(
+      (_) async => SaleResponse(
+        id: 1,
+        totalAmount: 375.00,
+        createdAt: testDate,
+        items: const [saleItem],
+      ),
+    );
   });
 
   // ──────────────────────────────────────────────
   // R5.1: Auto-carga de productos al iniciar
   // ──────────────────────────────────────────────
   group('CreateSaleScreen — R5.1: Auto-carga de productos', () {
-    testWidgets('debe cargar productos automáticamente al iniciar (R5.1)',
-        (tester) async {
+    testWidgets('debe cargar productos automáticamente al iniciar (R5.1)', (
+      tester,
+    ) async {
       await tester.pumpWidget(createTestApp(provider));
       await pumpUntilSettled(tester);
 
@@ -110,8 +111,9 @@ void main() {
   // R5.2: Spinner durante carga
   // ──────────────────────────────────────────────
   group('CreateSaleScreen — R5.2: Spinner mientras carga', () {
-    testWidgets('debe mostrar spinner mientras carga productos (R5.2)',
-        (tester) async {
+    testWidgets('debe mostrar spinner mientras carga productos (R5.2)', (
+      tester,
+    ) async {
       final completer = Completer<List<ProductResponse>>();
       when(() => mockRepo.getProducts()).thenAnswer((_) => completer.future);
 
@@ -130,27 +132,31 @@ void main() {
   // ──────────────────────────────────────────────
   group('CreateSaleScreen — R5.3: Dropdown de productos', () {
     testWidgets(
-        'debe mostrar dropdown de productos cuando están cargados (R5.3)',
-        (tester) async {
-      await tester.pumpWidget(createTestApp(provider));
-      await pumpUntilSettled(tester);
+      'debe mostrar dropdown de productos cuando están cargados (R5.3)',
+      (tester) async {
+        await tester.pumpWidget(createTestApp(provider));
+        await pumpUntilSettled(tester);
 
-      // Debe mostrar el hint del dropdown
-      expect(find.text('Seleccioná un producto'), findsOneWidget);
-      // Debe mostrar el DropdownButtonFormField (con tipo int explícito)
-      expect(find.byWidgetPredicate(
-        (w) => w.runtimeType.toString().contains('DropdownButtonFormField'),
-      ), findsOneWidget);
-    });
+        // Debe mostrar el hint del dropdown
+        expect(find.text('Seleccioná un producto'), findsOneWidget);
+        // Debe mostrar el DropdownButtonFormField (con tipo int explícito)
+        expect(
+          find.byWidgetPredicate(
+            (w) => w.runtimeType.toString().contains('DropdownButtonFormField'),
+          ),
+          findsOneWidget,
+        );
+      },
+    );
   });
 
   // ──────────────────────────────────────────────
   // R5.4: Stock + formulario de cantidad
   // ──────────────────────────────────────────────
   group('CreateSaleScreen — R5.4: Stock y formulario', () {
-    testWidgets(
-        'debe mostrar stock y formulario cuando stock cargado (R5.4)',
-        (tester) async {
+    testWidgets('debe mostrar stock y formulario cuando stock cargado (R5.4)', (
+      tester,
+    ) async {
       await tester.pumpWidget(createTestApp(provider));
       await pumpUntilSettled(tester);
 
@@ -174,7 +180,9 @@ void main() {
 
       // Debe mostrar el botón "Crear Venta"
       expect(
-          find.widgetWithText(ElevatedButton, 'Crear Venta'), findsOneWidget);
+        find.widgetWithText(ElevatedButton, 'Crear Venta'),
+        findsOneWidget,
+      );
     });
   });
 
@@ -183,31 +191,33 @@ void main() {
   // ──────────────────────────────────────────────
   group('CreateSaleScreen — R5.5: Creación exitosa', () {
     testWidgets(
-        'debe crear venta y navegar a SaleResultScreen al confirmar (R5.5)',
-        (tester) async {
-      await tester.pumpWidget(createTestApp(provider));
-      await pumpUntilSettled(tester);
+      'debe crear venta y navegar a SaleResultScreen al confirmar (R5.5)',
+      (tester) async {
+        await tester.pumpWidget(createTestApp(provider));
+        await pumpUntilSettled(tester);
 
-      // Seleccionar producto
-      await tester.tap(find.text('Seleccioná un producto'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Producto A').last);
-      await pumpUntilSettled(tester);
+        // Seleccionar producto
+        await tester.tap(find.text('Seleccioná un producto'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Producto A').last);
+        await pumpUntilSettled(tester);
 
-      // Ingresar cantidad
-      await tester.enterText(find.byType(TextFormField), '30');
+        // Ingresar cantidad
+        await tester.enterText(find.byType(TextFormField), '30');
 
-      // Tocar "Crear Venta"
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Crear Venta'));
-      await pumpUntilSettled(tester);
+        // Tocar "Crear Venta"
+        await tester.tap(find.widgetWithText(ElevatedButton, 'Crear Venta'));
+        await pumpUntilSettled(tester);
 
-      // Debe navegar a SaleResultScreen
-      expect(find.byType(SaleResultScreen), findsOneWidget);
-      expect(find.byType(CreateSaleScreen), findsNothing);
-    });
+        // Debe navegar a SaleResultScreen
+        expect(find.byType(SaleResultScreen), findsOneWidget);
+        expect(find.byType(CreateSaleScreen), findsNothing);
+      },
+    );
 
-    testWidgets('debe crear SaleRequest con la cantidad correcta',
-        (tester) async {
+    testWidgets('debe crear SaleRequest con la cantidad correcta', (
+      tester,
+    ) async {
       await tester.pumpWidget(createTestApp(provider));
       await pumpUntilSettled(tester);
 
@@ -224,9 +234,9 @@ void main() {
       await tester.tap(find.widgetWithText(ElevatedButton, 'Crear Venta'));
       await pumpUntilSettled(tester);
 
-      verify(() => mockRepo.createSale(
-        any(that: isA<SaleRequest>()),
-      )).called(1);
+      verify(
+        () => mockRepo.createSale(any(that: isA<SaleRequest>())),
+      ).called(1);
     });
   });
 
@@ -234,10 +244,12 @@ void main() {
   // R5.6: Error en API
   // ──────────────────────────────────────────────
   group('CreateSaleScreen — R5.6: Error en API', () {
-    testWidgets('debe mostrar mensaje de error cuando la API falla (R5.6)',
-        (tester) async {
-      when(() => mockRepo.getProducts())
-          .thenThrow(const ApiException('Error del servidor', 500));
+    testWidgets('debe mostrar mensaje de error cuando la API falla (R5.6)', (
+      tester,
+    ) async {
+      when(
+        () => mockRepo.getProducts(),
+      ).thenThrow(const ApiException('Error del servidor', 500));
 
       await tester.pumpWidget(createTestApp(provider));
       await pumpUntilSettled(tester);
@@ -246,22 +258,20 @@ void main() {
       expect(find.textContaining('Error del servidor'), findsOneWidget);
 
       // Debe mostrar botón "Reintentar"
-      expect(
-          find.widgetWithText(ElevatedButton, 'Reintentar'), findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton, 'Reintentar'), findsOneWidget);
     });
 
-    testWidgets('Reintentar debe recargar productos (R5.6)',
-        (tester) async {
+    testWidgets('Reintentar debe recargar productos (R5.6)', (tester) async {
       // Arrange: falla primero
-      when(() => mockRepo.getProducts())
-          .thenThrow(const ApiException('Error', 500));
+      when(
+        () => mockRepo.getProducts(),
+      ).thenThrow(const ApiException('Error', 500));
       await tester.pumpWidget(createTestApp(provider));
       await pumpUntilSettled(tester);
       expect(find.textContaining('Error'), findsOneWidget);
 
       // Arrange: éxito después
-      when(() => mockRepo.getProducts())
-          .thenAnswer((_) async => [productA]);
+      when(() => mockRepo.getProducts()).thenAnswer((_) async => [productA]);
 
       // Act: tocar reintentar
       await tester.tap(find.widgetWithText(ElevatedButton, 'Reintentar'));
@@ -276,8 +286,9 @@ void main() {
   // Error en loadStock
   // ──────────────────────────────────────────────
   group('CreateSaleScreen — Error al cargar stock', () {
-    testWidgets('debe mostrar error si loadStock falla y reintentar recarga',
-        (tester) async {
+    testWidgets('debe mostrar error si loadStock falla y reintentar recarga', (
+      tester,
+    ) async {
       await tester.pumpWidget(createTestApp(provider));
       await pumpUntilSettled(tester);
 
@@ -286,8 +297,9 @@ void main() {
       await tester.pumpAndSettle();
 
       // Hacer que loadStock falle
-      when(() => mockRepo.getBatchesByProduct(any()))
-          .thenThrow(const ApiException('Producto sin stock', 400));
+      when(
+        () => mockRepo.getBatchesByProduct(any()),
+      ).thenThrow(const ApiException('Producto sin stock', 400));
 
       await tester.tap(find.text('Producto A').last);
       await pumpUntilSettled(tester);
@@ -296,8 +308,9 @@ void main() {
       expect(find.textContaining('Producto sin stock'), findsOneWidget);
 
       // Reintentar reinicia desde productos
-      when(() => mockRepo.getBatchesByProduct(any()))
-          .thenAnswer((_) async => [batch]);
+      when(
+        () => mockRepo.getBatchesByProduct(any()),
+      ).thenAnswer((_) async => [batch]);
 
       await tester.tap(find.widgetWithText(ElevatedButton, 'Reintentar'));
       await pumpUntilSettled(tester);
