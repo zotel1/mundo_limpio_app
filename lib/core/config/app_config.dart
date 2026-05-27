@@ -13,13 +13,14 @@
 class AppConfig {
   AppConfig._(); // Constructor privado: solo miembros estáticos
 
-  /// URL base de la API REST.
+  /// URL base de la API REST (sin path — las APIs ya lo incluyen).
   ///
-  /// Se overridea con `--dart-define=BASE_URL=https://api.example.com/api/v1`.
-  /// Por defecto apunta a localhost para desarrollo con backend local.
+  /// Se overridea con `--dart-define=BASE_URL=https://api.example.com`.
+  /// Por defecto apunta al backend en Render.
+  /// Las APIs individuales agregan `/api/v1/...` en cada path.
   static const String baseUrl = String.fromEnvironment(
     'BASE_URL',
-    defaultValue: 'https://mundo-limpio-backend.onrender.com/api/v1',
+    defaultValue: 'https://mundo-limpio-backend.onrender.com',
   );
 
   /// URL base para el endpoint de salud del backend.
