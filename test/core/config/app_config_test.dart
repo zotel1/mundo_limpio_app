@@ -14,7 +14,7 @@ void main() {
     test('should provide default baseUrl pointing to Render backend', () {
       expect(
         AppConfig.baseUrl,
-        'https://mundo-limpio-backend.onrender.com/api/v1',
+        'https://mundo-limpio-backend.onrender.com',
       );
     });
 
