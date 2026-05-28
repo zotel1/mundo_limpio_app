@@ -3,6 +3,7 @@
 // Wrapper sobre UsersApi que convierte modelos de datos a entidades
 // del dominio y maneja errores de API.
 
+import 'package:dio/dio.dart';
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/features/users/data/api/users_api.dart';
 import 'package:mundo_limpio_app/features/users/domain/entities/user.dart';
@@ -21,8 +22,8 @@ class UsersRepositoryImpl implements IUsersRepository {
       return models.map((m) => m.toEntity()).toList();
     } on ApiException {
       rethrow;
-    } catch (e) {
-      throw Exception('Failed to fetch users: $e');
+    } on DioException catch (e) {
+      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
     }
   }
 
@@ -33,8 +34,8 @@ class UsersRepositoryImpl implements IUsersRepository {
       return model.toEntity();
     } on ApiException {
       rethrow;
-    } catch (e) {
-      throw Exception('Failed to fetch user $id: $e');
+    } on DioException catch (e) {
+      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
     }
   }
 
@@ -45,8 +46,8 @@ class UsersRepositoryImpl implements IUsersRepository {
       return model.toEntity();
     } on ApiException {
       rethrow;
-    } catch (e) {
-      throw Exception('Failed to update roles for user $userId: $e');
+    } on DioException catch (e) {
+      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
     }
   }
 
@@ -56,8 +57,8 @@ class UsersRepositoryImpl implements IUsersRepository {
       await _api.resetPassword(userId, newPassword);
     } on ApiException {
       rethrow;
-    } catch (e) {
-      throw Exception('Failed to reset password for user $userId: $e');
+    } on DioException catch (e) {
+      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
     }
   }
 }
