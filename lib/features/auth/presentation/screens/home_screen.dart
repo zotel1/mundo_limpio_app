@@ -27,9 +27,21 @@ bool _canAccess(AuthProvider auth) {
       roles.contains(UserRole.stockManager.jsonValue);
 }
 
-/// Pantalla de inicio después de autenticación exitosa.
-class HomeScreen extends StatelessWidget {
+/// Pantalla de inicio después de autenticación exitosa con bottom nav.
+///
+/// Usa [IndexedStack] para mantener el estado de cada tab al alternar.
+/// Tab 0: pantalla de bienvenida + botones de gestión (para roles habilitados).
+/// Tab 1: lista de productos para clientes; mismos botones de gestión para admins.
+/// Tab 2: perfil del usuario con datos y cierre de sesión.
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -38,17 +50,44 @@ class HomeScreen extends StatelessWidget {
     final isAdmin = auth.roles?.contains(UserRole.admin.jsonValue) == true;
 
     return Scaffold(
-      appBar: BrandedAppBar(
-        title: 'MundoLimpio',
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Cerrar sesión',
-            onPressed: () => _showLogoutDialog(context),
-          ),
+      appBar: _buildAppBar(auth),
+      body: IndexedStack(
+        index: _currentIndex,
+        children: [
+          _buildHomeTab(auth, hasAccess, isAdmin),
+          hasAccess
+              ? _buildHomeTab(auth, hasAccess, isAdmin)
+              : _buildProductsTab(),
+          _buildProfileTab(auth),
         ],
       ),
-      body: Center(
+      bottomNavigationBar: _buildBottomNav(hasAccess),
+    );
+  }
+
+  PreferredSizeWidget? _buildAppBar(AuthProvider auth) {
+    switch (_currentIndex) {
+      case 0:
+        return BrandedAppBar(
+          title: 'MundoLimpio',
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.logout),
+              tooltip: 'Cerrar sesión',
+              onPressed: () => _showLogoutDialog(context),
+            ),
+          ],
+        );
+      case 2:
+        return AppBar(title: const Text('Perfil'));
+      default:
+        return null;
+    }
+  }
+
+  Widget _buildHomeTab(AuthProvider auth, bool hasAccess, bool isAdmin) {
+    return SingleChildScrollView(
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -152,6 +191,99 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildProductsTab() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.inventory_outlined,
+              size: 80,
+              color: Colors.blueGrey,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Explorá nuestro catálogo de productos',
+              style: TextStyle(fontSize: 16),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () => context.push('/products'),
+              icon: const Icon(Icons.search),
+              label: const Text('Ver Productos'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileTab(AuthProvider auth) {
+    final email = auth.email;
+    final roles = auth.roles;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.account_circle, size: 80, color: Colors.blueGrey),
+            const SizedBox(height: 16),
+            Text(email ?? 'Sin email', style: const TextStyle(fontSize: 18)),
+            const SizedBox(height: 8),
+            if (roles != null)
+              Text(
+                'Roles: ${roles.join(', ')}',
+                style: const TextStyle(color: Colors.grey),
+              ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              onPressed: () => _showLogoutDialog(context),
+              icon: const Icon(Icons.logout),
+              label: const Text('Cerrar Sesión'),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomNav(bool hasAccess) {
+    return NavigationBar(
+      selectedIndex: _currentIndex,
+      onDestinationSelected: (index) {
+        setState(() => _currentIndex = index);
+      },
+      destinations: [
+        const NavigationDestination(
+          icon: Icon(Icons.home_outlined),
+          selectedIcon: Icon(Icons.home),
+          label: 'Inicio',
+        ),
+        NavigationDestination(
+          icon: Icon(
+            hasAccess
+                ? Icons.admin_panel_settings_outlined
+                : Icons.inventory_outlined,
+          ),
+          selectedIcon: Icon(
+            hasAccess ? Icons.admin_panel_settings : Icons.inventory,
+          ),
+          label: hasAccess ? 'Gestión' : 'Productos',
+        ),
+        const NavigationDestination(
+          icon: Icon(Icons.person_outlined),
+          selectedIcon: Icon(Icons.person),
+          label: 'Perfil',
+        ),
+      ],
     );
   }
 
