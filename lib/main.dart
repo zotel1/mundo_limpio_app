@@ -73,6 +73,12 @@ import 'features/receipts/data/repository/receipts_repository_impl.dart';
 import 'features/receipts/domain/repository/receipts_repository.dart';
 import 'features/receipts/presentation/provider/receipts_provider.dart';
 
+// ── Usuarios (admin) ──────────────────────────────────────
+import 'features/users/data/api/users_api.dart';
+import 'features/users/data/repositories/users_repository_impl.dart';
+import 'features/users/domain/repositories/i_users_repository.dart';
+import 'features/users/presentation/providers/users_provider.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -277,6 +283,17 @@ void main() async {
 
         ChangeNotifierProvider<ReceiptsProvider>(
           create: (ctx) => ReceiptsProvider(ctx.read<ReceiptsRepository>()),
+        ),
+
+        // ── Usuarios: API, repositorio y provider (admin) ────
+        Provider<UsersApi>(create: (ctx) => UsersApi(dio: ctx.read<Dio>())),
+
+        Provider<IUsersRepository>(
+          create: (ctx) => UsersRepositoryImpl(api: ctx.read<UsersApi>()),
+        ),
+
+        ChangeNotifierProvider<UsersProvider>(
+          create: (ctx) => UsersProvider(ctx.read<IUsersRepository>()),
         ),
       ],
       child: const MundoLimpioApp(),

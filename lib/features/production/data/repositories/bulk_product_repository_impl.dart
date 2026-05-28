@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/features/production/domain/entities/bulk_product.dart';
 import 'package:mundo_limpio_app/features/production/domain/repositories/i_bulk_product_repository.dart';
 import 'package:mundo_limpio_app/features/production/data/models/bulk_product_model.dart';
@@ -16,8 +17,8 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
       return data
           .map((json) => BulkProductModel.fromJson(json).toEntity())
           .toList();
-    } catch (e) {
-      throw Exception('Failed to fetch bulk products: $e');
+    } on DioException catch (e) {
+      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
     }
   }
 
@@ -26,8 +27,8 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
     try {
       final response = await _dio.get('/api/v1/bulk-products/$id');
       return BulkProductModel.fromJson(response.data).toEntity();
-    } catch (e) {
-      throw Exception('Failed to fetch bulk product $id: $e');
+    } on DioException catch (e) {
+      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
     }
   }
 
@@ -46,8 +47,8 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
         },
       );
       return BulkProductModel.fromJson(response.data).toEntity();
-    } catch (e) {
-      throw Exception('Failed to create bulk product: $e');
+    } on DioException catch (e) {
+      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
     }
   }
 
@@ -66,8 +67,8 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
         },
       );
       return BulkProductModel.fromJson(response.data).toEntity();
-    } catch (e) {
-      throw Exception('Failed to update bulk product ${product.id}: $e');
+    } on DioException catch (e) {
+      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
     }
   }
 
@@ -75,8 +76,8 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
   Future<void> deleteBulkProduct(int id) async {
     try {
       await _dio.delete('/api/v1/bulk-products/$id');
-    } catch (e) {
-      throw Exception('Failed to delete bulk product $id: $e');
+    } on DioException catch (e) {
+      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
     }
   }
 }
