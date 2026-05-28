@@ -3,6 +3,10 @@
 // Delega directamente a ReceiptsApi sin lógica offline ni borradores.
 // ADMIN-only, always-online por decisión de alcance (ver proposal).
 //
+// Métodos GET de historial:
+// - getReceipts: delega a ReceiptsApi.getPurchases()
+// - getReceiptById: delega a ReceiptsApi.getPurchaseById(id)
+//
 // TDD: GREEN — implementación puramente estructural, sin lógica
 
 import 'package:mundo_limpio_app/features/receipts/data/api/receipts_api.dart';
@@ -28,4 +32,10 @@ class ReceiptsRepositoryImpl implements ReceiptsRepository {
   @override
   Future<PurchaseResponse> confirmReceipt(ReceiptConfirmRequest request) =>
       _api.confirmReceipt(request);
+
+  @override
+  Future<List<PurchaseResponse>> getReceipts() => _api.getPurchases();
+
+  @override
+  Future<PurchaseResponse> getReceiptById(int id) => _api.getPurchaseById(id);
 }

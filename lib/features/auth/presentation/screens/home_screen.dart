@@ -19,12 +19,19 @@ import 'package:mundo_limpio_app/features/users/domain/entities/user_role.dart';
 
 import '../provider/auth_provider.dart';
 
-/// Verifica si el usuario autenticado tiene acceso a rutas de stock.
-bool _canAccess(AuthProvider auth) {
+/// Verifica si el usuario tiene al menos uno de los [allowedRoles].
+bool _hasRole(AuthProvider auth, List<String> allowedRoles) {
   final roles = auth.roles;
   if (roles == null) return false;
-  return roles.contains(UserRole.admin.jsonValue) ||
-      roles.contains(UserRole.stockManager.jsonValue);
+  return roles.any((r) => allowedRoles.contains(r));
+}
+
+/// Verifica si el usuario autenticado tiene acceso a rutas de stock.
+bool _canAccess(AuthProvider auth) {
+  return _hasRole(auth, [
+    UserRole.admin.jsonValue,
+    UserRole.stockManager.jsonValue,
+  ]);
 }
 
 /// Pantalla de inicio después de autenticación exitosa con bottom nav.
@@ -187,6 +194,40 @@ class _HomeScreenState extends State<HomeScreen> {
                   label: const Text('Escanear Recibo'),
                 ),
               ),
+              // Historial de Ventas: ADMIN, SALES_CLERK, ACCOUNTANT
+              if (_hasRole(auth, [
+                UserRole.admin.jsonValue,
+                UserRole.salesClerk.jsonValue,
+                UserRole.accountant.jsonValue,
+              ])) ...[
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: 200,
+                  height: 48,
+                  child: ElevatedButton.icon(
+                    onPressed: () => context.push('/sales/history'),
+                    icon: const Icon(Icons.receipt),
+                    label: const Text('Historial Ventas'),
+                  ),
+                ),
+              ],
+              // Historial de Recibos: ADMIN, STOCK_MANAGER, ACCOUNTANT
+              if (_hasRole(auth, [
+                UserRole.admin.jsonValue,
+                UserRole.stockManager.jsonValue,
+                UserRole.accountant.jsonValue,
+              ])) ...[
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: 200,
+                  height: 48,
+                  child: ElevatedButton.icon(
+                    onPressed: () => context.push('/receipts/history'),
+                    icon: const Icon(Icons.receipt_long),
+                    label: const Text('Historial Recibos'),
+                  ),
+                ),
+              ],
             ],
           ],
         ),
