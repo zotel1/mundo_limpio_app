@@ -9,6 +9,8 @@ part of 'sale_item_response.dart';
 SaleItemResponse _$SaleItemResponseFromJson(Map<String, dynamic> json) =>
     SaleItemResponse(
       batchId: (json['batchId'] as num).toInt(),
+      productId: (json['productId'] as num).toInt(),
+      productName: json['productName'] as String,
       quantity: (json['quantity'] as num).toDouble(),
       unitPrice: (json['unitPrice'] as num).toDouble(),
       unitCost: (json['unitCost'] as num).toDouble(),
@@ -17,6 +19,8 @@ SaleItemResponse _$SaleItemResponseFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$SaleItemResponseToJson(SaleItemResponse instance) =>
     <String, dynamic>{
       'batchId': instance.batchId,
+      'productId': instance.productId,
+      'productName': instance.productName,
       'quantity': instance.quantity,
       'unitPrice': instance.unitPrice,
       'unitCost': instance.unitCost,
