@@ -3,6 +3,8 @@
 // Implementa las llamadas a los endpoints de recibos del backend:
 // - POST /api/v1/receipts/process (multipart FormData)
 // - POST /api/v1/receipts/confirm (JSON)
+// - GET /api/v1/receipts (lista de compras)
+// - GET /api/v1/receipts/{id} (detalle de compra)
 //
 // Recibe una instancia de Dio inyectada (sin crearla internamente)
 // para permitir tests con mocks y compartir la configuración
@@ -26,6 +28,10 @@ import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response
 /// - 401/403 → [AuthException]
 /// - 5xx → [ServerException]
 /// - 0 (red) → [NetworkException]
+///
+/// Métodos GET de historial:
+/// - [getPurchases]: lista de todas las compras
+/// - [getPurchaseById]: detalle de una compra específica
 class ReceiptsApi {
   final Dio _dio;
 
@@ -69,6 +75,35 @@ class ReceiptsApi {
         '/api/v1/receipts/confirm',
         data: request.toJson(),
       );
+      return PurchaseResponse.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+    }
+  }
+
+  /// Obtiene la lista de compras (recibos confirmados).
+  ///
+  /// Endpoint: `GET /api/v1/receipts`
+  Future<List<PurchaseResponse>> getPurchases() async {
+    try {
+      final response = await _dio.get('/api/v1/receipts');
+      final List<dynamic> data = response.data;
+      return data
+          .map(
+            (json) => PurchaseResponse.fromJson(json as Map<String, dynamic>),
+          )
+          .toList();
+    } on DioException catch (e) {
+      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+    }
+  }
+
+  /// Obtiene una compra (recibo confirmado) por su ID.
+  ///
+  /// Endpoint: `GET /api/v1/receipts/{id}`
+  Future<PurchaseResponse> getPurchaseById(int id) async {
+    try {
+      final response = await _dio.get('/api/v1/receipts/$id');
       return PurchaseResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);

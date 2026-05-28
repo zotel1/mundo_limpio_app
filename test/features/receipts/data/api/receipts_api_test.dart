@@ -430,4 +430,300 @@ void main() {
       },
     );
   });
+
+  group('getPurchases', () {
+    // Escenario feliz: GET /api/v1/receipts retorna 200 con lista
+    test(
+      'debe GET /api/v1/receipts y retornar lista de PurchaseResponse',
+      () async {
+        // Arrange
+        final responseData = [
+          {
+            'id': 1,
+            'imageUrl': 'https://storage.example.com/receipts/img1.jpg',
+            'supplierName': 'Proveedor X',
+            'purchaseDate': '2026-05-15',
+            'total': 300.0,
+            'items': [
+              {
+                'id': 1,
+                'description': 'Leche',
+                'quantity': 2,
+                'unitPrice': 150.0,
+                'totalPrice': 300.0,
+                'bulkProductId': 1,
+              },
+            ],
+          },
+          {
+            'id': 2,
+            'imageUrl': 'https://storage.example.com/receipts/img2.jpg',
+            'supplierName': 'Proveedor Y',
+            'purchaseDate': '2026-05-16',
+            'total': 500.0,
+            'items': [
+              {
+                'id': 2,
+                'description': 'Harina',
+                'quantity': 5,
+                'unitPrice': 100.0,
+                'totalPrice': 500.0,
+                'bulkProductId': 2,
+              },
+            ],
+          },
+        ];
+        final response = Response(
+          requestOptions: RequestOptions(path: '/api/v1/receipts'),
+          data: responseData,
+          statusCode: 200,
+        );
+
+        when(
+          () => mockDio.get('/api/v1/receipts'),
+        ).thenAnswer((_) async => response);
+
+        // Act
+        final result = await receiptsApi.getPurchases();
+
+        // Assert
+        expect(result, hasLength(2));
+        expect(result[0].id, 1);
+        expect(result[0].supplierName, 'Proveedor X');
+        expect(result[0].total, 300.0);
+        expect(result[1].id, 2);
+        expect(result[1].supplierName, 'Proveedor Y');
+        expect(result[1].total, 500.0);
+
+        verify(() => mockDio.get('/api/v1/receipts')).called(1);
+      },
+    );
+
+    // Error 400: debe lanzar ApiException
+    test(
+      'debe lanzar ApiException en getPurchases con bad request (400)',
+      () async {
+        when(() => mockDio.get('/api/v1/receipts')).thenThrow(
+          DioException(
+            requestOptions: RequestOptions(path: '/api/v1/receipts'),
+            response: Response(
+              statusCode: 400,
+              requestOptions: RequestOptions(path: '/api/v1/receipts'),
+            ),
+            type: DioExceptionType.badResponse,
+          ),
+        );
+
+        expect(() => receiptsApi.getPurchases(), throwsA(isA<ApiException>()));
+      },
+    );
+
+    // Error 403: debe lanzar AuthException
+    test(
+      'debe lanzar AuthException en getPurchases sin permisos (403)',
+      () async {
+        when(() => mockDio.get('/api/v1/receipts')).thenThrow(
+          DioException(
+            requestOptions: RequestOptions(path: '/api/v1/receipts'),
+            response: Response(
+              statusCode: 403,
+              requestOptions: RequestOptions(path: '/api/v1/receipts'),
+            ),
+            type: DioExceptionType.badResponse,
+          ),
+        );
+
+        expect(() => receiptsApi.getPurchases(), throwsA(isA<AuthException>()));
+      },
+    );
+
+    // Error 500: debe lanzar ServerException
+    test(
+      'debe lanzar ServerException en getPurchases con error interno (500)',
+      () async {
+        when(() => mockDio.get('/api/v1/receipts')).thenThrow(
+          DioException(
+            requestOptions: RequestOptions(path: '/api/v1/receipts'),
+            response: Response(
+              statusCode: 500,
+              requestOptions: RequestOptions(path: '/api/v1/receipts'),
+            ),
+            type: DioExceptionType.badResponse,
+          ),
+        );
+
+        expect(
+          () => receiptsApi.getPurchases(),
+          throwsA(isA<ServerException>()),
+        );
+      },
+    );
+
+    // Error de red: debe lanzar NetworkException
+    test('debe lanzar NetworkException en getPurchases sin conexión', () async {
+      when(() => mockDio.get('/api/v1/receipts')).thenThrow(
+        DioException(
+          requestOptions: RequestOptions(path: '/api/v1/receipts'),
+          type: DioExceptionType.connectionTimeout,
+        ),
+      );
+
+      expect(
+        () => receiptsApi.getPurchases(),
+        throwsA(isA<NetworkException>()),
+      );
+    });
+  });
+
+  group('getPurchaseById', () {
+    // Escenario feliz: GET /api/v1/receipts/{id} retorna 200
+    test(
+      'debe GET /api/v1/receipts/{id} y retornar PurchaseResponse',
+      () async {
+        // Arrange
+        const purchaseId = 1;
+        final responseData = {
+          'id': purchaseId,
+          'imageUrl': 'https://storage.example.com/receipts/img1.jpg',
+          'supplierName': 'Proveedor X',
+          'purchaseDate': '2026-05-15',
+          'total': 300.0,
+          'items': [
+            {
+              'id': 1,
+              'description': 'Leche',
+              'quantity': 2,
+              'unitPrice': 150.0,
+              'totalPrice': 300.0,
+              'bulkProductId': 1,
+            },
+          ],
+        };
+        final response = Response(
+          requestOptions: RequestOptions(path: '/api/v1/receipts/$purchaseId'),
+          data: responseData,
+          statusCode: 200,
+        );
+
+        when(
+          () => mockDio.get('/api/v1/receipts/$purchaseId'),
+        ).thenAnswer((_) async => response);
+
+        // Act
+        final result = await receiptsApi.getPurchaseById(purchaseId);
+
+        // Assert
+        expect(result.id, purchaseId);
+        expect(result.supplierName, 'Proveedor X');
+        expect(result.total, 300.0);
+        expect(result.items, hasLength(1));
+        expect(result.items[0].description, 'Leche');
+        expect(result.items[0].quantity, 2);
+
+        verify(() => mockDio.get('/api/v1/receipts/$purchaseId')).called(1);
+      },
+    );
+
+    // Error 400: debe lanzar ApiException
+    test(
+      'debe lanzar ApiException en getPurchaseById con bad request (400)',
+      () async {
+        const purchaseId = 1;
+        when(() => mockDio.get('/api/v1/receipts/$purchaseId')).thenThrow(
+          DioException(
+            requestOptions: RequestOptions(
+              path: '/api/v1/receipts/$purchaseId',
+            ),
+            response: Response(
+              statusCode: 400,
+              requestOptions: RequestOptions(
+                path: '/api/v1/receipts/$purchaseId',
+              ),
+            ),
+            type: DioExceptionType.badResponse,
+          ),
+        );
+
+        expect(
+          () => receiptsApi.getPurchaseById(purchaseId),
+          throwsA(isA<ApiException>()),
+        );
+      },
+    );
+
+    // Error 403: debe lanzar AuthException
+    test(
+      'debe lanzar AuthException en getPurchaseById sin permisos (403)',
+      () async {
+        const purchaseId = 1;
+        when(() => mockDio.get('/api/v1/receipts/$purchaseId')).thenThrow(
+          DioException(
+            requestOptions: RequestOptions(
+              path: '/api/v1/receipts/$purchaseId',
+            ),
+            response: Response(
+              statusCode: 403,
+              requestOptions: RequestOptions(
+                path: '/api/v1/receipts/$purchaseId',
+              ),
+            ),
+            type: DioExceptionType.badResponse,
+          ),
+        );
+
+        expect(
+          () => receiptsApi.getPurchaseById(purchaseId),
+          throwsA(isA<AuthException>()),
+        );
+      },
+    );
+
+    // Error 500: debe lanzar ServerException
+    test(
+      'debe lanzar ServerException en getPurchaseById con error interno (500)',
+      () async {
+        const purchaseId = 1;
+        when(() => mockDio.get('/api/v1/receipts/$purchaseId')).thenThrow(
+          DioException(
+            requestOptions: RequestOptions(
+              path: '/api/v1/receipts/$purchaseId',
+            ),
+            response: Response(
+              statusCode: 500,
+              requestOptions: RequestOptions(
+                path: '/api/v1/receipts/$purchaseId',
+              ),
+            ),
+            type: DioExceptionType.badResponse,
+          ),
+        );
+
+        expect(
+          () => receiptsApi.getPurchaseById(purchaseId),
+          throwsA(isA<ServerException>()),
+        );
+      },
+    );
+
+    // Error de red: debe lanzar NetworkException
+    test(
+      'debe lanzar NetworkException en getPurchaseById sin conexión',
+      () async {
+        const purchaseId = 1;
+        when(() => mockDio.get('/api/v1/receipts/$purchaseId')).thenThrow(
+          DioException(
+            requestOptions: RequestOptions(
+              path: '/api/v1/receipts/$purchaseId',
+            ),
+            type: DioExceptionType.connectionTimeout,
+          ),
+        );
+
+        expect(
+          () => receiptsApi.getPurchaseById(purchaseId),
+          throwsA(isA<NetworkException>()),
+        );
+      },
+    );
+  });
 }
