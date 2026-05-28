@@ -40,9 +40,8 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
         data: {
           'name': product.name,
           'currentStockLiters': product.currentStockLiters,
-          'costperLiter': product.costPerLiter,
-          if (product.conversionRatio != null)
-            'conversionRatio': product.conversionRatio,
+          'costPerLiter': product.costPerLiter,
+          'conversionRatio': product.conversionRatio,
           'active': product.active,
         },
       );
@@ -60,9 +59,8 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
         data: {
           'name': product.name,
           'currentStockLiters': product.currentStockLiters,
-          'costperLiter': product.costPerLiter,
-          if (product.conversionRatio != null)
-            'conversionRatio': product.conversionRatio,
+          'costPerLiter': product.costPerLiter,
+          'conversionRatio': product.conversionRatio,
           'active': product.active,
         },
       );

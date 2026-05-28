@@ -29,12 +29,14 @@ void main() {
             name: 'Alcohol',
             currentStockLiters: 10.0,
             costPerLiter: 5.0,
+            conversionRatio: 1.0,
           ),
           BulkProduct(
             id: 2,
             name: 'Agua',
             currentStockLiters: 20.0,
             costPerLiter: 8.0,
+            conversionRatio: 1.0,
           ),
         ];
         when(

@@ -31,6 +31,7 @@ void main() {
         name: '',
         currentStockLiters: 0,
         costPerLiter: 0,
+        conversionRatio: 1.0,
       ),
     );
   });
@@ -47,6 +48,7 @@ void main() {
         name: 'Test',
         currentStockLiters: 10.0,
         costPerLiter: 5.0,
+        conversionRatio: 1.0,
       ),
     );
     when(() => mockRepo.updateBulkProduct(any())).thenAnswer(
@@ -55,6 +57,7 @@ void main() {
         name: 'Updated',
         currentStockLiters: 20.0,
         costPerLiter: 6.0,
+        conversionRatio: 1.0,
       ),
     );
     when(() => mockRepo.deleteBulkProduct(any())).thenAnswer((_) async {});
@@ -86,12 +89,14 @@ void main() {
           name: 'Alcohol',
           currentStockLiters: 10.0,
           costPerLiter: 5.0,
+          conversionRatio: 1.0,
         ),
         const BulkProduct(
           id: 2,
           name: 'Agua',
           currentStockLiters: 20.0,
           costPerLiter: 8.0,
+          conversionRatio: 1.0,
         ),
       ];
       when(() => mockRepo.getBulkProducts()).thenAnswer((_) async => products);
@@ -132,12 +137,14 @@ void main() {
         name: 'Nuevo',
         currentStockLiters: 5.0,
         costPerLiter: 10.0,
+        conversionRatio: 1.0,
       );
       final created = const BulkProduct(
         id: 3,
         name: 'Nuevo',
         currentStockLiters: 5.0,
         costPerLiter: 10.0,
+        conversionRatio: 1.0,
       );
       when(
         () => mockRepo.createBulkProduct(newProduct),
@@ -157,6 +164,7 @@ void main() {
         name: 'Editado',
         currentStockLiters: 15.0,
         costPerLiter: 10.0,
+        conversionRatio: 1.0,
       );
 
       await provider.updateBulkProduct(product);

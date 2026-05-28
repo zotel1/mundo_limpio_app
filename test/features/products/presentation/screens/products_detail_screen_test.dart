@@ -19,6 +19,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
+import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mundo_limpio_app/features/products/domain/entities/product.dart';
 import 'package:mundo_limpio_app/features/products/domain/repositories/i_products_repository.dart';
 import 'package:mundo_limpio_app/features/products/presentation/providers/products_provider.dart';
@@ -27,9 +28,20 @@ import 'package:mundo_limpio_app/features/products/presentation/screens/products
 
 class MockProductsRepository extends Mock implements IProductsRepository {}
 
-Widget createTestApp(ProductsProvider provider, int productId) {
-  return ChangeNotifierProvider<ProductsProvider>.value(
-    value: provider,
+class MockAuthProvider extends Mock implements AuthProvider {}
+
+Widget createTestApp(
+  ProductsProvider provider,
+  int productId, {
+  List<String>? roles,
+}) {
+  final auth = MockAuthProvider();
+  when(() => auth.roles).thenReturn(roles ?? ['ADMIN']);
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider<ProductsProvider>.value(value: provider),
+      ChangeNotifierProvider<AuthProvider>.value(value: auth),
+    ],
     child: MaterialApp(
       theme: ThemeData(splashFactory: NoSplash.splashFactory),
       home: ProductsDetailScreen(productId: productId),
@@ -225,6 +237,44 @@ void main() {
       await pumpUntilSettled(tester);
 
       verify(() => mockRepo.reactivate(2)).called(1);
+    });
+
+    testWidgets('CUSTOMER no debe ver botones de editar/eliminar/reactivar', (
+      tester,
+    ) async {
+      const product = Product(
+        id: 1,
+        sku: 'SKU001',
+        name: 'Alcohol',
+        active: true,
+      );
+      when(() => mockRepo.getById(1)).thenAnswer((_) async => product);
+
+      await tester.pumpWidget(createTestApp(provider, 1, roles: ['CUSTOMER']));
+      await pumpUntilSettled(tester);
+
+      // No debe mostrar iconos de acciones
+      expect(find.byIcon(Icons.edit), findsNothing);
+      expect(find.byIcon(Icons.delete), findsNothing);
+    });
+
+    testWidgets('ADMIN debe ver botones de editar/eliminar/producto activo', (
+      tester,
+    ) async {
+      const product = Product(
+        id: 1,
+        sku: 'SKU001',
+        name: 'Alcohol',
+        active: true,
+      );
+      when(() => mockRepo.getById(1)).thenAnswer((_) async => product);
+
+      await tester.pumpWidget(createTestApp(provider, 1));
+      await pumpUntilSettled(tester);
+
+      // Debe mostrar iconos de acciones
+      expect(find.byIcon(Icons.edit), findsOneWidget);
+      expect(find.byIcon(Icons.delete), findsOneWidget);
     });
   });
 }

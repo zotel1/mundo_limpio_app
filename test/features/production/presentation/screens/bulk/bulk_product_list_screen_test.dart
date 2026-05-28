@@ -21,6 +21,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
+import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mundo_limpio_app/features/production/domain/entities/bulk_product.dart';
 import 'package:mundo_limpio_app/features/production/domain/repositories/i_bulk_product_repository.dart';
 import 'package:mundo_limpio_app/features/production/presentation/providers/bulk_product_provider.dart';
@@ -30,9 +31,19 @@ import 'package:mundo_limpio_app/features/production/presentation/screens/bulk/b
 class MockBulkProductRepository extends Mock
     implements IBulkProductRepository {}
 
-Widget createTestApp(BulkProductProvider provider) {
-  return ChangeNotifierProvider<BulkProductProvider>.value(
-    value: provider,
+class MockAuthProvider extends Mock implements AuthProvider {}
+
+Widget createTestApp(
+  BulkProductProvider provider, {
+  List<String> roles = const ['ADMIN'],
+}) {
+  final auth = MockAuthProvider();
+  when(() => auth.roles).thenReturn(roles);
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider<BulkProductProvider>.value(value: provider),
+      ChangeNotifierProvider<AuthProvider>.value(value: auth),
+    ],
     child: MaterialApp(
       theme: ThemeData(splashFactory: NoSplash.splashFactory),
       home: BulkProductListScreen(),
@@ -57,6 +68,7 @@ void main() {
         name: '',
         currentStockLiters: 0,
         costPerLiter: 0,
+        conversionRatio: 1.0,
       ),
     );
   });
@@ -73,6 +85,7 @@ void main() {
         name: 'Test',
         currentStockLiters: 10.0,
         costPerLiter: 5.0,
+        conversionRatio: 1.0,
       ),
     );
     when(() => mockRepo.updateBulkProduct(any())).thenAnswer(
@@ -81,6 +94,7 @@ void main() {
         name: 'Updated',
         currentStockLiters: 20.0,
         costPerLiter: 6.0,
+        conversionRatio: 1.0,
       ),
     );
     when(() => mockRepo.deleteBulkProduct(any())).thenAnswer((_) async {});
@@ -113,12 +127,14 @@ void main() {
           name: 'Alcohol',
           currentStockLiters: 10.0,
           costPerLiter: 5.0,
+          conversionRatio: 1.0,
         ),
         const BulkProduct(
           id: 2,
           name: 'Glicerina',
           currentStockLiters: 5.0,
           costPerLiter: 8.0,
+          conversionRatio: 1.0,
         ),
       ];
       when(() => mockRepo.getBulkProducts()).thenAnswer((_) async => products);
@@ -165,6 +181,7 @@ void main() {
             name: 'Alcohol',
             currentStockLiters: 10.0,
             costPerLiter: 5.0,
+            conversionRatio: 1.0,
           ),
         ],
       );
@@ -200,6 +217,7 @@ void main() {
             name: 'Producto ${i + 1}',
             currentStockLiters: 10.0,
             costPerLiter: 5.0,
+            conversionRatio: 1.0,
           ),
         ),
       );
@@ -218,6 +236,26 @@ void main() {
       // Assert: datos recargados correctamente
       expect(provider.status, BulkProductStatus.loaded);
       expect(provider.bulkProducts, hasLength(10));
+    });
+
+    testWidgets('FAB debe estar visible para ADMIN/STOCK_MANAGER', (
+      tester,
+    ) async {
+      // Arrange: ADMIN (default)
+      await tester.pumpWidget(createTestApp(provider));
+      await pumpUntilSettled(tester);
+
+      // Assert: FAB visible
+      expect(find.byType(FloatingActionButton), findsOneWidget);
+    });
+
+    testWidgets('FAB debe estar oculto para CUSTOMER', (tester) async {
+      // Arrange: CUSTOMER
+      await tester.pumpWidget(createTestApp(provider, roles: ['CUSTOMER']));
+      await pumpUntilSettled(tester);
+
+      // Assert: FAB NO visible
+      expect(find.byType(FloatingActionButton), findsNothing);
     });
   });
 }

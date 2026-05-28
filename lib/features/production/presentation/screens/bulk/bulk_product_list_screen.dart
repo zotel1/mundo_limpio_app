@@ -8,8 +8,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mundo_limpio_app/core/helpers/role_guard.dart';
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
+import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mundo_limpio_app/features/production/domain/entities/bulk_product.dart';
 import 'package:mundo_limpio_app/features/production/presentation/providers/bulk_product_provider.dart';
 import 'package:mundo_limpio_app/features/production/presentation/screens/bulk/bulk_product_form_screen.dart';
@@ -38,23 +40,28 @@ class _BulkProductListScreenState extends State<BulkProductListScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<BulkProductProvider>();
+    final roles = context.read<AuthProvider>().roles;
+    final canWrite = RoleGuard.hasAnyRole(roles, ['ADMIN', 'STOCK_MANAGER']);
+
     return Scaffold(
       appBar: const BrandedAppBar(title: 'Materias Primas'),
-      body: _buildBody(provider),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _navigateToForm(provider),
-        child: const Icon(Icons.add),
-      ),
+      body: _buildBody(provider, canWrite),
+      floatingActionButton: canWrite
+          ? FloatingActionButton(
+              onPressed: () => _navigateToForm(provider),
+              child: const Icon(Icons.add),
+            )
+          : null,
     );
   }
 
-  Widget _buildBody(BulkProductProvider provider) {
+  Widget _buildBody(BulkProductProvider provider, bool canWrite) {
     switch (provider.status) {
       case BulkProductStatus.initial:
       case BulkProductStatus.loading:
         // Si ya tenemos datos, mantener la lista visible durante refresh
         if (provider.bulkProducts.isNotEmpty) {
-          return _buildProductList(provider);
+          return _buildProductList(provider, canWrite);
         }
         return const Center(child: CatLoadingIndicator.general());
 
@@ -62,7 +69,7 @@ class _BulkProductListScreenState extends State<BulkProductListScreen> {
         if (provider.bulkProducts.isEmpty) {
           return const Center(child: Text('No hay materias primas'));
         }
-        return _buildProductList(provider);
+        return _buildProductList(provider, canWrite);
 
       case BulkProductStatus.error:
         return Center(
@@ -81,7 +88,7 @@ class _BulkProductListScreenState extends State<BulkProductListScreen> {
     }
   }
 
-  Widget _buildProductList(BulkProductProvider provider) {
+  Widget _buildProductList(BulkProductProvider provider, bool canWrite) {
     return RefreshIndicator(
       onRefresh: () => provider.getBulkProducts(),
       child: ListView.builder(
@@ -95,8 +102,10 @@ class _BulkProductListScreenState extends State<BulkProductListScreen> {
               subtitle: Text(
                 'Stock: ${product.currentStockLiters.toStringAsFixed(1)} L — Costo: \$${product.costPerLiter.toStringAsFixed(2)}',
               ),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => _navigateToForm(provider, product: product),
+              trailing: canWrite ? const Icon(Icons.chevron_right) : null,
+              onTap: canWrite
+                  ? () => _navigateToForm(provider, product: product)
+                  : null,
             ),
           );
         },

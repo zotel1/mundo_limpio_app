@@ -11,6 +11,8 @@ import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
+import 'package:mundo_limpio_app/core/helpers/role_guard.dart';
+import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mundo_limpio_app/features/products/presentation/providers/products_provider.dart';
 import 'package:mundo_limpio_app/features/products/presentation/screens/products_form_screen.dart';
 import 'package:mundo_limpio_app/features/products/presentation/screens/products_detail_screen.dart';
@@ -40,13 +42,18 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ProductsProvider>();
+    final roles = context.read<AuthProvider>().roles;
+    final canWrite = RoleGuard.hasAnyRole(roles, ['ADMIN', 'STOCK_MANAGER']);
+
     return Scaffold(
       appBar: const BrandedAppBar(title: 'Productos'),
       body: _buildBody(provider),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _navigateToForm(provider),
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: canWrite
+          ? FloatingActionButton(
+              onPressed: () => _navigateToForm(provider),
+              child: const Icon(Icons.add),
+            )
+          : null,
     );
   }
 

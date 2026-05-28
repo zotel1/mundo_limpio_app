@@ -50,6 +50,8 @@ import 'package:mundo_limpio_app/features/sales/presentation/screens/sale_result
 
 // ───────────────────────── Mocks ─────────────────────────
 
+class MockAuthProvider extends Mock implements AuthProvider {}
+
 class MockAuthRepository extends Mock implements AuthRepository {}
 
 class MockTokenStorage extends Mock implements TokenStorage {}
@@ -93,6 +95,7 @@ void main() {
         name: '',
         currentStockLiters: 0,
         costPerLiter: 0,
+        conversionRatio: 1.0,
       ),
     );
     registerFallbackValue(
@@ -202,10 +205,12 @@ void main() {
   group('Inventory screens branding', () {
     late MockInventoryRepository mockInvRepo;
     late InventoryProvider invProvider;
+    late MockAuthProvider mockAuth;
 
     setUp(() {
       mockInvRepo = MockInventoryRepository();
       invProvider = InventoryProvider(repository: mockInvRepo);
+      mockAuth = MockAuthProvider();
 
       // Stubs para evitar crash en postFrameCallback
       when(() => mockInvRepo.getLowStock()).thenAnswer((_) async => []);
@@ -217,16 +222,24 @@ void main() {
           minStockThreshold: 0,
         ),
       );
+      when(() => mockAuth.roles).thenReturn(['ADMIN']);
     });
+
+    Widget _wrap(Widget child) {
+      return MultiProvider(
+        providers: [
+          ChangeNotifierProvider<InventoryProvider>.value(value: invProvider),
+          ChangeNotifierProvider<AuthProvider>.value(value: mockAuth),
+        ],
+        child: child,
+      );
+    }
 
     // ─── Inventory List ───────────────────────────────
 
     testWidgets('InventoryListScreen debe usar BrandedAppBar', (tester) async {
       await tester.pumpWidget(
-        ChangeNotifierProvider<InventoryProvider>.value(
-          value: invProvider,
-          child: const MaterialApp(home: InventoryListScreen()),
-        ),
+        _wrap(const MaterialApp(home: InventoryListScreen())),
       );
       await pumpFrames(tester);
 
@@ -240,10 +253,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        ChangeNotifierProvider<InventoryProvider>.value(
-          value: invProvider,
-          child: const MaterialApp(home: InventoryDetailScreen(productId: 1)),
-        ),
+        _wrap(const MaterialApp(home: InventoryDetailScreen(productId: 1))),
       );
       await pumpFrames(tester);
 
@@ -259,23 +269,33 @@ void main() {
   group('Sales screens branding', () {
     late MockSalesRepository mockSalesRepo;
     late SalesProvider salesProvider;
+    late MockAuthProvider mockAuth;
 
     setUp(() {
       mockSalesRepo = MockSalesRepository();
       salesProvider = SalesProvider(mockSalesRepo);
+      mockAuth = MockAuthProvider();
 
       // Stub getProducts para evitar crash en postFrameCallback
       when(() => mockSalesRepo.getProducts()).thenAnswer((_) async => []);
+      when(() => mockAuth.roles).thenReturn(['SALES_CLERK']);
     });
+
+    Widget _wrap(Widget child) {
+      return MultiProvider(
+        providers: [
+          ChangeNotifierProvider<SalesProvider>.value(value: salesProvider),
+          ChangeNotifierProvider<AuthProvider>.value(value: mockAuth),
+        ],
+        child: child,
+      );
+    }
 
     // ─── Create Sale ──────────────────────────────────
 
     testWidgets('CreateSaleScreen debe usar BrandedAppBar', (tester) async {
       await tester.pumpWidget(
-        ChangeNotifierProvider<SalesProvider>.value(
-          value: salesProvider,
-          child: const MaterialApp(home: CreateSaleScreen()),
-        ),
+        _wrap(const MaterialApp(home: CreateSaleScreen())),
       );
       await pumpFrames(tester);
 
@@ -300,10 +320,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        ChangeNotifierProvider<SalesProvider>.value(
-          value: salesProvider,
-          child: MaterialApp(home: SaleResultScreen(sale: sale)),
-        ),
+        _wrap(MaterialApp(home: SaleResultScreen(sale: sale))),
       );
       await pumpFrames(tester);
 
@@ -321,18 +338,21 @@ void main() {
     late MockProductionRepository mockProdRepo;
     late BulkProductProvider bpProvider;
     late ProductionProvider prodProvider;
+    late MockAuthProvider mockAuth;
 
     setUp(() {
       mockBulkRepo = MockBulkProductRepository();
       mockProdRepo = MockProductionRepository();
       bpProvider = BulkProductProvider(mockBulkRepo);
       prodProvider = ProductionProvider(mockProdRepo, mockBulkRepo);
+      mockAuth = MockAuthProvider();
 
       // Stubs para evitar crash en postFrameCallback
       when(() => mockBulkRepo.getBulkProducts()).thenAnswer((_) async => []);
       when(
         () => mockProdRepo.getProductionBatches(),
       ).thenAnswer((_) async => []);
+      when(() => mockAuth.roles).thenReturn(['PRODUCTION_OP']);
     });
 
     Widget productionApp(Widget screen) {
@@ -340,6 +360,7 @@ void main() {
         providers: [
           ChangeNotifierProvider<BulkProductProvider>.value(value: bpProvider),
           ChangeNotifierProvider<ProductionProvider>.value(value: prodProvider),
+          ChangeNotifierProvider<AuthProvider>.value(value: mockAuth),
         ],
         child: MaterialApp(home: screen),
       );

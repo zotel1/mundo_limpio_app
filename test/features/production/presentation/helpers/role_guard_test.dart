@@ -1,74 +1,48 @@
 // TDD: RED — test escrito antes que la implementación
 //
-// Pruebas unitarias para RoleGuard widget.
+// Pruebas unitarias para RoleGuard.hasAnyRole.
 //
 // Verifica que:
-// - Muestra el child cuando el role coincide con requiredRole
-// - Muestra AccessDeniedScreen cuando el role no coincide
-// - Muestra AccessDeniedScreen cuando el role es null
+// - roles null → false
+// - lista vacía → false
+// - match exacto → true
+// - match parcial (anyOf) → true
+// - sin match → false
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
-import 'package:provider/provider.dart';
-
-import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
-import 'package:mundo_limpio_app/features/production/presentation/helpers/role_guard.dart';
-
-class MockAuthProvider extends Mock implements AuthProvider {}
+import 'package:mundo_limpio_app/core/helpers/role_guard.dart';
 
 void main() {
-  late MockAuthProvider mockAuthProvider;
-
-  setUp(() {
-    mockAuthProvider = MockAuthProvider();
-  });
-
-  Widget buildTestApp({required Widget child, required String requiredRole}) {
-    return MaterialApp(
-      home: ChangeNotifierProvider<AuthProvider>.value(
-        value: mockAuthProvider,
-        child: RoleGuard(requiredRole: requiredRole, child: child),
-      ),
-    );
-  }
-
-  group('RoleGuard', () {
-    testWidgets('debe mostrar child cuando el role coincide', (tester) async {
-      when(() => mockAuthProvider.role).thenReturn('ADMIN');
-
-      await tester.pumpWidget(
-        buildTestApp(requiredRole: 'ADMIN', child: const Text('Admin content')),
-      );
-
-      expect(find.text('Admin content'), findsOneWidget);
-      expect(find.textContaining('Access Denied'), findsNothing);
+  group('RoleGuard.hasAnyRole', () {
+    test('debe retornar false cuando roles es null', () {
+      expect(RoleGuard.hasAnyRole(null, ['ADMIN']), isFalse);
     });
 
-    testWidgets('debe mostrar denied screen cuando el role no coincide', (
-      tester,
-    ) async {
-      when(() => mockAuthProvider.role).thenReturn('OPERATOR');
-
-      await tester.pumpWidget(
-        buildTestApp(requiredRole: 'ADMIN', child: const Text('Admin content')),
-      );
-
-      expect(find.text('Admin content'), findsNothing);
-      expect(find.textContaining('Access Denied'), findsOneWidget);
+    test('debe retornar false cuando roles está vacío', () {
+      expect(RoleGuard.hasAnyRole([], ['ADMIN']), isFalse);
     });
 
-    testWidgets('debe mostrar denied screen cuando role es null', (
-      tester,
-    ) async {
-      when(() => mockAuthProvider.role).thenReturn(null);
+    test('debe retornar true cuando hay match exacto', () {
+      expect(RoleGuard.hasAnyRole(['ADMIN'], ['ADMIN']), isTrue);
+    });
 
-      await tester.pumpWidget(
-        buildTestApp(requiredRole: 'ADMIN', child: const Text('Admin content')),
+    test('debe retornar true cuando hay match parcial (anyOf)', () {
+      expect(
+        RoleGuard.hasAnyRole(['CUSTOMER'], ['ADMIN', 'STOCK_MANAGER']),
+        isFalse,
       );
+      expect(
+        RoleGuard.hasAnyRole(['ADMIN'], ['ADMIN', 'STOCK_MANAGER']),
+        isTrue,
+      );
+      expect(
+        RoleGuard.hasAnyRole(['STOCK_MANAGER'], ['ADMIN', 'STOCK_MANAGER']),
+        isTrue,
+      );
+    });
 
-      expect(find.text('Admin content'), findsNothing);
-      expect(find.textContaining('Access Denied'), findsOneWidget);
+    test('debe retornar false cuando no hay match', () {
+      expect(RoleGuard.hasAnyRole(['CUSTOMER'], ['ADMIN']), isFalse);
     });
   });
 }

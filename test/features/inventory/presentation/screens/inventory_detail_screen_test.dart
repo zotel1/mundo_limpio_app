@@ -19,6 +19,7 @@ import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
+import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mundo_limpio_app/features/inventory/data/models/inventory_response.dart';
 import 'package:mundo_limpio_app/features/inventory/domain/repository/inventory_repository.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/provider/inventory_provider.dart';
@@ -26,10 +27,21 @@ import 'package:mundo_limpio_app/features/inventory/presentation/screens/invento
 
 class MockInventoryRepository extends Mock implements InventoryRepository {}
 
+class MockAuthProvider extends Mock implements AuthProvider {}
+
 /// Crea la app de test con Provider para probar el detail screen.
-Widget createTestApp(InventoryProvider provider, {required int productId}) {
-  return ChangeNotifierProvider<InventoryProvider>.value(
-    value: provider,
+Widget createTestApp(
+  InventoryProvider provider, {
+  required int productId,
+  List<String>? roles,
+}) {
+  final auth = MockAuthProvider();
+  when(() => auth.roles).thenReturn(roles ?? ['ADMIN']);
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider<InventoryProvider>.value(value: provider),
+      ChangeNotifierProvider<AuthProvider>.value(value: auth),
+    ],
     child: MaterialApp(
       theme: ThemeData(splashFactory: NoSplash.splashFactory),
       home: InventoryDetailScreen(productId: productId),
@@ -163,6 +175,43 @@ void main() {
       ); // botón y título dialog
       expect(find.text('Cancelar'), findsOneWidget);
       expect(find.text('Confirmar'), findsOneWidget);
+    });
+
+    testWidgets('CUSTOMER no debe ver botón Ajustar Stock', (tester) async {
+      when(
+        () => mockRepo.getInventory(testProductId),
+      ).thenAnswer((_) async => testInventory);
+
+      await tester.pumpWidget(
+        createTestApp(provider, productId: testProductId, roles: ['CUSTOMER']),
+      );
+      await pumpUntilSettled(tester);
+
+      // No debe mostrar botón "Ajustar Stock"
+      expect(
+        find.widgetWithText(ElevatedButton, 'Ajustar Stock'),
+        findsNothing,
+      );
+    });
+
+    testWidgets('STOCK_MANAGER debe ver botón Ajustar Stock', (tester) async {
+      when(
+        () => mockRepo.getInventory(testProductId),
+      ).thenAnswer((_) async => testInventory);
+
+      await tester.pumpWidget(
+        createTestApp(
+          provider,
+          productId: testProductId,
+          roles: ['STOCK_MANAGER'],
+        ),
+      );
+      await pumpUntilSettled(tester);
+
+      expect(
+        find.widgetWithText(ElevatedButton, 'Ajustar Stock'),
+        findsOneWidget,
+      );
     });
   });
 }

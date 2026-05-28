@@ -5,7 +5,7 @@ class BulkProduct extends Equatable {
   final String name;
   final double currentStockLiters;
   final double costPerLiter;
-  final double? conversionRatio;
+  final double conversionRatio;
   final bool active;
 
   const BulkProduct({
@@ -13,7 +13,7 @@ class BulkProduct extends Equatable {
     required this.name,
     required this.currentStockLiters,
     required this.costPerLiter,
-    this.conversionRatio,
+    required this.conversionRatio,
     this.active = true,
   });
 

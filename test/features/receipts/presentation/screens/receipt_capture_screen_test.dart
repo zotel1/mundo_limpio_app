@@ -20,6 +20,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
+import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mundo_limpio_app/features/receipts/data/models/receipt_process_response.dart';
 import 'package:mundo_limpio_app/features/receipts/data/models/product_line_dto.dart';
 import 'package:mundo_limpio_app/features/receipts/domain/repository/receipts_repository.dart';
@@ -28,8 +29,13 @@ import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_
 
 class MockReceiptsRepository extends Mock implements ReceiptsRepository {}
 
+class MockAuthProvider extends Mock implements AuthProvider {}
+
 /// Crea la app de test con ReceiptsProvider real, mock repository y GoRouter.
 Widget createTestApp(ReceiptsProvider provider) {
+  final auth = MockAuthProvider();
+  when(() => auth.roles).thenReturn(['STOCK_MANAGER']);
+
   final router = GoRouter(
     routes: [
       GoRoute(path: '/', builder: (context, _) => const ReceiptCaptureScreen()),
@@ -41,8 +47,11 @@ Widget createTestApp(ReceiptsProvider provider) {
     ],
   );
 
-  return ChangeNotifierProvider<ReceiptsProvider>.value(
-    value: provider,
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider<ReceiptsProvider>.value(value: provider),
+      ChangeNotifierProvider<AuthProvider>.value(value: auth),
+    ],
     child: MaterialApp.router(
       theme: ThemeData(splashFactory: NoSplash.splashFactory),
       routerConfig: router,
