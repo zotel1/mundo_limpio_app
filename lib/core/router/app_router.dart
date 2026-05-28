@@ -35,6 +35,8 @@ import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response
 import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_capture_screen.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_review_screen.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_confirmed_screen.dart';
+import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_detail_screen.dart';
+import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipts_history_screen.dart';
 import 'package:mundo_limpio_app/features/splash/presentation/splash_provider.dart';
 import 'package:mundo_limpio_app/features/splash/presentation/splash_screen.dart';
 
@@ -85,6 +87,20 @@ GoRouter createRouter(
         if (roles == null ||
             !roles.any(
               (r) => ['ADMIN', 'SALES_CLERK', 'ACCOUNTANT'].contains(r),
+            )) {
+          return '/';
+        }
+      }
+
+      // ---- Rutas de historial de recibos ----
+
+      // /receipts/history y /receipts/history/:receiptId: ADMIN, STOCK_MANAGER, ACCOUNTANT
+      if (status == AuthStatus.authenticated &&
+          location.startsWith('/receipts/history')) {
+        final roles = authProvider.roles;
+        if (roles == null ||
+            !roles.any(
+              (r) => ['ADMIN', 'STOCK_MANAGER', 'ACCOUNTANT'].contains(r),
             )) {
           return '/';
         }
@@ -276,6 +292,19 @@ GoRouter createRouter(
             );
           }
           return ReceiptConfirmedScreen(purchase: purchase);
+        },
+      ),
+
+      // --- Historial de recibos ---
+      GoRoute(
+        path: '/receipts/history',
+        builder: (_, _) => const ReceiptsHistoryScreen(),
+      ),
+      GoRoute(
+        path: '/receipts/history/:receiptId',
+        builder: (context, state) {
+          final receiptId = int.parse(state.pathParameters['receiptId']!);
+          return ReceiptDetailScreen(receiptId: receiptId);
         },
       ),
     ],
