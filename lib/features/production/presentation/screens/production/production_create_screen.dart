@@ -34,11 +34,13 @@ class _ProductionCreateScreenState extends State<ProductionCreateScreen> {
   final _quantityUsedController = TextEditingController();
   final _quantityProducedController = TextEditingController();
   int? _selectedBulkProductId;
+  double? _conversionRatio;
   bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
+    _quantityUsedController.addListener(_updateQuantityProduced);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final roles = context.read<AuthProvider>().roles;
@@ -50,8 +52,21 @@ class _ProductionCreateScreenState extends State<ProductionCreateScreen> {
     });
   }
 
+  /// Recalcula la cantidad producida como: cantidadUsada × ratioDeConversion.
+  /// Se actualiza automáticamente cuando cambia la cantidad usada o la materia prima.
+  void _updateQuantityProduced() {
+    final qtyUsed = double.tryParse(_quantityUsedController.text.trim());
+    if (_conversionRatio != null && qtyUsed != null && qtyUsed > 0) {
+      _quantityProducedController.text = (qtyUsed * _conversionRatio!)
+          .toStringAsFixed(2);
+    } else {
+      _quantityProducedController.text = '';
+    }
+  }
+
   @override
   void dispose() {
+    _quantityUsedController.removeListener(_updateQuantityProduced);
     _finishedProductIdController.dispose();
     _quantityUsedController.dispose();
     _quantityProducedController.dispose();
@@ -130,7 +145,15 @@ class _ProductionCreateScreenState extends State<ProductionCreateScreen> {
                       )
                       .toList(),
                   onChanged: (value) {
-                    setState(() => _selectedBulkProductId = value);
+                    setState(() {
+                      _selectedBulkProductId = value;
+                      _conversionRatio = value != null
+                          ? bpProvider.bulkProducts
+                                .firstWhere((p) => p.id == value)
+                                .conversionRatio
+                          : null;
+                      _updateQuantityProduced();
+                    });
                   },
                   validator: (value) {
                     if (value == null) {
@@ -160,20 +183,13 @@ class _ProductionCreateScreenState extends State<ProductionCreateScreen> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _quantityProducedController,
+                  readOnly: true,
                   decoration: const InputDecoration(
                     labelText: 'Cantidad Producida (unidades)',
+                    hintText: 'Se calcula automáticamente',
+                    helperText: 'cantidad usada × ratio de conversión',
+                    helperMaxLines: 2,
                   ),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'La cantidad es requerida';
-                    }
-                    final qty = double.tryParse(value.trim());
-                    if (qty == null || qty <= 0) {
-                      return 'La cantidad debe ser mayor a 0';
-                    }
-                    return null;
-                  },
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
