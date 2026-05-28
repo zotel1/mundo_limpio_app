@@ -80,9 +80,7 @@ GoRouter createRouter(
       // Proteger rutas de administración: ADMIN y STOCK_MANAGER pueden acceder
       if (status == AuthStatus.authenticated &&
           (location.startsWith('/production/') ||
-              location.startsWith('/receipts/') ||
-              location == '/products' ||
-              location.startsWith('/products/'))) {
+              location.startsWith('/receipts/'))) {
         final roles = authProvider.roles;
         if (roles == null || !roles.any((r) => stockRoles.contains(r))) {
           return '/';

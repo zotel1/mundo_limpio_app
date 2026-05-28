@@ -392,13 +392,8 @@ void main() {
       await navigateAndCheckRedirect(tester, 'STOCK_MANAGER', '/products');
     });
 
-    testWidgets('OPERATOR no puede acceder a /products/', (tester) async {
-      await navigateAndCheckRedirect(
-        tester,
-        'OPERATOR',
-        '/products',
-        expectRedirect: true,
-      );
+    testWidgets('OPERATOR puede acceder a /products/', (tester) async {
+      await navigateAndCheckRedirect(tester, 'OPERATOR', '/products');
     });
 
     testWidgets('ADMIN puede acceder a /products/new', (tester) async {
@@ -419,13 +414,8 @@ void main() {
       );
     });
 
-    testWidgets('OPERATOR no puede acceder a /products/new', (tester) async {
-      await navigateAndCheckRedirect(
-        tester,
-        'OPERATOR',
-        '/products/new',
-        expectRedirect: true,
-      );
+    testWidgets('OPERATOR puede acceder a /products/new', (tester) async {
+      await navigateAndCheckRedirect(tester, 'OPERATOR', '/products/new');
     });
 
     // ── Users Routes (PR3) ─────────────────────────────────────────
