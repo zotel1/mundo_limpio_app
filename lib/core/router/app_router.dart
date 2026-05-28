@@ -74,15 +74,50 @@ GoRouter createRouter(
 
       final status = authProvider.status;
 
-      // Roles de stock que pueden acceder a producción y recibos
-      const stockRoles = ['ADMIN', 'STOCK_MANAGER'];
+      // ---- Rutas de producción ----
 
-      // Proteger rutas de administración: ADMIN y STOCK_MANAGER pueden acceder
+      // /production/batches y /production/batches/new: ADMIN, STOCK_MANAGER, PRODUCTION_OP
       if (status == AuthStatus.authenticated &&
-          (location.startsWith('/production/') ||
-              location.startsWith('/receipts/'))) {
+          location.startsWith('/production/batches')) {
         final roles = authProvider.roles;
-        if (roles == null || !roles.any((r) => stockRoles.contains(r))) {
+        if (roles == null ||
+            !roles.any(
+              (r) => ['ADMIN', 'STOCK_MANAGER', 'PRODUCTION_OP'].contains(r),
+            )) {
+          return '/';
+        }
+      }
+
+      // /production/bulk-products: ADMIN, STOCK_MANAGER
+      if (status == AuthStatus.authenticated &&
+          location.startsWith('/production/bulk-products')) {
+        final roles = authProvider.roles;
+        if (roles == null ||
+            !roles.any((r) => ['ADMIN', 'STOCK_MANAGER'].contains(r))) {
+          return '/';
+        }
+      }
+
+      // ---- Rutas de recibos (OCR) ----
+
+      // /receipts/new (captura): ADMIN, STOCK_MANAGER, STOCK_OPERATOR
+      if (status == AuthStatus.authenticated && location == '/receipts/new') {
+        final roles = authProvider.roles;
+        if (roles == null ||
+            !roles.any(
+              (r) => ['ADMIN', 'STOCK_MANAGER', 'STOCK_OPERATOR'].contains(r),
+            )) {
+          return '/';
+        }
+      }
+
+      // /receipts/review y /receipts/confirmed: ADMIN, STOCK_MANAGER
+      if (status == AuthStatus.authenticated &&
+          (location == '/receipts/review' ||
+              location == '/receipts/confirmed')) {
+        final roles = authProvider.roles;
+        if (roles == null ||
+            !roles.any((r) => ['ADMIN', 'STOCK_MANAGER'].contains(r))) {
           return '/';
         }
       }
