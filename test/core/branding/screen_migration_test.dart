@@ -225,7 +225,7 @@ void main() {
       when(() => mockAuth.roles).thenReturn(['ADMIN']);
     });
 
-    Widget _wrap(Widget child) {
+    Widget wrap(Widget child) {
       return MultiProvider(
         providers: [
           ChangeNotifierProvider<InventoryProvider>.value(value: invProvider),
@@ -239,7 +239,7 @@ void main() {
 
     testWidgets('InventoryListScreen debe usar BrandedAppBar', (tester) async {
       await tester.pumpWidget(
-        _wrap(const MaterialApp(home: InventoryListScreen())),
+        wrap(const MaterialApp(home: InventoryListScreen())),
       );
       await pumpFrames(tester);
 
@@ -253,7 +253,7 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        _wrap(const MaterialApp(home: InventoryDetailScreen(productId: 1))),
+        wrap(const MaterialApp(home: InventoryDetailScreen(productId: 1))),
       );
       await pumpFrames(tester);
 
@@ -281,7 +281,7 @@ void main() {
       when(() => mockAuth.roles).thenReturn(['SALES_CLERK']);
     });
 
-    Widget _wrap(Widget child) {
+    Widget wrap(Widget child) {
       return MultiProvider(
         providers: [
           ChangeNotifierProvider<SalesProvider>.value(value: salesProvider),
@@ -295,7 +295,7 @@ void main() {
 
     testWidgets('CreateSaleScreen debe usar BrandedAppBar', (tester) async {
       await tester.pumpWidget(
-        _wrap(const MaterialApp(home: CreateSaleScreen())),
+        wrap(const MaterialApp(home: CreateSaleScreen())),
       );
       await pumpFrames(tester);
 
@@ -320,7 +320,7 @@ void main() {
       );
 
       await tester.pumpWidget(
-        _wrap(MaterialApp(home: SaleResultScreen(sale: sale))),
+        wrap(MaterialApp(home: SaleResultScreen(sale: sale))),
       );
       await pumpFrames(tester);
 
