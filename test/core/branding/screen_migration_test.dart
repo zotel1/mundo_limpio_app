@@ -308,6 +308,8 @@ void main() {
     testWidgets('SaleResultScreen debe usar BrandedAppBar', (tester) async {
       const saleItem = SaleItemResponse(
         batchId: 1,
+        productId: 1,
+        productName: 'Test Product',
         quantity: 10.0,
         unitPrice: 100.0,
         unitCost: 80.0,

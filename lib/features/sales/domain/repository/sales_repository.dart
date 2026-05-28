@@ -37,6 +37,19 @@ abstract class SalesRepository {
   /// Lanza [ApiException] en caso de error de red.
   Future<List<ProductionBatchResponse>> getBatchesByProduct(int productId);
 
+  /// Obtiene la lista de ventas desde el backend.
+  ///
+  /// Retorna [List<SaleResponse>] con todas las ventas.
+  /// Lanza [ApiException] en caso de error de red.
+  Future<List<SaleResponse>> getSales();
+
+  /// Obtiene una venta por su ID.
+  ///
+  /// [id]: ID de la venta a consultar.
+  /// Retorna [SaleResponse] con los datos de la venta.
+  /// Lanza [ApiException] si no existe o hay error de red.
+  Future<SaleResponse> getSaleById(int id);
+
   /// Crea una nueva venta en el backend.
   ///
   /// [request]: datos de la venta (productId, quantity).

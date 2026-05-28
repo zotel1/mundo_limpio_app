@@ -73,6 +73,8 @@ void main() {
   );
   const saleItem = SaleItemResponse(
     batchId: 42,
+    productId: 1,
+    productName: 'Test Product',
     quantity: 30.0,
     unitPrice: 150.00,
     unitCost: 100.00,

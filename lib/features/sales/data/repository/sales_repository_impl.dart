@@ -50,6 +50,16 @@ class SalesRepositoryImpl implements SalesRepository {
        _draftSaleDao = draftSaleDao;
 
   @override
+  Future<List<SaleResponse>> getSales() {
+    return _salesApi.getSales();
+  }
+
+  @override
+  Future<SaleResponse> getSaleById(int id) {
+    return _salesApi.getSaleById(id);
+  }
+
+  @override
   Future<List<ProductResponse>> getProducts() async {
     if (_connectivity.isOnline) {
       final products = await _salesApi.getProducts();
