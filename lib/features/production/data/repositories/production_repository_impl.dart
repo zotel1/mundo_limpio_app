@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/features/production/domain/entities/production_batch.dart';
 import 'package:mundo_limpio_app/features/production/domain/repositories/i_production_repository.dart';
 import 'package:mundo_limpio_app/features/production/data/models/production_batch_model.dart';
@@ -16,8 +17,8 @@ class ProductionRepositoryImpl implements IProductionRepository {
       return data
           .map((json) => ProductionBatchModel.fromJson(json).toEntity())
           .toList();
-    } catch (e) {
-      throw Exception('Failed to fetch production batches: $e');
+    } on DioException catch (e) {
+      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
     }
   }
 
@@ -26,8 +27,8 @@ class ProductionRepositoryImpl implements IProductionRepository {
     try {
       final response = await _dio.get('/api/v1/production-batches/$id');
       return ProductionBatchModel.fromJson(response.data).toEntity();
-    } catch (e) {
-      throw Exception('Failed to fetch production batch $id: $e');
+    } on DioException catch (e) {
+      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
     }
   }
 
@@ -45,8 +46,8 @@ class ProductionRepositoryImpl implements IProductionRepository {
         },
       );
       return ProductionBatchModel.fromJson(response.data).toEntity();
-    } catch (e) {
-      throw Exception('Failed to create production batch: $e');
+    } on DioException catch (e) {
+      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
     }
   }
 }
