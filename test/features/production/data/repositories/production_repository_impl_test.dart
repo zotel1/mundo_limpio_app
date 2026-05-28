@@ -178,9 +178,9 @@ void main() {
           () => mockDio.post(
             '/api/v1/production-batches',
             data: {
-              'finished_product_id': 10,
-              'bulk_product_id': 20,
-              'quantity_used': 5.0,
+              'productId': 10,
+              'bulkProductId': 20,
+              'rawQuantityUsed': 5.0,
             },
           ),
         ).called(1);
