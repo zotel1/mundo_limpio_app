@@ -20,6 +20,7 @@ import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
+import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mundo_limpio_app/features/inventory/data/models/inventory_response.dart';
 import 'package:mundo_limpio_app/features/inventory/domain/repository/inventory_repository.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/provider/inventory_provider.dart';
@@ -27,6 +28,8 @@ import 'package:mundo_limpio_app/features/inventory/presentation/screens/invento
 import 'package:mundo_limpio_app/features/inventory/presentation/screens/inventory_detail_screen.dart';
 
 class MockInventoryRepository extends Mock implements InventoryRepository {}
+
+class MockAuthProvider extends Mock implements AuthProvider {}
 
 /// Crea la app de test con GoRouter para probar navegación.
 ///
@@ -36,13 +39,19 @@ Widget createTestApp(
   InventoryProvider provider, {
   String initialLocation = '/',
 }) {
+  final auth = MockAuthProvider();
+  when(() => auth.roles).thenReturn(['ADMIN']);
+
   final router = GoRouter(
     initialLocation: initialLocation,
     routes: [
       GoRoute(
         path: '/',
-        builder: (_, _) => ChangeNotifierProvider<InventoryProvider>.value(
-          value: provider,
+        builder: (_, _) => MultiProvider(
+          providers: [
+            ChangeNotifierProvider<InventoryProvider>.value(value: provider),
+            ChangeNotifierProvider<AuthProvider>.value(value: auth),
+          ],
           child: const InventoryListScreen(),
         ),
       ),
@@ -50,8 +59,11 @@ Widget createTestApp(
         path: '/inventory/:productId',
         builder: (context, state) {
           final productId = int.parse(state.pathParameters['productId']!);
-          return ChangeNotifierProvider<InventoryProvider>.value(
-            value: provider,
+          return MultiProvider(
+            providers: [
+              ChangeNotifierProvider<InventoryProvider>.value(value: provider),
+              ChangeNotifierProvider<AuthProvider>.value(value: auth),
+            ],
             child: InventoryDetailScreen(productId: productId),
           );
         },

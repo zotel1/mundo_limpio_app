@@ -15,8 +15,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mundo_limpio_app/core/helpers/role_guard.dart';
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
+import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mundo_limpio_app/features/inventory/data/models/adjustment_request.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/provider/inventory_provider.dart';
 
@@ -51,17 +53,19 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<InventoryProvider>();
+    final roles = context.read<AuthProvider>().roles;
+    final canAdjust = RoleGuard.hasAnyRole(roles, ['ADMIN', 'STOCK_MANAGER']);
 
     return Scaffold(
       appBar: BrandedAppBar(
         title:
             provider.currentInventory?.productName ?? 'Detalle de Inventario',
       ),
-      body: _buildBody(provider),
+      body: _buildBody(provider, canAdjust: canAdjust),
     );
   }
 
-  Widget _buildBody(InventoryProvider provider) {
+  Widget _buildBody(InventoryProvider provider, {bool canAdjust = true}) {
     switch (provider.status) {
       case InventoryStatus.idle:
       case InventoryStatus.loading:
@@ -74,13 +78,16 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
       case InventoryStatus.inventoryLoaded:
       case InventoryStatus.lowStockLoaded:
       case InventoryStatus.success:
-        return _buildInventoryDetail(provider);
+        return _buildInventoryDetail(provider, canAdjust: canAdjust);
       case InventoryStatus.error:
         return _buildErrorSection(provider);
     }
   }
 
-  Widget _buildInventoryDetail(InventoryProvider provider) {
+  Widget _buildInventoryDetail(
+    InventoryProvider provider, {
+    bool canAdjust = true,
+  }) {
     final inventory = provider.currentInventory;
     if (inventory == null) return const SizedBox.shrink();
 
@@ -138,19 +145,20 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
           ),
           const SizedBox(height: 24),
 
-          // Botón "Ajustar Stock"
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton.icon(
-              onPressed: () => _showAdjustStockDialog(provider),
-              icon: const Icon(Icons.edit),
-              label: const Text(
-                'Ajustar Stock',
-                style: TextStyle(fontSize: 16),
+          // Botón "Ajustar Stock" (solo para ADMIN/STOCK_MANAGER)
+          if (canAdjust)
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton.icon(
+                onPressed: () => _showAdjustStockDialog(provider),
+                icon: const Icon(Icons.edit),
+                label: const Text(
+                  'Ajustar Stock',
+                  style: TextStyle(fontSize: 16),
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

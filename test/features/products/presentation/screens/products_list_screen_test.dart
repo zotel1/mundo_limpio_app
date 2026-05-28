@@ -22,6 +22,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
+import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mundo_limpio_app/features/products/domain/entities/product.dart';
 import 'package:mundo_limpio_app/features/products/domain/repositories/i_products_repository.dart';
 import 'package:mundo_limpio_app/features/products/presentation/providers/products_provider.dart';
@@ -30,14 +31,26 @@ import 'package:mundo_limpio_app/features/products/presentation/screens/products
 
 class MockProductsRepository extends Mock implements IProductsRepository {}
 
-Widget createTestApp(ProductsProvider provider) {
-  return ChangeNotifierProvider<ProductsProvider>.value(
-    value: provider,
+class MockAuthProvider extends Mock implements AuthProvider {}
+
+Widget createTestApp(ProductsProvider provider, {AuthProvider? authProvider}) {
+  final auth = authProvider ?? _createAdminAuth();
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider<ProductsProvider>.value(value: provider),
+      ChangeNotifierProvider<AuthProvider>.value(value: auth),
+    ],
     child: MaterialApp(
       theme: ThemeData(splashFactory: NoSplash.splashFactory),
       home: const ProductsListScreen(),
     ),
   );
+}
+
+AuthProvider _createAdminAuth() {
+  final auth = MockAuthProvider();
+  when(() => auth.roles).thenReturn(['ADMIN']);
+  return auth;
 }
 
 Future<void> pumpUntilSettled(WidgetTester tester, {int maxFrames = 20}) async {
@@ -234,6 +247,27 @@ void main() {
 
       // delete debe haber sido llamado
       verify(() => mockRepo.delete(1)).called(1);
+    });
+
+    testWidgets('FAB debe estar visible para ADMIN/STOCK_MANAGER', (
+      tester,
+    ) async {
+      await tester.pumpWidget(createTestApp(provider));
+      await pumpUntilSettled(tester);
+
+      expect(find.byType(FloatingActionButton), findsOneWidget);
+    });
+
+    testWidgets('FAB debe estar oculto para CUSTOMER', (tester) async {
+      final customerAuth = MockAuthProvider();
+      when(() => customerAuth.roles).thenReturn(['CUSTOMER']);
+
+      await tester.pumpWidget(
+        createTestApp(provider, authProvider: customerAuth),
+      );
+      await pumpUntilSettled(tester);
+
+      expect(find.byType(FloatingActionButton), findsNothing);
     });
   });
 }

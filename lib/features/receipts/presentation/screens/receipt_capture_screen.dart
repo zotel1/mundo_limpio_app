@@ -19,8 +19,10 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:mundo_limpio_app/core/helpers/role_guard.dart';
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
+import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/provider/receipts_provider.dart';
 
 /// Pantalla para capturar una imagen de recibo.
@@ -35,6 +37,22 @@ class ReceiptCaptureScreen extends StatefulWidget {
 
 class _ReceiptCaptureScreenState extends State<ReceiptCaptureScreen> {
   final ImagePicker _picker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final roles = context.read<AuthProvider>().roles;
+      if (!RoleGuard.hasAnyRole(roles, [
+        'ADMIN',
+        'STOCK_MANAGER',
+        'STOCK_OPERATOR',
+      ])) {
+        context.go('/');
+      }
+    });
+  }
 
   Future<void> _pickImage(ImageSource source) async {
     final xfile = await _picker.pickImage(source: source, imageQuality: 85);

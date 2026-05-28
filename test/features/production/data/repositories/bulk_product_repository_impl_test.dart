@@ -47,7 +47,7 @@ void main() {
       verify(() => mockDio.get('/api/v1/bulk-products')).called(1);
     });
 
-    test('createBulkProduct debe enviar costperLiter en el body', () async {
+    test('createBulkProduct debe enviar costPerLiter en el body', () async {
       // Arrange
       final product = BulkProduct(
         id: 0,
@@ -76,8 +76,8 @@ void main() {
       // Act
       final result = await repository.createBulkProduct(product);
 
-      // Assert: verificar que se envió costperLiter (typO del backend)
-      // y no costPerLiter
+      // Assert: verificar que se envió costPerLiter (campo correcto)
+      // y que conversionRatio siempre se envía (sin ?? 1.0)
       final captured =
           verify(
                 () => mockDio.post(
@@ -86,8 +86,8 @@ void main() {
                 ),
               ).captured.single
               as Map<String, dynamic>;
-      expect(captured['costperLiter'], 12.5);
-      expect(captured['costPerLiter'], isNull);
+      expect(captured['costPerLiter'], 12.5);
+      expect(captured['conversionRatio'], 1.0);
       expect(result.id, 1);
     });
   });

@@ -13,6 +13,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
+import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mundo_limpio_app/features/inventory/data/models/adjustment_request.dart';
 import 'package:mundo_limpio_app/features/inventory/data/models/inventory_response.dart';
 import 'package:mundo_limpio_app/features/inventory/domain/repository/inventory_repository.dart';
@@ -21,10 +22,17 @@ import 'package:mundo_limpio_app/features/inventory/presentation/screens/invento
 
 class MockInventoryRepository extends Mock implements InventoryRepository {}
 
+class MockAuthProvider extends Mock implements AuthProvider {}
+
 /// Crea la app de test con Provider para probar el dialog.
 Widget createTestApp(InventoryProvider provider, {required int productId}) {
-  return ChangeNotifierProvider<InventoryProvider>.value(
-    value: provider,
+  final auth = MockAuthProvider();
+  when(() => auth.roles).thenReturn(['ADMIN']);
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider<InventoryProvider>.value(value: provider),
+      ChangeNotifierProvider<AuthProvider>.value(value: auth),
+    ],
     child: MaterialApp(
       theme: ThemeData(splashFactory: NoSplash.splashFactory),
       home: InventoryDetailScreen(productId: 1),

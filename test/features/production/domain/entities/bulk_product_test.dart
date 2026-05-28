@@ -71,12 +71,27 @@ void main() {
       },
     );
 
+    test('debe compilar correctamente con conversionRatio requerido', () {
+      // Este test verifica que conversionRatio es requerido en el constructor.
+      // Si se omite, el compilador de Dart lanza error.
+      final bulkProduct = BulkProduct(
+        id: 1,
+        name: 'Test',
+        currentStockLiters: 100.0,
+        costPerLiter: 10.0,
+        conversionRatio: 1.0,
+      );
+
+      expect(bulkProduct.conversionRatio, 1.0);
+    });
+
     test('debe tener active=true por defecto', () {
       final bulkProduct = BulkProduct(
         id: 1,
         name: 'Test',
         currentStockLiters: 100.0,
         costPerLiter: 10.0,
+        conversionRatio: 1.0,
       );
 
       expect(bulkProduct.active, true);

@@ -48,6 +48,7 @@ void main() {
         name: '',
         currentStockLiters: 0,
         costPerLiter: 0,
+        conversionRatio: 1.0,
       ),
     );
   });
@@ -64,6 +65,7 @@ void main() {
         name: 'Test',
         currentStockLiters: 10.0,
         costPerLiter: 5.0,
+        conversionRatio: 1.0,
       ),
     );
     when(() => mockRepo.updateBulkProduct(any())).thenAnswer(
@@ -72,6 +74,7 @@ void main() {
         name: 'Updated',
         currentStockLiters: 20.0,
         costPerLiter: 6.0,
+        conversionRatio: 1.0,
       ),
     );
     when(() => mockRepo.deleteBulkProduct(any())).thenAnswer((_) async {});

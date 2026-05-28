@@ -17,6 +17,7 @@ void main() {
         name: '',
         currentStockLiters: 0,
         costPerLiter: 0,
+        conversionRatio: 1.0,
       ),
     );
   });
@@ -37,6 +38,7 @@ void main() {
         name: 'Alcohol',
         currentStockLiters: 10.0,
         costPerLiter: 5.0,
+        conversionRatio: 1.0,
       );
       when(
         () => mockRepository.createBulkProduct(any()),
