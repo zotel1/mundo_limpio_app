@@ -52,6 +52,8 @@ void main() {
   final testDate = DateTime(2026, 5, 10, 10, 30, 0);
   const saleItem = SaleItemResponse(
     batchId: 42,
+    productId: 1,
+    productName: 'Test Product',
     quantity: 30.0,
     unitPrice: 150.00,
     unitCost: 100.00,

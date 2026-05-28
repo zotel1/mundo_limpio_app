@@ -50,6 +50,33 @@ class SalesApi {
     }
   }
 
+  /// Obtiene la lista de ventas.
+  ///
+  /// Endpoint: `GET /api/v1/sales`
+  Future<List<SaleResponse>> getSales() async {
+    try {
+      final response = await _dio.get('/api/v1/sales');
+      final List<dynamic> data = response.data;
+      return data
+          .map((json) => SaleResponse.fromJson(json as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+    }
+  }
+
+  /// Obtiene una venta por su ID.
+  ///
+  /// Endpoint: `GET /api/v1/sales/{id}`
+  Future<SaleResponse> getSaleById(int id) async {
+    try {
+      final response = await _dio.get('/api/v1/sales/$id');
+      return SaleResponse.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+    }
+  }
+
   /// Obtiene la lista de productos disponibles.
   ///
   /// Endpoint: `GET /api/v1/products`

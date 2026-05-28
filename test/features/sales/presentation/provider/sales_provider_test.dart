@@ -275,6 +275,8 @@ void main() {
           items: const [
             SaleItemResponse(
               batchId: 42,
+              productId: 1,
+              productName: 'Test Product',
               quantity: 30.0,
               unitPrice: 150.00,
               unitCost: 100.00,
@@ -631,6 +633,8 @@ void main() {
           items: const [
             SaleItemResponse(
               batchId: 10,
+              productId: 1,
+              productName: 'Test Product',
               quantity: 10.0,
               unitPrice: 150.00,
               unitCost: 100.00,

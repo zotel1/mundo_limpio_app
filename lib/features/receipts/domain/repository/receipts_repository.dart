@@ -7,6 +7,10 @@
 // Domain layer: NO importa Flutter, Dio, ni Provider.
 // Solo tipos de Dart puro y modelos del dominio.
 //
+// Métodos GET de historial:
+// - [getReceipts]: obtiene la lista de compras confirmadas
+// - [getReceiptById]: obtiene una compra específica por ID
+//
 // TDD: GREEN — interfaz puramente estructural, sin lógica
 
 import 'package:mundo_limpio_app/features/receipts/data/models/receipt_process_response.dart';
@@ -18,6 +22,8 @@ import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response
 /// Métodos:
 /// - [processReceipt]: envía imagen al OCR y retorna datos detectados
 /// - [confirmReceipt]: confirma una compra desde recibo OCR
+/// - [getReceipts]: obtiene lista de compras confirmadas
+/// - [getReceiptById]: obtiene una compra específica por ID
 ///
 /// ADMIN-only, always-online — sin lógica offline/drafts.
 abstract class ReceiptsRepository {
@@ -34,4 +40,18 @@ abstract class ReceiptsRepository {
   /// Retorna [PurchaseResponse] con los datos de la compra confirmada.
   /// Lanza [ApiException] en caso de error de validación o red.
   Future<PurchaseResponse> confirmReceipt(ReceiptConfirmRequest request);
+
+  /// Obtiene la lista de compras (recibos confirmados) desde el backend.
+  ///
+  /// Endpoint: `GET /api/v1/receipts`
+  /// Retorna una lista de [PurchaseResponse].
+  /// Lanza [ApiException] en caso de error de red.
+  Future<List<PurchaseResponse>> getReceipts();
+
+  /// Obtiene una compra (recibo confirmado) por su ID.
+  ///
+  /// [id]: ID único de la compra.
+  /// Retorna [PurchaseResponse] con los datos de la compra.
+  /// Lanza [ApiException] si el ID no existe o hay error de red.
+  Future<PurchaseResponse> getReceiptById(int id);
 }

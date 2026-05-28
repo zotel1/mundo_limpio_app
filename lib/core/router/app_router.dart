@@ -20,7 +20,9 @@ import 'package:mundo_limpio_app/features/inventory/presentation/screens/invento
 import 'package:mundo_limpio_app/features/inventory/presentation/screens/inventory_list_screen.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/screens/create_sale_screen.dart';
+import 'package:mundo_limpio_app/features/sales/presentation/screens/sale_detail_screen.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/screens/sale_result_screen.dart';
+import 'package:mundo_limpio_app/features/sales/presentation/screens/sales_history_screen.dart';
 import 'package:mundo_limpio_app/features/products/presentation/screens/products_detail_screen.dart';
 import 'package:mundo_limpio_app/features/products/presentation/screens/products_form_screen.dart';
 import 'package:mundo_limpio_app/features/products/presentation/screens/products_list_screen.dart';
@@ -33,6 +35,8 @@ import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response
 import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_capture_screen.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_review_screen.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_confirmed_screen.dart';
+import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_detail_screen.dart';
+import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipts_history_screen.dart';
 import 'package:mundo_limpio_app/features/splash/presentation/splash_provider.dart';
 import 'package:mundo_limpio_app/features/splash/presentation/splash_screen.dart';
 
@@ -74,15 +78,78 @@ GoRouter createRouter(
 
       final status = authProvider.status;
 
-      // Roles de stock que pueden acceder a producción y recibos
-      const stockRoles = ['ADMIN', 'STOCK_MANAGER'];
+      // ---- Rutas de historial de ventas ----
 
-      // Proteger rutas de administración: ADMIN y STOCK_MANAGER pueden acceder
+      // /sales/history y /sales/history/:saleId: ADMIN, SALES_CLERK, ACCOUNTANT
       if (status == AuthStatus.authenticated &&
-          (location.startsWith('/production/') ||
-              location.startsWith('/receipts/'))) {
+          location.startsWith('/sales/history')) {
         final roles = authProvider.roles;
-        if (roles == null || !roles.any((r) => stockRoles.contains(r))) {
+        if (roles == null ||
+            !roles.any(
+              (r) => ['ADMIN', 'SALES_CLERK', 'ACCOUNTANT'].contains(r),
+            )) {
+          return '/';
+        }
+      }
+
+      // ---- Rutas de historial de recibos ----
+
+      // /receipts/history y /receipts/history/:receiptId: ADMIN, STOCK_MANAGER, ACCOUNTANT
+      if (status == AuthStatus.authenticated &&
+          location.startsWith('/receipts/history')) {
+        final roles = authProvider.roles;
+        if (roles == null ||
+            !roles.any(
+              (r) => ['ADMIN', 'STOCK_MANAGER', 'ACCOUNTANT'].contains(r),
+            )) {
+          return '/';
+        }
+      }
+
+      // ---- Rutas de producción ----
+
+      // /production/batches y /production/batches/new: ADMIN, STOCK_MANAGER, PRODUCTION_OP
+      if (status == AuthStatus.authenticated &&
+          location.startsWith('/production/batches')) {
+        final roles = authProvider.roles;
+        if (roles == null ||
+            !roles.any(
+              (r) => ['ADMIN', 'STOCK_MANAGER', 'PRODUCTION_OP'].contains(r),
+            )) {
+          return '/';
+        }
+      }
+
+      // /production/bulk-products: ADMIN, STOCK_MANAGER
+      if (status == AuthStatus.authenticated &&
+          location.startsWith('/production/bulk-products')) {
+        final roles = authProvider.roles;
+        if (roles == null ||
+            !roles.any((r) => ['ADMIN', 'STOCK_MANAGER'].contains(r))) {
+          return '/';
+        }
+      }
+
+      // ---- Rutas de recibos (OCR) ----
+
+      // /receipts/new (captura): ADMIN, STOCK_MANAGER, STOCK_OPERATOR
+      if (status == AuthStatus.authenticated && location == '/receipts/new') {
+        final roles = authProvider.roles;
+        if (roles == null ||
+            !roles.any(
+              (r) => ['ADMIN', 'STOCK_MANAGER', 'STOCK_OPERATOR'].contains(r),
+            )) {
+          return '/';
+        }
+      }
+
+      // /receipts/review y /receipts/confirmed: ADMIN, STOCK_MANAGER
+      if (status == AuthStatus.authenticated &&
+          (location == '/receipts/review' ||
+              location == '/receipts/confirmed')) {
+        final roles = authProvider.roles;
+        if (roles == null ||
+            !roles.any((r) => ['ADMIN', 'STOCK_MANAGER'].contains(r))) {
           return '/';
         }
       }
@@ -181,6 +248,19 @@ GoRouter createRouter(
         },
       ),
 
+      // --- Historial de ventas ---
+      GoRoute(
+        path: '/sales/history',
+        builder: (_, _) => const SalesHistoryScreen(),
+      ),
+      GoRoute(
+        path: '/sales/history/:saleId',
+        builder: (context, state) {
+          final saleId = int.parse(state.pathParameters['saleId']!);
+          return SaleDetailScreen(saleId: saleId);
+        },
+      ),
+
       // --- Recibos (OCR) ---
       GoRoute(
         path: '/receipts/new',
@@ -212,6 +292,19 @@ GoRouter createRouter(
             );
           }
           return ReceiptConfirmedScreen(purchase: purchase);
+        },
+      ),
+
+      // --- Historial de recibos ---
+      GoRoute(
+        path: '/receipts/history',
+        builder: (_, _) => const ReceiptsHistoryScreen(),
+      ),
+      GoRoute(
+        path: '/receipts/history/:receiptId',
+        builder: (context, state) {
+          final receiptId = int.parse(state.pathParameters['receiptId']!);
+          return ReceiptDetailScreen(receiptId: receiptId);
         },
       ),
     ],

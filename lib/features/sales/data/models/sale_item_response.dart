@@ -20,6 +20,12 @@ class SaleItemResponse {
   /// ID del lote (batch) del producto vendido.
   final int batchId;
 
+  /// ID del producto vendido.
+  final int productId;
+
+  /// Nombre del producto en el momento de la transacción.
+  final String productName;
+
   /// Cantidad vendida (admite decimales para fracciones).
   final double quantity;
 
@@ -32,6 +38,8 @@ class SaleItemResponse {
   /// Crea un [SaleItemResponse] con todos los campos requeridos.
   const SaleItemResponse({
     required this.batchId,
+    required this.productId,
+    required this.productName,
     required this.quantity,
     required this.unitPrice,
     required this.unitCost,
