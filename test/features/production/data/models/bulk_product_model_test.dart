@@ -71,20 +71,18 @@ void main() {
       },
     );
 
-    test(
-      'debe manejar conversionRatio ausente como null y active default true',
-      () {
-        final jsonMinimal = {
-          'id': 2,
-          'name': 'Alcohol',
-          'currentStockLiters': 100.0,
-          'costPerLiter': 10.0,
-        };
-        final model = BulkProductModel.fromJson(jsonMinimal);
+    test('debe lanzar error si conversionRatio está ausente en JSON', () {
+      final jsonMinimal = {
+        'id': 2,
+        'name': 'Alcohol',
+        'currentStockLiters': 100.0,
+        'costPerLiter': 10.0,
+      };
 
-        expect(model.conversionRatio, isNull);
-        expect(model.active, true);
-      },
-    );
+      expect(
+        () => BulkProductModel.fromJson(jsonMinimal),
+        throwsA(isA<TypeError>()),
+      );
+    });
   });
 }

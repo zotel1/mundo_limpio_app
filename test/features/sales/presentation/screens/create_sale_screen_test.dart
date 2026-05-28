@@ -22,6 +22,7 @@ import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
+import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/product_response.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/production_batch_response.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/sale_item_response.dart';
@@ -34,10 +35,17 @@ import 'package:mundo_limpio_app/features/sales/presentation/screens/sale_result
 
 class MockSalesRepository extends Mock implements SalesRepository {}
 
+class MockAuthProvider extends Mock implements AuthProvider {}
+
 /// Crea la app de test con SalesProvider real y mock repository.
 Widget createTestApp(SalesProvider provider) {
-  return ChangeNotifierProvider<SalesProvider>.value(
-    value: provider,
+  final auth = MockAuthProvider();
+  when(() => auth.roles).thenReturn(['SALES_CLERK']);
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider<SalesProvider>.value(value: provider),
+      ChangeNotifierProvider<AuthProvider>.value(value: auth),
+    ],
     child: MaterialApp(
       theme: ThemeData(splashFactory: NoSplash.splashFactory),
       home: CreateSaleScreen(),

@@ -17,6 +17,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mundo_limpio_app/features/production/domain/entities/bulk_product.dart';
 import 'package:mundo_limpio_app/features/production/domain/entities/production_batch.dart';
 import 'package:mundo_limpio_app/features/production/domain/repositories/i_bulk_product_repository.dart';
@@ -30,14 +31,19 @@ class MockBulkProductRepository extends Mock
 
 class MockProductionRepository extends Mock implements IProductionRepository {}
 
+class MockAuthProvider extends Mock implements AuthProvider {}
+
 Widget createTestApp(
   BulkProductProvider bpProvider,
   ProductionProvider prodProvider,
 ) {
+  final auth = MockAuthProvider();
+  when(() => auth.roles).thenReturn(['PRODUCTION_OP']);
   return MultiProvider(
     providers: [
       ChangeNotifierProvider<BulkProductProvider>.value(value: bpProvider),
       ChangeNotifierProvider<ProductionProvider>.value(value: prodProvider),
+      ChangeNotifierProvider<AuthProvider>.value(value: auth),
     ],
     child: MaterialApp(
       theme: ThemeData(splashFactory: NoSplash.splashFactory),
@@ -65,6 +71,7 @@ void main() {
         name: '',
         currentStockLiters: 0,
         costPerLiter: 0,
+        conversionRatio: 1.0,
       ),
     );
     registerFallbackValue(
@@ -102,12 +109,14 @@ void main() {
           name: 'Alcohol',
           currentStockLiters: 100,
           costPerLiter: 10.0,
+          conversionRatio: 1.0,
         ),
         const BulkProduct(
           id: 2,
           name: 'Esencia',
           currentStockLiters: 50,
           costPerLiter: 8.0,
+          conversionRatio: 1.0,
         ),
       ],
     );
@@ -129,6 +138,7 @@ void main() {
         name: 'Alcohol',
         currentStockLiters: 100.0,
         costPerLiter: 10.0,
+        conversionRatio: 1.0,
       ),
     );
   });

@@ -12,7 +12,7 @@ BulkProductModel _$BulkProductModelFromJson(Map<String, dynamic> json) =>
       name: json['name'] as String,
       currentStockLiters: (json['currentStockLiters'] as num).toDouble(),
       costPerLiter: (json['costPerLiter'] as num).toDouble(),
-      conversionRatio: (json['conversionRatio'] as num?)?.toDouble(),
+      conversionRatio: (json['conversionRatio'] as num).toDouble(),
       active: json['active'] as bool? ?? true,
     );
 

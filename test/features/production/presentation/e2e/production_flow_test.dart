@@ -31,6 +31,7 @@ void main() {
         name: '',
         currentStockLiters: 0,
         costPerLiter: 0,
+        conversionRatio: 1.0,
       ),
     );
     registerFallbackValue(
@@ -74,6 +75,7 @@ void main() {
           name: 'Alcohol',
           currentStockLiters: 100.0,
           costPerLiter: 10.0,
+          conversionRatio: 1.0,
         ),
       );
       when(
@@ -97,6 +99,7 @@ void main() {
           name: 'Alcohol',
           currentStockLiters: 100.0,
           costPerLiter: 10.0,
+          conversionRatio: 1.0,
         ),
       );
     });
@@ -111,6 +114,7 @@ void main() {
             name: 'Alcohol',
             currentStockLiters: 100.0,
             costPerLiter: 10.0,
+            conversionRatio: 1.0,
           ),
         );
 
@@ -187,6 +191,7 @@ void main() {
             name: 'Alcohol',
             currentStockLiters: 100.0,
             costPerLiter: 10.0,
+            conversionRatio: 1.0,
           ),
         );
         expect(bulkNotifyCount, greaterThan(0));

@@ -20,6 +20,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
+import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mundo_limpio_app/features/production/domain/entities/bulk_product.dart';
 import 'package:mundo_limpio_app/features/production/domain/entities/production_batch.dart';
 import 'package:mundo_limpio_app/features/production/domain/repositories/i_bulk_product_repository.dart';
@@ -34,14 +35,19 @@ class MockProductionRepository extends Mock implements IProductionRepository {}
 class MockBulkProductRepository extends Mock
     implements IBulkProductRepository {}
 
+class MockAuthProvider extends Mock implements AuthProvider {}
+
 Widget createTestApp(
   ProductionProvider prodProvider,
   BulkProductProvider bpProvider,
 ) {
+  final auth = MockAuthProvider();
+  when(() => auth.roles).thenReturn(['PRODUCTION_OP']);
   return MultiProvider(
     providers: [
       ChangeNotifierProvider<ProductionProvider>.value(value: prodProvider),
       ChangeNotifierProvider<BulkProductProvider>.value(value: bpProvider),
+      ChangeNotifierProvider<AuthProvider>.value(value: auth),
     ],
     child: MaterialApp(
       theme: ThemeData(splashFactory: NoSplash.splashFactory),
@@ -69,6 +75,7 @@ void main() {
         name: '',
         currentStockLiters: 0,
         costPerLiter: 0,
+        conversionRatio: 1.0,
       ),
     );
     registerFallbackValue(
@@ -136,6 +143,7 @@ void main() {
         name: 'Test',
         currentStockLiters: 10.0,
         costPerLiter: 5.0,
+        conversionRatio: 1.0,
       ),
     );
     when(() => mockBulkRepo.updateBulkProduct(any())).thenAnswer(
@@ -144,6 +152,7 @@ void main() {
         name: 'Updated',
         currentStockLiters: 20.0,
         costPerLiter: 6.0,
+        conversionRatio: 1.0,
       ),
     );
     when(() => mockBulkRepo.deleteBulkProduct(any())).thenAnswer((_) async {});
@@ -153,6 +162,7 @@ void main() {
         name: 'Alcohol',
         currentStockLiters: 100.0,
         costPerLiter: 10.0,
+        conversionRatio: 1.0,
       ),
     );
   });

@@ -39,8 +39,8 @@ class _BulkProductFormScreenState extends State<BulkProductFormScreen> {
       _currentStockController.text = widget.product!.currentStockLiters
           .toString();
       _costPerLiterController.text = widget.product!.costPerLiter.toString();
-      _conversionRatioController.text =
-          widget.product!.conversionRatio?.toString() ?? '';
+      _conversionRatioController.text = widget.product!.conversionRatio
+          .toString();
     }
   }
 
@@ -66,9 +66,7 @@ class _BulkProductFormScreenState extends State<BulkProductFormScreen> {
           name: _nameController.text.trim(),
           currentStockLiters: double.parse(_currentStockController.text.trim()),
           costPerLiter: double.parse(_costPerLiterController.text.trim()),
-          conversionRatio: _conversionRatioController.text.trim().isNotEmpty
-              ? double.parse(_conversionRatioController.text.trim())
-              : null,
+          conversionRatio: double.parse(_conversionRatioController.text.trim()),
         ),
       );
     } else {
@@ -78,9 +76,7 @@ class _BulkProductFormScreenState extends State<BulkProductFormScreen> {
           name: _nameController.text.trim(),
           currentStockLiters: double.parse(_currentStockController.text.trim()),
           costPerLiter: double.parse(_costPerLiterController.text.trim()),
-          conversionRatio: _conversionRatioController.text.trim().isNotEmpty
-              ? double.parse(_conversionRatioController.text.trim())
-              : null,
+          conversionRatio: double.parse(_conversionRatioController.text.trim()),
           active: widget.product!.active,
         ),
       );
@@ -163,9 +159,19 @@ class _BulkProductFormScreenState extends State<BulkProductFormScreen> {
                 TextFormField(
                   controller: _conversionRatioController,
                   decoration: const InputDecoration(
-                    labelText: 'Ratio de Conversión (opcional)',
+                    labelText: 'Ratio de Conversión',
                   ),
                   keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'El ratio de conversión es requerido';
+                    }
+                    final ratio = double.tryParse(value.trim());
+                    if (ratio == null || ratio <= 0) {
+                      return 'El ratio debe ser mayor a 0';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(

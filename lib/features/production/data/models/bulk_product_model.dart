@@ -9,7 +9,7 @@ class BulkProductModel {
   final String name;
   final double currentStockLiters;
   final double costPerLiter;
-  final double? conversionRatio;
+  final double conversionRatio;
   @JsonKey(defaultValue: true)
   final bool active;
 
@@ -18,7 +18,7 @@ class BulkProductModel {
     required this.name,
     required this.currentStockLiters,
     required this.costPerLiter,
-    this.conversionRatio,
+    required this.conversionRatio,
     this.active = true,
   });
 

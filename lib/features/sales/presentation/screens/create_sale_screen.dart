@@ -14,10 +14,13 @@
 // TDD: GREEN — implementación que pasa los tests de CreateSaleScreen
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mundo_limpio_app/core/helpers/role_guard.dart';
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
+import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/provider/sales_provider.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/screens/sale_result_screen.dart';
 
@@ -38,9 +41,13 @@ class _CreateSaleScreenState extends State<CreateSaleScreen> {
     super.initState();
     // Auto-cargar productos al iniciar la pantalla (R5.1)
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<SalesProvider>().loadProducts();
+      if (!mounted) return;
+      final roles = context.read<AuthProvider>().roles;
+      if (!RoleGuard.hasAnyRole(roles, ['ADMIN', 'SALES_CLERK'])) {
+        context.go('/');
+        return;
       }
+      context.read<SalesProvider>().loadProducts();
     });
   }
 
