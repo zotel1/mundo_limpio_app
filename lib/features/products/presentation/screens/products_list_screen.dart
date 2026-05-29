@@ -43,7 +43,7 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<ProductsProvider>();
     final roles = context.read<AuthProvider>().roles;
-    final canWrite = RoleGuard.hasAnyRole(roles, ['ADMIN', 'STOCK_MANAGER']);
+    final canWrite = RoleGuard.hasAnyRole(roles, ['ADMIN']);
 
     return Scaffold(
       appBar: const BrandedAppBar(title: 'Productos'),

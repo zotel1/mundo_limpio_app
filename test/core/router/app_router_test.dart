@@ -358,7 +358,17 @@ void main() {
       await navigateAndCheckRedirect(tester, 'ADMIN', '/production/batches');
     });
 
-    testWidgets('A10: STOCK_MANAGER puede acceder a /production/', (
+    testWidgets('A10: PRODUCTION_OP puede acceder a /production/', (
+      tester,
+    ) async {
+      await navigateAndCheckRedirect(
+        tester,
+        'PRODUCTION_OP',
+        '/production/batches',
+      );
+    });
+
+    testWidgets('A10b: STOCK_MANAGER puede acceder a /production/batches', (
       tester,
     ) async {
       await navigateAndCheckRedirect(
@@ -372,12 +382,16 @@ void main() {
       await navigateAndCheckRedirect(tester, 'STOCK_MANAGER', '/receipts/new');
     });
 
-    testWidgets('A11: OPERATOR no puede acceder a /production/', (
+    testWidgets('STOCK_OPERATOR puede acceder a /receipts/', (tester) async {
+      await navigateAndCheckRedirect(tester, 'STOCK_OPERATOR', '/receipts/new');
+    });
+
+    testWidgets('A11: SALES_CLERK no puede acceder a /production/', (
       tester,
     ) async {
       await navigateAndCheckRedirect(
         tester,
-        'OPERATOR',
+        'SALES_CLERK',
         '/production/batches',
         expectRedirect: true,
       );
@@ -392,8 +406,8 @@ void main() {
       await navigateAndCheckRedirect(tester, 'STOCK_MANAGER', '/products');
     });
 
-    testWidgets('OPERATOR puede acceder a /products/', (tester) async {
-      await navigateAndCheckRedirect(tester, 'OPERATOR', '/products');
+    testWidgets('STOCK_OPERATOR puede acceder a /products/', (tester) async {
+      await navigateAndCheckRedirect(tester, 'STOCK_OPERATOR', '/products');
     });
 
     testWidgets('ADMIN puede acceder a /products/new', (tester) async {
@@ -414,8 +428,15 @@ void main() {
       );
     });
 
-    testWidgets('OPERATOR puede acceder a /products/new', (tester) async {
-      await navigateAndCheckRedirect(tester, 'OPERATOR', '/products/new');
+    testWidgets('STOCK_OPERATOR no puede acceder a /products/new', (
+      tester,
+    ) async {
+      await navigateAndCheckRedirect(
+        tester,
+        'STOCK_OPERATOR',
+        '/products/new',
+        expectRedirect: true,
+      );
     });
 
     // ── Users Routes (PR3) ─────────────────────────────────────────
@@ -423,6 +444,43 @@ void main() {
       await navigateAndCheckRedirect(tester, 'ADMIN', '/users');
     });
 
+    // ── Sales Routes ─────────────────────────────────────────────
+    testWidgets('ADMIN puede acceder a /sales/new', (tester) async {
+      await navigateAndCheckRedirect(tester, 'ADMIN', '/sales/new');
+    });
+
+    testWidgets('SALES_CLERK puede acceder a /sales/new', (tester) async {
+      await navigateAndCheckRedirect(tester, 'SALES_CLERK', '/sales/new');
+    });
+
+    testWidgets('STOCK_MANAGER no puede acceder a /sales/new', (tester) async {
+      await navigateAndCheckRedirect(
+        tester,
+        'STOCK_MANAGER',
+        '/sales/new',
+        expectRedirect: true,
+      );
+    });
+
+    // ── Inventory Routes ─────────────────────────────────────────
+    testWidgets('ADMIN puede acceder a /inventory', (tester) async {
+      await navigateAndCheckRedirect(tester, 'ADMIN', '/inventory');
+    });
+
+    testWidgets('STOCK_MANAGER puede acceder a /inventory', (tester) async {
+      await navigateAndCheckRedirect(tester, 'STOCK_MANAGER', '/inventory');
+    });
+
+    testWidgets('SALES_CLERK no puede acceder a /inventory', (tester) async {
+      await navigateAndCheckRedirect(
+        tester,
+        'SALES_CLERK',
+        '/inventory',
+        expectRedirect: true,
+      );
+    });
+
+    // ── Users Routes ─────────────────────────────────────────────
     testWidgets('STOCK_MANAGER no puede acceder a /users', (tester) async {
       await navigateAndCheckRedirect(
         tester,
