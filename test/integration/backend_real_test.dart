@@ -1,3 +1,6 @@
+@Tags(['network'])
+library;
+
 // Pruebas de integración contra el backend real en Render.
 //
 // NO usa mocks — llama a los endpoints HTTP reales y usa las
