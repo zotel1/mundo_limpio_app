@@ -368,14 +368,13 @@ void main() {
       );
     });
 
-    testWidgets('A10b: STOCK_MANAGER ya NO puede acceder a /production/', (
+    testWidgets('A10b: STOCK_MANAGER puede acceder a /production/batches', (
       tester,
     ) async {
       await navigateAndCheckRedirect(
         tester,
         'STOCK_MANAGER',
         '/production/batches',
-        expectRedirect: true,
       );
     });
 
