@@ -40,9 +40,9 @@ class ProductionRepositoryImpl implements IProductionRepository {
       final response = await _dio.post(
         '/api/v1/production-batches',
         data: {
-          'finished_product_id': request.finishedProductId,
-          'bulk_product_id': request.bulkProductId,
-          'quantity_used': request.quantityUsed,
+          'productId': request.finishedProductId,
+          'bulkProductId': request.bulkProductId,
+          'rawQuantityUsed': request.quantityUsed,
         },
       );
       return ProductionBatchModel.fromJson(response.data).toEntity();

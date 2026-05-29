@@ -45,6 +45,7 @@ import 'features/inventory/presentation/provider/inventory_provider.dart';
 import 'features/sales/data/api/sales_api.dart';
 import 'features/sales/data/repository/sales_repository_impl.dart';
 import 'features/sales/domain/repository/sales_repository.dart';
+import 'features/sales/presentation/provider/sales_history_provider.dart';
 import 'features/sales/presentation/provider/sales_provider.dart';
 import 'features/notifications/data/push_notifications_repository_impl.dart';
 import 'features/notifications/domain/push_notifications_repository.dart';
@@ -71,6 +72,7 @@ import 'features/production/presentation/providers/bulk_product_provider.dart';
 import 'features/receipts/data/api/receipts_api.dart';
 import 'features/receipts/data/repository/receipts_repository_impl.dart';
 import 'features/receipts/domain/repository/receipts_repository.dart';
+import 'features/receipts/presentation/provider/receipts_history_provider.dart';
 import 'features/receipts/presentation/provider/receipts_provider.dart';
 
 // ── Usuarios (admin) ──────────────────────────────────────
@@ -202,6 +204,10 @@ void main() async {
           create: (ctx) => SalesProvider(ctx.read<SalesRepository>()),
         ),
 
+        ChangeNotifierProvider<SalesHistoryProvider>(
+          create: (ctx) => SalesHistoryProvider(ctx.read<SalesRepository>()),
+        ),
+
         Provider<InventoryRepository>(
           create: (ctx) => InventoryRepositoryImpl(
             inventoryApi: ctx.read<InventoryApi>(),
@@ -283,6 +289,11 @@ void main() async {
 
         ChangeNotifierProvider<ReceiptsProvider>(
           create: (ctx) => ReceiptsProvider(ctx.read<ReceiptsRepository>()),
+        ),
+
+        ChangeNotifierProvider<ReceiptsHistoryProvider>(
+          create: (ctx) =>
+              ReceiptsHistoryProvider(ctx.read<ReceiptsRepository>()),
         ),
 
         // ── Usuarios: API, repositorio y provider (admin) ────

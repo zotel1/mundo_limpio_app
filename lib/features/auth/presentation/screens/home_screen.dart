@@ -18,6 +18,22 @@ import 'package:provider/provider.dart';
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 
 import '../provider/auth_provider.dart';
+import 'package:mundo_limpio_app/features/users/domain/entities/user_role.dart';
+
+/// Verifica si el usuario tiene al menos uno de los [allowedRoles].
+bool _hasRole(AuthProvider auth, List<String> allowedRoles) {
+  final roles = auth.roles;
+  if (roles == null) return false;
+  return roles.any((r) => allowedRoles.contains(r));
+}
+
+/// Verifica si el usuario autenticado tiene acceso a rutas de stock.
+bool _canAccess(AuthProvider auth) {
+  return _hasRole(auth, [
+    UserRole.admin.jsonValue,
+    UserRole.stockManager.jsonValue,
+  ]);
+}
 
 /// Pantalla de inicio después de autenticación exitosa con bottom nav.
 ///
@@ -161,6 +177,16 @@ class _HomeScreenState extends State<HomeScreen> {
           label: 'Recibos',
           route: '/receipts/new',
         ),
+        _actionCard(
+          icon: Icons.receipt,
+          label: 'Historial Ventas',
+          route: '/sales/history',
+        ),
+        _actionCard(
+          icon: Icons.receipt_long,
+          label: 'Historial Recibos',
+          route: '/receipts/history',
+        ),
       ],
     );
   }
@@ -172,6 +198,16 @@ class _HomeScreenState extends State<HomeScreen> {
           icon: Icons.inventory,
           label: 'Ver Productos',
           route: '/products',
+        ),
+        _actionCard(
+          icon: Icons.receipt,
+          label: 'Historial Ventas',
+          route: '/sales/history',
+        ),
+        _actionCard(
+          icon: Icons.receipt_long,
+          label: 'Historial Recibos',
+          route: '/receipts/history',
         ),
         const SizedBox(height: 16),
         Card(
@@ -235,6 +271,11 @@ class _HomeScreenState extends State<HomeScreen> {
           label: 'Nueva Venta',
           route: '/sales/new',
         ),
+        _actionCard(
+          icon: Icons.receipt,
+          label: 'Historial Ventas',
+          route: '/sales/history',
+        ),
       ],
     );
   }
@@ -273,6 +314,11 @@ class _HomeScreenState extends State<HomeScreen> {
           icon: Icons.receipt_long,
           label: 'Recibos',
           route: '/receipts/new',
+        ),
+        _actionCard(
+          icon: Icons.receipt_long,
+          label: 'Historial Recibos',
+          route: '/receipts/history',
         ),
       ],
     );

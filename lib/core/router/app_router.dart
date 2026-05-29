@@ -20,7 +20,9 @@ import 'package:mundo_limpio_app/features/inventory/presentation/screens/invento
 import 'package:mundo_limpio_app/features/inventory/presentation/screens/inventory_list_screen.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/screens/create_sale_screen.dart';
+import 'package:mundo_limpio_app/features/sales/presentation/screens/sale_detail_screen.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/screens/sale_result_screen.dart';
+import 'package:mundo_limpio_app/features/sales/presentation/screens/sales_history_screen.dart';
 import 'package:mundo_limpio_app/features/products/presentation/screens/products_detail_screen.dart';
 import 'package:mundo_limpio_app/features/products/presentation/screens/products_form_screen.dart';
 import 'package:mundo_limpio_app/features/products/presentation/screens/products_list_screen.dart';
@@ -33,6 +35,8 @@ import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response
 import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_capture_screen.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_review_screen.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_confirmed_screen.dart';
+import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_detail_screen.dart';
+import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipts_history_screen.dart';
 import 'package:mundo_limpio_app/features/splash/presentation/splash_provider.dart';
 import 'package:mundo_limpio_app/features/splash/presentation/splash_screen.dart';
 
@@ -66,9 +70,12 @@ GoRouter createRouter(
   const _routeRoleMap = <String, Set<String>>{
     '/users': {'ADMIN'},
     '/products/new': {'ADMIN'},
-    '/production/': {'ADMIN', 'PRODUCTION_OP'},
+    '/production/batches': {'ADMIN', 'STOCK_MANAGER', 'PRODUCTION_OP'},
+    '/production/bulk-products': {'ADMIN', 'STOCK_MANAGER'},
     '/receipts/': {'ADMIN', 'STOCK_MANAGER', 'STOCK_OPERATOR'},
     '/sales/new': {'ADMIN', 'SALES_CLERK'},
+    '/sales/history': {'ADMIN', 'SALES_CLERK', 'ACCOUNTANT'},
+    '/receipts/history': {'ADMIN', 'STOCK_MANAGER', 'ACCOUNTANT'},
     '/inventory': {'ADMIN', 'STOCK_MANAGER', 'STOCK_OPERATOR'},
     '/products': {
       'ADMIN',
@@ -192,6 +199,19 @@ GoRouter createRouter(
         },
       ),
 
+      // --- Historial de ventas ---
+      GoRoute(
+        path: '/sales/history',
+        builder: (_, _) => const SalesHistoryScreen(),
+      ),
+      GoRoute(
+        path: '/sales/history/:saleId',
+        builder: (context, state) {
+          final saleId = int.parse(state.pathParameters['saleId']!);
+          return SaleDetailScreen(saleId: saleId);
+        },
+      ),
+
       // --- Recibos (OCR) ---
       GoRoute(
         path: '/receipts/new',
@@ -223,6 +243,19 @@ GoRouter createRouter(
             );
           }
           return ReceiptConfirmedScreen(purchase: purchase);
+        },
+      ),
+
+      // --- Historial de recibos ---
+      GoRoute(
+        path: '/receipts/history',
+        builder: (_, _) => const ReceiptsHistoryScreen(),
+      ),
+      GoRoute(
+        path: '/receipts/history/:receiptId',
+        builder: (context, state) {
+          final receiptId = int.parse(state.pathParameters['receiptId']!);
+          return ReceiptDetailScreen(receiptId: receiptId);
         },
       ),
     ],
