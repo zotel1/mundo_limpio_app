@@ -67,7 +67,7 @@ GoRouter createRouter(
   SplashProvider splashProvider, {
   String initialLocation = '/splash',
 }) {
-  const _routeRoleMap = <String, Set<String>>{
+  const routeRoleMap = <String, Set<String>>{
     '/users': {'ADMIN'},
     '/products/new': {'ADMIN'},
     '/production/batches': {'ADMIN', 'STOCK_MANAGER', 'PRODUCTION_OP'},
@@ -99,9 +99,9 @@ GoRouter createRouter(
 
       final status = authProvider.status;
 
-      // Route-based role guard: centralizado via _routeRoleMap
+      // Route-based role guard: centralizado via routeRoleMap
       if (status == AuthStatus.authenticated) {
-        for (final entry in _routeRoleMap.entries) {
+        for (final entry in routeRoleMap.entries) {
           if (location.startsWith(entry.key)) {
             final userRoles = authProvider.roles;
             if (userRoles == null ||

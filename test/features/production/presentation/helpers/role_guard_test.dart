@@ -72,7 +72,7 @@ void main() {
     /// - true: el rol puede acceder a la ruta
     /// - false: el rol NO puede acceder (ruta restringida)
     /// - null: el rol no se evalúa para esta ruta (se salta por claridad)
-    ({List<String> roles, String path, bool? expected}) Function() _t(
+    ({List<String> roles, String path, bool? expected}) Function() t(
       String role,
       String path,
       bool? expected,
@@ -82,42 +82,42 @@ void main() {
 
     final cases = [
       // ADMIN
-      _t('ADMIN', '/users', true),
-      _t('ADMIN', '/products/new', true),
-      _t('ADMIN', '/production/batches', true),
-      _t('ADMIN', '/receipts/new', true),
-      _t('ADMIN', '/sales/new', true),
-      _t('ADMIN', '/inventory', true),
-      _t('ADMIN', '/products', true),
+      t('ADMIN', '/users', true),
+      t('ADMIN', '/products/new', true),
+      t('ADMIN', '/production/batches', true),
+      t('ADMIN', '/receipts/new', true),
+      t('ADMIN', '/sales/new', true),
+      t('ADMIN', '/inventory', true),
+      t('ADMIN', '/products', true),
       // STOCK_MANAGER
-      _t('STOCK_MANAGER', '/users', false),
-      _t('STOCK_MANAGER', '/products/new', false),
-      _t('STOCK_MANAGER', '/production/batches', false),
-      _t('STOCK_MANAGER', '/receipts/new', true),
-      _t('STOCK_MANAGER', '/sales/new', false),
-      _t('STOCK_MANAGER', '/inventory', true),
-      _t('STOCK_MANAGER', '/products', true),
+      t('STOCK_MANAGER', '/users', false),
+      t('STOCK_MANAGER', '/products/new', false),
+      t('STOCK_MANAGER', '/production/batches', false),
+      t('STOCK_MANAGER', '/receipts/new', true),
+      t('STOCK_MANAGER', '/sales/new', false),
+      t('STOCK_MANAGER', '/inventory', true),
+      t('STOCK_MANAGER', '/products', true),
       // STOCK_OPERATOR
-      _t('STOCK_OPERATOR', '/production/batches', false),
-      _t('STOCK_OPERATOR', '/receipts/new', true),
-      _t('STOCK_OPERATOR', '/sales/new', false),
-      _t('STOCK_OPERATOR', '/products', true),
+      t('STOCK_OPERATOR', '/production/batches', false),
+      t('STOCK_OPERATOR', '/receipts/new', true),
+      t('STOCK_OPERATOR', '/sales/new', false),
+      t('STOCK_OPERATOR', '/products', true),
       // SALES_CLERK
-      _t('SALES_CLERK', '/sales/new', true),
-      _t('SALES_CLERK', '/production/batches', false),
-      _t('SALES_CLERK', '/products', true),
+      t('SALES_CLERK', '/sales/new', true),
+      t('SALES_CLERK', '/production/batches', false),
+      t('SALES_CLERK', '/products', true),
       // PRODUCTION_OP
-      _t('PRODUCTION_OP', '/production/batches', true),
-      _t('PRODUCTION_OP', '/products', true),
-      _t('PRODUCTION_OP', '/receipts/new', false),
+      t('PRODUCTION_OP', '/production/batches', true),
+      t('PRODUCTION_OP', '/products', true),
+      t('PRODUCTION_OP', '/receipts/new', false),
       // ACCOUNTANT
-      _t('ACCOUNTANT', '/products', true),
-      _t('ACCOUNTANT', '/users', false),
-      _t('ACCOUNTANT', '/inventory', false),
+      t('ACCOUNTANT', '/products', true),
+      t('ACCOUNTANT', '/users', false),
+      t('ACCOUNTANT', '/inventory', false),
       // CUSTOMER
-      _t('CUSTOMER', '/products', true),
-      _t('CUSTOMER', '/users', false),
-      _t('CUSTOMER', '/sales/new', false),
+      t('CUSTOMER', '/products', true),
+      t('CUSTOMER', '/users', false),
+      t('CUSTOMER', '/sales/new', false),
     ];
 
     for (final c in cases) {

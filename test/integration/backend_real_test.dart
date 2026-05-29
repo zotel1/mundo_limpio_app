@@ -23,7 +23,6 @@ import 'package:mundo_limpio_app/features/products/data/api/products_api.dart';
 import 'package:mundo_limpio_app/features/products/data/models/product_model.dart';
 import 'package:mundo_limpio_app/features/sales/data/api/sales_api.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/sale_request.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
 import 'package:mundo_limpio_app/features/users/data/api/users_api.dart';
 import 'package:mundo_limpio_app/features/users/data/models/user_model.dart';
 
