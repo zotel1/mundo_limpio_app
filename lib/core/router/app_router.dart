@@ -63,6 +63,24 @@ GoRouter createRouter(
   SplashProvider splashProvider, {
   String initialLocation = '/splash',
 }) {
+  const _routeRoleMap = <String, Set<String>>{
+    '/users': {'ADMIN'},
+    '/products/new': {'ADMIN'},
+    '/production/': {'ADMIN', 'PRODUCTION_OP'},
+    '/receipts/': {'ADMIN', 'STOCK_MANAGER', 'STOCK_OPERATOR'},
+    '/sales/new': {'ADMIN', 'SALES_CLERK'},
+    '/inventory': {'ADMIN', 'STOCK_MANAGER', 'STOCK_OPERATOR'},
+    '/products': {
+      'ADMIN',
+      'STOCK_MANAGER',
+      'STOCK_OPERATOR',
+      'SALES_CLERK',
+      'PRODUCTION_OP',
+      'ACCOUNTANT',
+      'CUSTOMER',
+    },
+  };
+
   return GoRouter(
     initialLocation: initialLocation,
     refreshListenable: Listenable.merge([authProvider, splashProvider]),
@@ -74,24 +92,17 @@ GoRouter createRouter(
 
       final status = authProvider.status;
 
-      // Roles de stock que pueden acceder a producción y recibos
-      const stockRoles = ['ADMIN', 'STOCK_MANAGER'];
-
-      // Proteger rutas de administración: ADMIN y STOCK_MANAGER pueden acceder
-      if (status == AuthStatus.authenticated &&
-          (location.startsWith('/production/') ||
-              location.startsWith('/receipts/'))) {
-        final roles = authProvider.roles;
-        if (roles == null || !roles.any((r) => stockRoles.contains(r))) {
-          return '/';
-        }
-      }
-
-      // /users es solo ADMIN
-      if (status == AuthStatus.authenticated && location.startsWith('/users')) {
-        final roles = authProvider.roles;
-        if (roles == null || !roles.contains('ADMIN')) {
-          return '/';
+      // Route-based role guard: centralizado via _routeRoleMap
+      if (status == AuthStatus.authenticated) {
+        for (final entry in _routeRoleMap.entries) {
+          if (location.startsWith(entry.key)) {
+            final userRoles = authProvider.roles;
+            if (userRoles == null ||
+                !userRoles.any((r) => entry.value.contains(r))) {
+              return '/';
+            }
+            break;
+          }
         }
       }
 

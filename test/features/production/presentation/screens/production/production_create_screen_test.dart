@@ -176,7 +176,11 @@ void main() {
       await tester.pumpWidget(createTestApp(bpProvider, prodProvider));
       await pumpUntilSettled(tester);
 
-      // Tap guardar sin llenar campos
+      // Scroll down y tap guardar sin llenar campos
+      await tester.ensureVisible(
+        find.widgetWithText(ElevatedButton, 'Guardar'),
+      );
+      await tester.pump();
       await tester.tap(find.widgetWithText(ElevatedButton, 'Guardar'));
       await pumpUntilSettled(tester);
 
@@ -207,6 +211,10 @@ void main() {
       await tester.enterText(find.byType(TextFormField).at(2), '4.0');
 
       // Tap guardar
+      await tester.ensureVisible(
+        find.widgetWithText(ElevatedButton, 'Guardar'),
+      );
+      await tester.pump();
       await tester.tap(find.widgetWithText(ElevatedButton, 'Guardar'));
       await pumpUntilSettled(tester);
 
@@ -241,6 +249,10 @@ void main() {
       await tester.enterText(find.byType(TextFormField).at(2), '4.0');
 
       // Tap guardar
+      await tester.ensureVisible(
+        find.widgetWithText(ElevatedButton, 'Guardar'),
+      );
+      await tester.pump();
       await tester.tap(find.widgetWithText(ElevatedButton, 'Guardar'));
       await pumpUntilSettled(tester);
 

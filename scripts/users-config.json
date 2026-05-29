@@ -1,0 +1,11 @@
+{
+  "users": [
+    { "email": "zotelsigel@gmail.com",    "password": "123456", "role": "ADMIN" },
+    { "email": "zoteldev@gmail.com",      "password": "123456", "role": "ACCOUNTANT" },
+    { "email": "zotyout@gmail.com",       "password": "123456", "role": "STOCK_OPERATOR" },
+    { "email": "sigelcristian230@gmail.com", "password": "123456", "role": "SALES_CLERK" },
+    { "email": "sigelcrisbd@gmail.com",   "password": "123456", "role": "PRODUCTION_OP" },
+    { "email": "sigelcristian85@gmail.com", "password": "123456", "role": "STOCK_MANAGER" },
+    { "email": "zotttelsigel@gmail.com",  "password": "123456", "role": "CUSTOMER" }
+  ]
+}
