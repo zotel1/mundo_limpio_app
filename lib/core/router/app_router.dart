@@ -67,6 +67,27 @@ GoRouter createRouter(
   SplashProvider splashProvider, {
   String initialLocation = '/splash',
 }) {
+  const routeRoleMap = <String, Set<String>>{
+    '/users': {'ADMIN'},
+    '/products/new': {'ADMIN'},
+    '/production/batches': {'ADMIN', 'STOCK_MANAGER', 'PRODUCTION_OP'},
+    '/production/bulk-products': {'ADMIN', 'STOCK_MANAGER'},
+    '/receipts/': {'ADMIN', 'STOCK_MANAGER', 'STOCK_OPERATOR'},
+    '/sales/new': {'ADMIN', 'SALES_CLERK'},
+    '/sales/history': {'ADMIN', 'SALES_CLERK', 'ACCOUNTANT'},
+    '/receipts/history': {'ADMIN', 'STOCK_MANAGER', 'ACCOUNTANT'},
+    '/inventory': {'ADMIN', 'STOCK_MANAGER', 'STOCK_OPERATOR'},
+    '/products': {
+      'ADMIN',
+      'STOCK_MANAGER',
+      'STOCK_OPERATOR',
+      'SALES_CLERK',
+      'PRODUCTION_OP',
+      'ACCOUNTANT',
+      'CUSTOMER',
+    },
+  };
+
   return GoRouter(
     initialLocation: initialLocation,
     refreshListenable: Listenable.merge([authProvider, splashProvider]),
@@ -78,87 +99,17 @@ GoRouter createRouter(
 
       final status = authProvider.status;
 
-      // ---- Rutas de historial de ventas ----
-
-      // /sales/history y /sales/history/:saleId: ADMIN, SALES_CLERK, ACCOUNTANT
-      if (status == AuthStatus.authenticated &&
-          location.startsWith('/sales/history')) {
-        final roles = authProvider.roles;
-        if (roles == null ||
-            !roles.any(
-              (r) => ['ADMIN', 'SALES_CLERK', 'ACCOUNTANT'].contains(r),
-            )) {
-          return '/';
-        }
-      }
-
-      // ---- Rutas de historial de recibos ----
-
-      // /receipts/history y /receipts/history/:receiptId: ADMIN, STOCK_MANAGER, ACCOUNTANT
-      if (status == AuthStatus.authenticated &&
-          location.startsWith('/receipts/history')) {
-        final roles = authProvider.roles;
-        if (roles == null ||
-            !roles.any(
-              (r) => ['ADMIN', 'STOCK_MANAGER', 'ACCOUNTANT'].contains(r),
-            )) {
-          return '/';
-        }
-      }
-
-      // ---- Rutas de producción ----
-
-      // /production/batches y /production/batches/new: ADMIN, STOCK_MANAGER, PRODUCTION_OP
-      if (status == AuthStatus.authenticated &&
-          location.startsWith('/production/batches')) {
-        final roles = authProvider.roles;
-        if (roles == null ||
-            !roles.any(
-              (r) => ['ADMIN', 'STOCK_MANAGER', 'PRODUCTION_OP'].contains(r),
-            )) {
-          return '/';
-        }
-      }
-
-      // /production/bulk-products: ADMIN, STOCK_MANAGER
-      if (status == AuthStatus.authenticated &&
-          location.startsWith('/production/bulk-products')) {
-        final roles = authProvider.roles;
-        if (roles == null ||
-            !roles.any((r) => ['ADMIN', 'STOCK_MANAGER'].contains(r))) {
-          return '/';
-        }
-      }
-
-      // ---- Rutas de recibos (OCR) ----
-
-      // /receipts/new (captura): ADMIN, STOCK_MANAGER, STOCK_OPERATOR
-      if (status == AuthStatus.authenticated && location == '/receipts/new') {
-        final roles = authProvider.roles;
-        if (roles == null ||
-            !roles.any(
-              (r) => ['ADMIN', 'STOCK_MANAGER', 'STOCK_OPERATOR'].contains(r),
-            )) {
-          return '/';
-        }
-      }
-
-      // /receipts/review y /receipts/confirmed: ADMIN, STOCK_MANAGER
-      if (status == AuthStatus.authenticated &&
-          (location == '/receipts/review' ||
-              location == '/receipts/confirmed')) {
-        final roles = authProvider.roles;
-        if (roles == null ||
-            !roles.any((r) => ['ADMIN', 'STOCK_MANAGER'].contains(r))) {
-          return '/';
-        }
-      }
-
-      // /users es solo ADMIN
-      if (status == AuthStatus.authenticated && location.startsWith('/users')) {
-        final roles = authProvider.roles;
-        if (roles == null || !roles.contains('ADMIN')) {
-          return '/';
+      // Route-based role guard: centralizado via routeRoleMap
+      if (status == AuthStatus.authenticated) {
+        for (final entry in routeRoleMap.entries) {
+          if (location.startsWith(entry.key)) {
+            final userRoles = authProvider.roles;
+            if (userRoles == null ||
+                !userRoles.any((r) => entry.value.contains(r))) {
+              return '/';
+            }
+            break;
+          }
         }
       }
 

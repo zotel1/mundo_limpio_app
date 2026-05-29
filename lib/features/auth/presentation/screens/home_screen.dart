@@ -1,44 +1,29 @@
-// Pantalla principal post-login.
+// Pantalla principal post-login con navegación adaptada por rol.
 //
-// Muestra un mensaje de bienvenida y un botón de cerrar sesión
-// con confirmación. Después del logout navega a LoginScreen.
+// Muestra landing con ActionCards según el rol del usuario:
+// - ADMIN: acciones completas del sistema
+// - STOCK_MANAGER / STOCK_OPERATOR: gestión de stock y recibos
+// - SALES_CLERK: productos y nueva venta
+// - PRODUCTION_OP: productos y producción
+// - ACCOUNTANT: productos + placeholder de costos
+// - CUSTOMER: solo catálogo de productos
 //
-// Estados:
-// - AUTHENTICATED: muestra bienvenida + botón logout
-// - LOGOUT CONFIRMATION: diálogo de confirmación
-// - POST-LOGOUT: navegación a LoginScreen
-//
-// TDD: GREEN — creado después de que AuthProvider pasa los tests
+// El BottomNavigationBar adapta sus destinos según el rol.
+// Usa IndexedStack para mantener el estado de cada tab.
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
-import 'package:mundo_limpio_app/features/users/domain/entities/user_role.dart';
 
 import '../provider/auth_provider.dart';
-
-/// Verifica si el usuario tiene al menos uno de los [allowedRoles].
-bool _hasRole(AuthProvider auth, List<String> allowedRoles) {
-  final roles = auth.roles;
-  if (roles == null) return false;
-  return roles.any((r) => allowedRoles.contains(r));
-}
-
-/// Verifica si el usuario autenticado tiene acceso a rutas de stock.
-bool _canAccess(AuthProvider auth) {
-  return _hasRole(auth, [
-    UserRole.admin.jsonValue,
-    UserRole.stockManager.jsonValue,
-  ]);
-}
 
 /// Pantalla de inicio después de autenticación exitosa con bottom nav.
 ///
 /// Usa [IndexedStack] para mantener el estado de cada tab al alternar.
-/// Tab 0: pantalla de bienvenida + botones de gestión (para roles habilitados).
-/// Tab 1: lista de productos para clientes; mismos botones de gestión para admins.
+/// Tab 0: landing page por rol con ActionCards.
+/// Tab 1: gestión (ADMIN) o catálogo de productos (otros roles).
 /// Tab 2: perfil del usuario con datos y cierre de sesión.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -53,22 +38,21 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
-    final hasAccess = _canAccess(auth);
-    final isAdmin = auth.roles?.contains(UserRole.admin.jsonValue) == true;
+    final roles = auth.roles ?? ['CUSTOMER'];
 
     return Scaffold(
       appBar: _buildAppBar(auth),
       body: IndexedStack(
         index: _currentIndex,
         children: [
-          _buildHomeTab(auth, hasAccess, isAdmin),
-          hasAccess
-              ? _buildHomeTab(auth, hasAccess, isAdmin)
+          _buildLandingForRole(roles),
+          roles.contains('ADMIN')
+              ? _buildLandingForRole(roles)
               : _buildProductsTab(),
           _buildProfileTab(auth),
         ],
       ),
-      bottomNavigationBar: _buildBottomNav(hasAccess),
+      bottomNavigationBar: _buildBottomNav(roles),
     );
   }
 
@@ -92,146 +76,247 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Widget _buildHomeTab(AuthProvider auth, bool hasAccess, bool isAdmin) {
+  /// Tarjeta de acción reutilizable: ElevatedButton.icon con ruta.
+  Widget _actionCard({
+    required IconData icon,
+    required String label,
+    required String route,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: SizedBox(
+        width: 220,
+        height: 48,
+        child: ElevatedButton.icon(
+          onPressed: () => context.push(route),
+          icon: Icon(icon),
+          label: Text(label),
+        ),
+      ),
+    );
+  }
+
+  /// Landing page según el primer rol del usuario.
+  Widget _buildLandingForRole(List<String> roles) {
+    final role = roles.isNotEmpty ? roles.first : 'CUSTOMER';
+
     return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
       child: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.check_circle_outline,
-              size: 64,
-              color: Colors.green,
-            ),
             const SizedBox(height: 16),
-            const Text(
-              '¡Bienvenido! Sesión iniciada correctamente.',
-              style: TextStyle(fontSize: 18),
-              textAlign: TextAlign.center,
+            Text(
+              'Bienvenido',
+              style: Theme.of(context).textTheme.headlineSmall,
             ),
-            // Botones solo para administradores y gestores de stock
-            if (hasAccess) ...[
-              const SizedBox(height: 24),
-              SizedBox(
-                width: 200,
-                height: 48,
-                child: ElevatedButton.icon(
-                  onPressed: () => context.push('/sales/new'),
-                  icon: const Icon(Icons.add_shopping_cart),
-                  label: const Text('Nueva Venta'),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: 200,
-                height: 48,
-                child: ElevatedButton.icon(
-                  onPressed: () => context.push('/inventory'),
-                  icon: const Icon(Icons.inventory_2),
-                  label: const Text('Inventario'),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: 200,
-                height: 48,
-                child: ElevatedButton.icon(
-                  onPressed: () => context.push('/production/bulk-products'),
-                  icon: const Icon(Icons.category),
-                  label: const Text('Materias Primas'),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: 200,
-                height: 48,
-                child: ElevatedButton.icon(
-                  onPressed: () => context.push('/production/batches/new'),
-                  icon: const Icon(Icons.precision_manufacturing),
-                  label: const Text('Nueva Producción'),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: 200,
-                height: 48,
-                child: ElevatedButton.icon(
-                  onPressed: () => context.push('/production/batches'),
-                  icon: const Icon(Icons.history),
-                  label: const Text('Historial Producción'),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: 200,
-                height: 48,
-                child: ElevatedButton.icon(
-                  onPressed: () => context.push('/products'),
-                  icon: const Icon(Icons.inventory),
-                  label: const Text('Productos'),
-                ),
-              ),
-              // Botón "Usuarios" solo para ADMIN
-              if (isAdmin) ...[
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: 200,
-                  height: 48,
-                  child: ElevatedButton.icon(
-                    onPressed: () => context.push('/users'),
-                    icon: const Icon(Icons.people),
-                    label: const Text('Usuarios'),
-                  ),
-                ),
-              ],
-              const SizedBox(height: 12),
-              SizedBox(
-                width: 200,
-                height: 48,
-                child: ElevatedButton.icon(
-                  onPressed: () => context.push('/receipts/new'),
-                  icon: const Icon(Icons.receipt_long),
-                  label: const Text('Escanear Recibo'),
-                ),
-              ),
-              // Historial de Ventas: ADMIN, SALES_CLERK, ACCOUNTANT
-              if (_hasRole(auth, [
-                UserRole.admin.jsonValue,
-                UserRole.salesClerk.jsonValue,
-                UserRole.accountant.jsonValue,
-              ])) ...[
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: 200,
-                  height: 48,
-                  child: ElevatedButton.icon(
-                    onPressed: () => context.push('/sales/history'),
-                    icon: const Icon(Icons.receipt),
-                    label: const Text('Historial Ventas'),
-                  ),
-                ),
-              ],
-              // Historial de Recibos: ADMIN, STOCK_MANAGER, ACCOUNTANT
-              if (_hasRole(auth, [
-                UserRole.admin.jsonValue,
-                UserRole.stockManager.jsonValue,
-                UserRole.accountant.jsonValue,
-              ])) ...[
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: 200,
-                  height: 48,
-                  child: ElevatedButton.icon(
-                    onPressed: () => context.push('/receipts/history'),
-                    icon: const Icon(Icons.receipt_long),
-                    label: const Text('Historial Recibos'),
-                  ),
-                ),
-              ],
-            ],
+            const SizedBox(height: 8),
+            Text(
+              '¿Qué querés hacer hoy?',
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 32),
+            switch (role) {
+              'ADMIN' => _buildAdminActions(),
+              'ACCOUNTANT' => _buildAccountantActions(),
+              'STOCK_OPERATOR' => _buildStockOperatorActions(),
+              'SALES_CLERK' => _buildSalesClerkActions(),
+              'PRODUCTION_OP' => _buildProductionOpActions(),
+              'STOCK_MANAGER' => _buildStockManagerActions(),
+              'CUSTOMER' => _buildCustomerActions(),
+              _ => _buildCustomerActions(),
+            },
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildAdminActions() {
+    return Column(
+      children: [
+        _actionCard(
+          icon: Icons.inventory,
+          label: 'Ver Productos',
+          route: '/products',
+        ),
+        _actionCard(
+          icon: Icons.inventory_2,
+          label: 'Ver Inventario',
+          route: '/inventory',
+        ),
+        _actionCard(
+          icon: Icons.precision_manufacturing,
+          label: 'Producción',
+          route: '/production/batches',
+        ),
+        _actionCard(
+          icon: Icons.add_shopping_cart,
+          label: 'Ventas',
+          route: '/sales/new',
+        ),
+        _actionCard(icon: Icons.people, label: 'Usuarios', route: '/users'),
+        _actionCard(
+          icon: Icons.receipt_long,
+          label: 'Recibos',
+          route: '/receipts/new',
+        ),
+        _actionCard(
+          icon: Icons.receipt,
+          label: 'Historial Ventas',
+          route: '/sales/history',
+        ),
+        _actionCard(
+          icon: Icons.receipt_long,
+          label: 'Historial Recibos',
+          route: '/receipts/history',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAccountantActions() {
+    return Column(
+      children: [
+        _actionCard(
+          icon: Icons.inventory,
+          label: 'Ver Productos',
+          route: '/products',
+        ),
+        _actionCard(
+          icon: Icons.receipt,
+          label: 'Historial Ventas',
+          route: '/sales/history',
+        ),
+        _actionCard(
+          icon: Icons.receipt_long,
+          label: 'Historial Recibos',
+          route: '/receipts/history',
+        ),
+        const SizedBox(height: 16),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                const Icon(Icons.bar_chart, size: 48, color: Colors.blueGrey),
+                const SizedBox(height: 12),
+                Text(
+                  'Módulo de Costos',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Próximamente vas a poder gestionar costos, '
+                  'márgenes y reportes financieros desde esta sección.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStockOperatorActions() {
+    return Column(
+      children: [
+        _actionCard(
+          icon: Icons.inventory,
+          label: 'Ver Productos',
+          route: '/products',
+        ),
+        _actionCard(
+          icon: Icons.inventory_2,
+          label: 'Ver Inventario',
+          route: '/inventory',
+        ),
+        _actionCard(
+          icon: Icons.receipt_long,
+          label: 'Recibos',
+          route: '/receipts/new',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSalesClerkActions() {
+    return Column(
+      children: [
+        _actionCard(
+          icon: Icons.inventory,
+          label: 'Ver Productos',
+          route: '/products',
+        ),
+        _actionCard(
+          icon: Icons.add_shopping_cart,
+          label: 'Nueva Venta',
+          route: '/sales/new',
+        ),
+        _actionCard(
+          icon: Icons.receipt,
+          label: 'Historial Ventas',
+          route: '/sales/history',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProductionOpActions() {
+    return Column(
+      children: [
+        _actionCard(
+          icon: Icons.inventory,
+          label: 'Ver Productos',
+          route: '/products',
+        ),
+        _actionCard(
+          icon: Icons.precision_manufacturing,
+          label: 'Producción',
+          route: '/production/batches/new',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStockManagerActions() {
+    return Column(
+      children: [
+        _actionCard(
+          icon: Icons.inventory,
+          label: 'Ver Productos',
+          route: '/products',
+        ),
+        _actionCard(
+          icon: Icons.inventory_2,
+          label: 'Ver Inventario',
+          route: '/inventory',
+        ),
+        _actionCard(
+          icon: Icons.receipt_long,
+          label: 'Recibos',
+          route: '/receipts/new',
+        ),
+        _actionCard(
+          icon: Icons.receipt_long,
+          label: 'Historial Recibos',
+          route: '/receipts/history',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCustomerActions() {
+    return Column(
+      children: [
+        _actionCard(
+          icon: Icons.inventory,
+          label: 'Ver Productos',
+          route: '/products',
+        ),
+      ],
     );
   }
 
@@ -296,36 +381,54 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildBottomNav(bool hasAccess) {
+  NavigationBar _buildBottomNav(List<String> roles) {
     return NavigationBar(
       selectedIndex: _currentIndex,
       onDestinationSelected: (index) {
         setState(() => _currentIndex = index);
       },
-      destinations: [
-        const NavigationDestination(
+      destinations: _destinationsForRole(roles),
+    );
+  }
+
+  /// Destinos del BottomNavigationBar filtrados por rol.
+  List<NavigationDestination> _destinationsForRole(List<String> roles) {
+    if (roles.contains('ADMIN')) {
+      return const [
+        NavigationDestination(
           icon: Icon(Icons.home_outlined),
           selectedIcon: Icon(Icons.home),
           label: 'Inicio',
         ),
         NavigationDestination(
-          icon: Icon(
-            hasAccess
-                ? Icons.admin_panel_settings_outlined
-                : Icons.inventory_outlined,
-          ),
-          selectedIcon: Icon(
-            hasAccess ? Icons.admin_panel_settings : Icons.inventory,
-          ),
-          label: hasAccess ? 'Gestión' : 'Productos',
+          icon: Icon(Icons.admin_panel_settings_outlined),
+          selectedIcon: Icon(Icons.admin_panel_settings),
+          label: 'Gestión',
         ),
-        const NavigationDestination(
+        NavigationDestination(
           icon: Icon(Icons.person_outlined),
           selectedIcon: Icon(Icons.person),
           label: 'Perfil',
         ),
-      ],
-    );
+      ];
+    }
+    return const [
+      NavigationDestination(
+        icon: Icon(Icons.home_outlined),
+        selectedIcon: Icon(Icons.home),
+        label: 'Inicio',
+      ),
+      NavigationDestination(
+        icon: Icon(Icons.inventory_outlined),
+        selectedIcon: Icon(Icons.inventory),
+        label: 'Productos',
+      ),
+      NavigationDestination(
+        icon: Icon(Icons.person_outlined),
+        selectedIcon: Icon(Icons.person),
+        label: 'Perfil',
+      ),
+    ];
   }
 
   /// Muestra diálogo de confirmación antes de cerrar sesión.
@@ -348,7 +451,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     ).then((confirmed) async {
       if (confirmed == true && context.mounted) {
-        // Limpiar sesión y redirigir al login
         await context.read<AuthProvider>().logout();
         if (context.mounted) {
           context.go('/login');

@@ -269,5 +269,17 @@ void main() {
 
       expect(find.byType(FloatingActionButton), findsNothing);
     });
+
+    testWidgets('FAB debe estar oculto para STOCK_MANAGER', (tester) async {
+      final stockMgrAuth = MockAuthProvider();
+      when(() => stockMgrAuth.roles).thenReturn(['STOCK_MANAGER']);
+
+      await tester.pumpWidget(
+        createTestApp(provider, authProvider: stockMgrAuth),
+      );
+      await pumpUntilSettled(tester);
+
+      expect(find.byType(FloatingActionButton), findsNothing);
+    });
   });
 }
