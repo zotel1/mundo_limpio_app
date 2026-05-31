@@ -15,10 +15,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import 'package:mundo_limpio_app/core/helpers/role_guard.dart';
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
-import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/provider/receipts_history_provider.dart';
 
@@ -36,15 +34,6 @@ class _ReceiptsHistoryScreenState extends State<ReceiptsHistoryScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final roles = context.read<AuthProvider>().roles;
-      if (!RoleGuard.hasAnyRole(roles, [
-        'ADMIN',
-        'STOCK_MANAGER',
-        'ACCOUNTANT',
-      ])) {
-        context.go('/');
-        return;
-      }
       context.read<ReceiptsHistoryProvider>().loadReceipts();
     });
   }

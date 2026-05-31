@@ -15,6 +15,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
@@ -71,14 +72,28 @@ class MockAuthProvider extends ChangeNotifier implements AuthProvider {
 }
 
 Widget createTestApp(UsersProvider userProvider) {
+  final router = GoRouter(
+    initialLocation: '/users',
+    routes: [
+      GoRoute(path: '/users', builder: (_, _) => const UsersListScreen()),
+      GoRoute(
+        path: '/users/:userId',
+        builder: (context, state) {
+          final userId = int.parse(state.pathParameters['userId']!);
+          return UserDetailScreen(userId: userId);
+        },
+      ),
+    ],
+  );
+
   return MultiProvider(
     providers: [
       ChangeNotifierProvider<UsersProvider>.value(value: userProvider),
       ChangeNotifierProvider<AuthProvider>.value(value: MockAuthProvider()),
     ],
-    child: MaterialApp(
+    child: MaterialApp.router(
+      routerConfig: router,
       theme: ThemeData(splashFactory: NoSplash.splashFactory),
-      home: const UsersListScreen(),
     ),
   );
 }
