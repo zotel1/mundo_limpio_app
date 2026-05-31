@@ -25,15 +25,17 @@ void main() {
         'debe retornar lista de ProductModel en GET /api/v1/products',
         () async {
           // Arrange
-          final json = [
-            {
-              'id': 1,
-              'sku': 'PROD-001',
-              'name': 'Jabón',
-              'min_price': 150.0,
-              'active': true,
-            },
-          ];
+          final json = {
+            'content': [
+              {
+                'id': 1,
+                'sku': 'PROD-001',
+                'name': 'Jabón',
+                'min_price': 150.0,
+                'active': true,
+              },
+            ],
+          };
           when(() => mockDio.get('/api/v1/products')).thenAnswer(
             (_) async => Response(
               data: json,
@@ -79,22 +81,24 @@ void main() {
         'debe retornar lista de ProductModel en GET /api/v1/products/all',
         () async {
           // Arrange
-          final json = [
-            {
-              'id': 1,
-              'sku': 'PROD-001',
-              'name': 'Jabón',
-              'min_price': 150.0,
-              'active': true,
-            },
-            {
-              'id': 2,
-              'sku': 'PROD-002',
-              'name': 'Detergente',
-              'min_price': null,
-              'active': false,
-            },
-          ];
+          final json = {
+            'content': [
+              {
+                'id': 1,
+                'sku': 'PROD-001',
+                'name': 'Jabón',
+                'min_price': 150.0,
+                'active': true,
+              },
+              {
+                'id': 2,
+                'sku': 'PROD-002',
+                'name': 'Detergente',
+                'min_price': null,
+                'active': false,
+              },
+            ],
+          };
           when(() => mockDio.get('/api/v1/products/all')).thenAnswer(
             (_) async => Response(
               data: json,

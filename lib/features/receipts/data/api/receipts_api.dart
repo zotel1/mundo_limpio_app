@@ -87,7 +87,7 @@ class ReceiptsApi {
   Future<List<PurchaseResponse>> getPurchases() async {
     try {
       final response = await _dio.get('/api/v1/receipts');
-      final List<dynamic> data = response.data;
+      final List<dynamic> data = response.data['content'] as List<dynamic>;
       return data
           .map(
             (json) => PurchaseResponse.fromJson(json as Map<String, dynamic>),

@@ -100,20 +100,22 @@ void main() {
       'debe GET /api/v1/inventory/low-stock y retornar lista en 200',
       () async {
         // Arrange: respuesta simulada del backend
-        final responseData = [
-          {
-            'productId': 1,
-            'productName': 'Jabón Líquido',
-            'currentStock': 5.0,
-            'minStockThreshold': 10.0,
-          },
-          {
-            'productId': 2,
-            'productName': 'Detergente',
-            'currentStock': 3.0,
-            'minStockThreshold': 20.0,
-          },
-        ];
+        final responseData = {
+          'content': [
+            {
+              'productId': 1,
+              'productName': 'Jabón Líquido',
+              'currentStock': 5.0,
+              'minStockThreshold': 10.0,
+            },
+            {
+              'productId': 2,
+              'productName': 'Detergente',
+              'currentStock': 3.0,
+              'minStockThreshold': 20.0,
+            },
+          ],
+        };
         final response = Response(
           requestOptions: RequestOptions(path: '/api/v1/inventory/low-stock'),
           data: responseData,
