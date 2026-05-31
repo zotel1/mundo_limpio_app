@@ -191,10 +191,12 @@ void main() {
       'debe GET /api/v1/products y retornar lista de ProductResponse',
       () async {
         // Arrange: respuesta simulada del backend
-        final responseData = [
-          {'id': 1, 'name': 'Producto A'},
-          {'id': 2, 'name': 'Producto B'},
-        ];
+        final responseData = {
+          'content': [
+            {'id': 1, 'name': 'Producto A'},
+            {'id': 2, 'name': 'Producto B'},
+          ],
+        };
         final response = Response(
           requestOptions: RequestOptions(path: '/api/v1/products'),
           data: responseData,
@@ -293,38 +295,40 @@ void main() {
     // Escenario feliz: GET /api/v1/sales retorna 200 con lista de SaleResponse
     test('debe GET /api/v1/sales y retornar lista de SaleResponse', () async {
       // Arrange
-      final responseData = [
-        {
-          'id': 1,
-          'totalAmount': 15000.00,
-          'createdAt': '2026-05-10T10:30:00.000',
-          'items': [
-            {
-              'batchId': 42,
-              'productId': 5,
-              'productName': 'Lavandina 3L',
-              'quantity': 2.5,
-              'unitPrice': 150.00,
-              'unitCost': 100.00,
-            },
-          ],
-        },
-        {
-          'id': 2,
-          'totalAmount': 20000.00,
-          'createdAt': '2026-05-11T14:00:00.000',
-          'items': [
-            {
-              'batchId': 43,
-              'productId': 6,
-              'productName': 'Jabón Líquido 1L',
-              'quantity': 3.0,
-              'unitPrice': 200.00,
-              'unitCost': 120.00,
-            },
-          ],
-        },
-      ];
+      final responseData = {
+        'content': [
+          {
+            'id': 1,
+            'totalAmount': 15000.00,
+            'createdAt': '2026-05-10T10:30:00.000',
+            'items': [
+              {
+                'batchId': 42,
+                'productId': 5,
+                'productName': 'Lavandina 3L',
+                'quantity': 2.5,
+                'unitPrice': 150.00,
+                'unitCost': 100.00,
+              },
+            ],
+          },
+          {
+            'id': 2,
+            'totalAmount': 20000.00,
+            'createdAt': '2026-05-11T14:00:00.000',
+            'items': [
+              {
+                'batchId': 43,
+                'productId': 6,
+                'productName': 'Jabón Líquido 1L',
+                'quantity': 3.0,
+                'unitPrice': 200.00,
+                'unitCost': 120.00,
+              },
+            ],
+          },
+        ],
+      };
       final response = Response(
         requestOptions: RequestOptions(path: '/api/v1/sales'),
         data: responseData,
@@ -553,10 +557,12 @@ void main() {
       'debe GET /api/v1/production-batches/product/{id} y retornar lista',
       () async {
         // Arrange
-        final responseData = [
-          {'id': 1, 'productId': testProductId, 'currentStock': 100.0},
-          {'id': 2, 'productId': testProductId, 'currentStock': 50.0},
-        ];
+        final responseData = {
+          'content': [
+            {'id': 1, 'productId': testProductId, 'currentStock': 100.0},
+            {'id': 2, 'productId': testProductId, 'currentStock': 50.0},
+          ],
+        };
         final response = Response(
           requestOptions: RequestOptions(
             path: '/api/v1/production-batches/product/$testProductId',

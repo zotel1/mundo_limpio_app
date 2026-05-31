@@ -56,7 +56,7 @@ class SalesApi {
   Future<List<SaleResponse>> getSales() async {
     try {
       final response = await _dio.get('/api/v1/sales');
-      final List<dynamic> data = response.data;
+      final List<dynamic> data = response.data['content'] as List<dynamic>;
       return data
           .map((json) => SaleResponse.fromJson(json as Map<String, dynamic>))
           .toList();
@@ -83,7 +83,7 @@ class SalesApi {
   Future<List<ProductResponse>> getProducts() async {
     try {
       final response = await _dio.get('/api/v1/products');
-      final data = response.data as List<dynamic>;
+      final data = response.data['content'] as List<dynamic>;
       return data
           .map((e) => ProductResponse.fromJson(e as Map<String, dynamic>))
           .toList();
@@ -102,7 +102,7 @@ class SalesApi {
       final response = await _dio.get(
         '/api/v1/production-batches/product/$productId',
       );
-      final data = response.data as List<dynamic>;
+      final data = response.data['content'] as List<dynamic>;
       return data
           .map(
             (e) => ProductionBatchResponse.fromJson(e as Map<String, dynamic>),

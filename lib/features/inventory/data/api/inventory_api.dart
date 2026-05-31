@@ -53,7 +53,7 @@ class InventoryApi {
   Future<List<InventoryResponse>> getLowStock() async {
     try {
       final response = await _dio.get('/api/v1/inventory/low-stock');
-      final data = response.data as List<dynamic>;
+      final data = response.data['content'] as List<dynamic>;
       return data
           .map((e) => InventoryResponse.fromJson(e as Map<String, dynamic>))
           .toList();

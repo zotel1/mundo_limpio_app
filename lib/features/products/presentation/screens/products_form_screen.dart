@@ -16,8 +16,9 @@ import 'package:mundo_limpio_app/features/products/presentation/providers/produc
 
 class ProductsFormScreen extends StatefulWidget {
   final Product? product;
+  final int? productId;
 
-  const ProductsFormScreen({super.key, this.product});
+  const ProductsFormScreen({super.key, this.product, this.productId});
 
   @override
   State<ProductsFormScreen> createState() => _ProductsFormScreenState();
@@ -49,7 +50,7 @@ class _ProductsFormScreenState extends State<ProductsFormScreen> {
     super.dispose();
   }
 
-  bool get _isEditing => widget.product != null;
+  bool get _isEditing => widget.product != null || widget.productId != null;
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -58,7 +59,7 @@ class _ProductsFormScreenState extends State<ProductsFormScreen> {
     final provider = context.read<ProductsProvider>();
 
     final product = Product(
-      id: widget.product?.id ?? 0,
+      id: widget.product?.id ?? widget.productId ?? 0,
       sku: _skuController.text.trim().isEmpty
           ? null
           : _skuController.text.trim(),

@@ -22,15 +22,17 @@ void main() {
     group('getUsers', () {
       test('debe retornar lista de UserModel en GET /api/v1/users', () async {
         // Arrange
-        final json = [
-          {
-            'id': 1,
-            'username': 'Usuario123',
-            'email': 'user@email.com',
-            'roles': ['STOCK_MANAGER'],
-            'createdAt': '2026-05-25T12:00:00.000Z',
-          },
-        ];
+        final json = {
+          'content': [
+            {
+              'id': 1,
+              'username': 'Usuario123',
+              'email': 'user@email.com',
+              'roles': ['STOCK_MANAGER'],
+              'createdAt': '2026-05-25T12:00:00.000Z',
+            },
+          ],
+        };
         when(() => mockDio.get('/api/v1/users')).thenAnswer(
           (_) async => Response(
             data: json,

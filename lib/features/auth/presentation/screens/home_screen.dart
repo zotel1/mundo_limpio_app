@@ -146,6 +146,11 @@ class _HomeScreenState extends State<HomeScreen> {
           route: '/inventory',
         ),
         _actionCard(
+          icon: Icons.inventory_2,
+          label: 'Materias Primas',
+          route: '/production/bulk-products',
+        ),
+        _actionCard(
           icon: Icons.precision_manufacturing,
           label: 'Producción',
           route: '/production/batches',
@@ -170,6 +175,11 @@ class _HomeScreenState extends State<HomeScreen> {
           icon: Icons.receipt_long,
           label: 'Historial Recibos',
           route: '/receipts/history',
+        ),
+        _actionCard(
+          icon: Icons.backup,
+          label: 'Backups',
+          route: '/admin/backups',
         ),
       ],
     );
@@ -293,6 +303,11 @@ class _HomeScreenState extends State<HomeScreen> {
           icon: Icons.inventory_2,
           label: 'Ver Inventario',
           route: '/inventory',
+        ),
+        _actionCard(
+          icon: Icons.inventory_2,
+          label: 'Materias Primas',
+          route: '/production/bulk-products',
         ),
         _actionCard(
           icon: Icons.receipt_long,

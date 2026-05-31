@@ -26,6 +26,7 @@ import 'package:mundo_limpio_app/features/sales/presentation/screens/sales_histo
 import 'package:mundo_limpio_app/features/products/presentation/screens/products_detail_screen.dart';
 import 'package:mundo_limpio_app/features/products/presentation/screens/products_form_screen.dart';
 import 'package:mundo_limpio_app/features/products/presentation/screens/products_list_screen.dart';
+import 'package:mundo_limpio_app/features/users/presentation/screens/user_detail_screen.dart';
 import 'package:mundo_limpio_app/features/users/presentation/screens/users_list_screen.dart';
 import 'package:mundo_limpio_app/features/production/presentation/screens/bulk/bulk_product_list_screen.dart';
 import 'package:mundo_limpio_app/features/production/presentation/screens/production/production_batch_list_screen.dart';
@@ -37,6 +38,8 @@ import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_
 import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_confirmed_screen.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_detail_screen.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipts_history_screen.dart';
+import 'package:mundo_limpio_app/features/admin/backup/presentation/screens/backup_detail_screen.dart';
+import 'package:mundo_limpio_app/features/admin/backup/presentation/screens/backup_list_screen.dart';
 import 'package:mundo_limpio_app/features/splash/presentation/splash_provider.dart';
 import 'package:mundo_limpio_app/features/splash/presentation/splash_screen.dart';
 
@@ -68,14 +71,15 @@ GoRouter createRouter(
   String initialLocation = '/splash',
 }) {
   const routeRoleMap = <String, Set<String>>{
+    '/receipts/history': {'ADMIN', 'STOCK_MANAGER', 'ACCOUNTANT'},
+    '/receipts/': {'ADMIN', 'STOCK_MANAGER', 'STOCK_OPERATOR'},
     '/users': {'ADMIN'},
+    '/users/:userId': {'ADMIN'},
     '/products/new': {'ADMIN'},
     '/production/batches': {'ADMIN', 'STOCK_MANAGER', 'PRODUCTION_OP'},
     '/production/bulk-products': {'ADMIN', 'STOCK_MANAGER'},
-    '/receipts/': {'ADMIN', 'STOCK_MANAGER', 'STOCK_OPERATOR'},
     '/sales/new': {'ADMIN', 'SALES_CLERK'},
     '/sales/history': {'ADMIN', 'SALES_CLERK', 'ACCOUNTANT'},
-    '/receipts/history': {'ADMIN', 'STOCK_MANAGER', 'ACCOUNTANT'},
     '/inventory': {'ADMIN', 'STOCK_MANAGER', 'STOCK_OPERATOR'},
     '/products': {
       'ADMIN',
@@ -86,6 +90,7 @@ GoRouter createRouter(
       'ACCOUNTANT',
       'CUSTOMER',
     },
+    '/admin/backups': {'ADMIN'},
   };
 
   return GoRouter(
@@ -163,12 +168,18 @@ GoRouter createRouter(
       GoRoute(
         path: '/products/:id/edit',
         builder: (context, state) {
-          // En edit mode via GoRouter, el form recibe null
-          // (se muestra en create mode hasta que se implemente carga por id)
-          return const ProductsFormScreen();
+          final id = int.parse(state.pathParameters['id']!);
+          return ProductsFormScreen(productId: id);
         },
       ),
       GoRoute(path: '/users', builder: (_, _) => const UsersListScreen()),
+      GoRoute(
+        path: '/users/:userId',
+        builder: (context, state) {
+          final userId = int.parse(state.pathParameters['userId']!);
+          return UserDetailScreen(userId: userId);
+        },
+      ),
       GoRoute(
         path: '/production/bulk-products',
         builder: (_, _) => const BulkProductListScreen(),
@@ -256,6 +267,19 @@ GoRouter createRouter(
         builder: (context, state) {
           final receiptId = int.parse(state.pathParameters['receiptId']!);
           return ReceiptDetailScreen(receiptId: receiptId);
+        },
+      ),
+
+      // --- Backups (admin) ---
+      GoRoute(
+        path: '/admin/backups',
+        builder: (_, _) => const BackupListScreen(),
+      ),
+      GoRoute(
+        path: '/admin/backups/:backupId',
+        builder: (context, state) {
+          final backupId = int.parse(state.pathParameters['backupId']!);
+          return BackupDetailScreen(backupId: backupId);
         },
       ),
     ],

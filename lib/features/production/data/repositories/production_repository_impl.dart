@@ -13,7 +13,7 @@ class ProductionRepositoryImpl implements IProductionRepository {
   Future<List<ProductionBatch>> getProductionBatches() async {
     try {
       final response = await _dio.get('/api/v1/production-batches');
-      final List<dynamic> data = response.data;
+      final List<dynamic> data = response.data['content'] as List<dynamic>;
       return data
           .map((json) => ProductionBatchModel.fromJson(json).toEntity())
           .toList();

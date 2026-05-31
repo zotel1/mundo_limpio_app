@@ -437,42 +437,44 @@ void main() {
       'debe GET /api/v1/receipts y retornar lista de PurchaseResponse',
       () async {
         // Arrange
-        final responseData = [
-          {
-            'id': 1,
-            'imageUrl': 'https://storage.example.com/receipts/img1.jpg',
-            'supplierName': 'Proveedor X',
-            'purchaseDate': '2026-05-15',
-            'total': 300.0,
-            'items': [
-              {
-                'id': 1,
-                'description': 'Leche',
-                'quantity': 2,
-                'unitPrice': 150.0,
-                'totalPrice': 300.0,
-                'bulkProductId': 1,
-              },
-            ],
-          },
-          {
-            'id': 2,
-            'imageUrl': 'https://storage.example.com/receipts/img2.jpg',
-            'supplierName': 'Proveedor Y',
-            'purchaseDate': '2026-05-16',
-            'total': 500.0,
-            'items': [
-              {
-                'id': 2,
-                'description': 'Harina',
-                'quantity': 5,
-                'unitPrice': 100.0,
-                'totalPrice': 500.0,
-                'bulkProductId': 2,
-              },
-            ],
-          },
-        ];
+        final responseData = {
+          'content': [
+            {
+              'id': 1,
+              'imageUrl': 'https://storage.example.com/receipts/img1.jpg',
+              'supplierName': 'Proveedor X',
+              'purchaseDate': '2026-05-15',
+              'total': 300.0,
+              'items': [
+                {
+                  'id': 1,
+                  'description': 'Leche',
+                  'quantity': 2,
+                  'unitPrice': 150.0,
+                  'totalPrice': 300.0,
+                  'bulkProductId': 1,
+                },
+              ],
+            },
+            {
+              'id': 2,
+              'imageUrl': 'https://storage.example.com/receipts/img2.jpg',
+              'supplierName': 'Proveedor Y',
+              'purchaseDate': '2026-05-16',
+              'total': 500.0,
+              'items': [
+                {
+                  'id': 2,
+                  'description': 'Harina',
+                  'quantity': 5,
+                  'unitPrice': 100.0,
+                  'totalPrice': 500.0,
+                  'bulkProductId': 2,
+                },
+              ],
+            },
+          ],
+        };
         final response = Response(
           requestOptions: RequestOptions(path: '/api/v1/receipts'),
           data: responseData,
