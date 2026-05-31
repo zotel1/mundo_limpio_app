@@ -81,6 +81,11 @@ import 'features/users/data/repositories/users_repository_impl.dart';
 import 'features/users/domain/repositories/i_users_repository.dart';
 import 'features/users/presentation/providers/users_provider.dart';
 
+// ── Backups (admin) ────────────────────────────────────────
+import 'features/admin/backup/data/api/backup_api.dart';
+import 'features/admin/backup/data/repository/backup_repository.dart';
+import 'features/admin/backup/presentation/provider/backup_provider.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -305,6 +310,17 @@ void main() async {
 
         ChangeNotifierProvider<UsersProvider>(
           create: (ctx) => UsersProvider(ctx.read<IUsersRepository>()),
+        ),
+
+        // ── Backups: API, repositorio y provider (admin) ──────
+        Provider<BackupApi>(create: (ctx) => BackupApi(dio: ctx.read<Dio>())),
+
+        Provider<BackupRepository>(
+          create: (ctx) => BackupRepository(api: ctx.read<BackupApi>()),
+        ),
+
+        ChangeNotifierProvider<BackupProvider>(
+          create: (ctx) => BackupProvider(ctx.read<BackupRepository>()),
         ),
       ],
       child: const MundoLimpioApp(),
