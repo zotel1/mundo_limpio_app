@@ -71,7 +71,7 @@ class AuthInterceptor extends QueuedInterceptor {
   ) async {
     // No modificar requests de auth (login, register, refresh)
     // que no requieren token
-    if (options.path.contains('/auth/')) {
+    if (options.path.startsWith('/api/v1/auth/')) {
       handler.next(options);
       return;
     }

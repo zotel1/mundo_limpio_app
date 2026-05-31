@@ -6,12 +6,13 @@
 // Incluye pull-to-refresh y navegación al detalle del usuario.
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/users/domain/entities/user_role.dart';
 import 'package:mundo_limpio_app/features/users/presentation/providers/users_provider.dart';
-import 'package:mundo_limpio_app/features/users/presentation/screens/user_detail_screen.dart';
 
 class UsersListScreen extends StatefulWidget {
   const UsersListScreen({super.key});
@@ -37,7 +38,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<UsersProvider>();
     return Scaffold(
-      appBar: AppBar(title: const Text('Usuarios')),
+      appBar: const BrandedAppBar(title: 'Usuarios'),
       body: _buildBody(provider),
     );
   }
@@ -115,11 +116,8 @@ class _UsersListScreenState extends State<UsersListScreen> {
     );
   }
 
-  Future<void> _navigateToDetail(int userId) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => UserDetailScreen(userId: userId)),
-    );
+  void _navigateToDetail(int userId) {
+    context.push('/users/$userId');
   }
 
   String _roleLabel(UserRole role) {
