@@ -20,16 +20,18 @@ void main() {
   group('BulkProductRepositoryImpl', () {
     test('getBulkProducts debe retornar una lista de BulkProducts', () async {
       // Arrange
-      final json = [
-        {
-          'id': 1,
-          'name': 'Alcohol',
-          'currentStockLiters': 100.0,
-          'costPerLiter': 10.0,
-          'conversionRatio': 1.0,
-          'active': true,
-        },
-      ];
+      final json = {
+        'content': [
+          {
+            'id': 1,
+            'name': 'Alcohol',
+            'currentStockLiters': 100.0,
+            'costPerLiter': 10.0,
+            'conversionRatio': 1.0,
+            'active': true,
+          },
+        ],
+      };
       when(() => mockDio.get(any())).thenAnswer(
         (_) async => Response(
           data: json,

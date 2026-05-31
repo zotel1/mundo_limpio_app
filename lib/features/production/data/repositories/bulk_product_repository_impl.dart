@@ -13,7 +13,7 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
   Future<List<BulkProduct>> getBulkProducts() async {
     try {
       final response = await _dio.get('/api/v1/bulk-products');
-      final List<dynamic> data = response.data;
+      final List<dynamic> data = response.data['content'] as List<dynamic>;
       return data
           .map((json) => BulkProductModel.fromJson(json).toEntity())
           .toList();

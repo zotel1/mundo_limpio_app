@@ -30,32 +30,34 @@ void main() {
       'getProductionBatches debe retornar una lista de ProductionBatches',
       () async {
         // Arrange
-        final json = [
-          {
-            'id': 1,
-            'productId': 10,
-            'productName': 'Jabón Líquido',
-            'bulkProductId': 20,
-            'bulkProductName': 'Alcohol',
-            'initialQuantity': 100.0,
-            'currentStock': 85.0,
-            'unitCostAtProduction': 12.5,
-            'rawQuantityUsed': 15.0,
-            'productionDate': '2026-05-18T10:00:00Z',
-          },
-          {
-            'id': 2,
-            'productId': 11,
-            'productName': 'Detergente',
-            'bulkProductId': 21,
-            'bulkProductName': 'Esencia',
-            'initialQuantity': 50.0,
-            'currentStock': 40.0,
-            'unitCostAtProduction': 10.0,
-            'rawQuantityUsed': 10.0,
-            'productionDate': '2026-05-18T11:00:00Z',
-          },
-        ];
+        final json = {
+          'content': [
+            {
+              'id': 1,
+              'productId': 10,
+              'productName': 'Jabón Líquido',
+              'bulkProductId': 20,
+              'bulkProductName': 'Alcohol',
+              'initialQuantity': 100.0,
+              'currentStock': 85.0,
+              'unitCostAtProduction': 12.5,
+              'rawQuantityUsed': 15.0,
+              'productionDate': '2026-05-18T10:00:00Z',
+            },
+            {
+              'id': 2,
+              'productId': 11,
+              'productName': 'Detergente',
+              'bulkProductId': 21,
+              'bulkProductName': 'Esencia',
+              'initialQuantity': 50.0,
+              'currentStock': 40.0,
+              'unitCostAtProduction': 10.0,
+              'rawQuantityUsed': 10.0,
+              'productionDate': '2026-05-18T11:00:00Z',
+            },
+          ],
+        };
         when(() => mockDio.get(any())).thenAnswer(
           (_) async => Response(
             data: json,
