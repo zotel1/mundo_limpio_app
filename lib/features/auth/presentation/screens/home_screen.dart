@@ -171,6 +171,11 @@ class _HomeScreenState extends State<HomeScreen> {
           label: 'Historial Recibos',
           route: '/receipts/history',
         ),
+        _actionCard(
+          icon: Icons.backup,
+          label: 'Backups',
+          route: '/admin/backups',
+        ),
       ],
     );
   }
