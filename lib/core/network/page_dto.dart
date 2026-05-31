@@ -1,4 +1,4 @@
-/// Envoltura genérica para respuestas paginadas estilo Spring Page<T>.
+/// Envoltura genérica para respuestas paginadas estilo Spring `Page<T>`.
 ///
 /// Facilita el parseo del envelope `{ content: [...], totalElements, ... }`
 /// que devuelve el backend en endpoints paginados.
