@@ -32,31 +32,30 @@ class ErrorHandler {
   static String getMessage(ApiException exception) {
     if (exception is AuthException) {
       return _fromStatusCodeDefault(exception.message, [
-        'No autorizado. Iniciá sesión nuevamente.',
-        'Acceso denegado. No tenés permisos para esta acción.',
-      ]) ? 'No autorizado — iniciá sesión nuevamente.' : exception.message;
+            'No autorizado. Iniciá sesión nuevamente.',
+            'Acceso denegado. No tenés permisos para esta acción.',
+          ])
+          ? 'No autorizado — iniciá sesión nuevamente.'
+          : exception.message;
     }
     if (exception is ValidationException) {
-      return _fromStatusCodeDefault(
-        exception.message,
-        ['Error de validación (400).'],
-      )
+      return _fromStatusCodeDefault(exception.message, [
+            'Error de validación (400).',
+          ])
           ? 'Verificá los datos ingresados.'
           : exception.message;
     }
     if (exception is ConflictException) {
-      return _fromStatusCodeDefault(
-        exception.message,
-        ['Error de conflicto (409).'],
-      )
+      return _fromStatusCodeDefault(exception.message, [
+            'Error de conflicto (409).',
+          ])
           ? 'El recurso ya existe.'
           : exception.message;
     }
     if (exception is RateLimitException) {
-      return _fromStatusCodeDefault(
-        exception.message,
-        ['Demasiados intentos (429).'],
-      )
+      return _fromStatusCodeDefault(exception.message, [
+            'Demasiados intentos (429).',
+          ])
           ? 'Demasiados intentos. Esperá un momento.'
           : exception.message;
     }

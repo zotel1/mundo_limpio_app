@@ -11,24 +11,29 @@ import 'package:mundo_limpio_app/core/network/error_handler.dart';
 void main() {
   group('ErrorHandler.getMessage', () {
     // AuthException con mensaje default debe mostrar mensaje de "No autorizado"
-    test('should return "No autorizado" for AuthException with default message',
-        () {
-      final exception = AuthException('No autorizado. Iniciá sesión nuevamente.');
-      final result = ErrorHandler.getMessage(exception);
+    test(
+      'should return "No autorizado" for AuthException with default message',
+      () {
+        final exception = AuthException(
+          'No autorizado. Iniciá sesión nuevamente.',
+        );
+        final result = ErrorHandler.getMessage(exception);
 
-      expect(result, contains('No autorizado'));
-      expect(result, contains('iniciá sesión'));
-    });
+        expect(result, contains('No autorizado'));
+        expect(result, contains('iniciá sesión'));
+      },
+    );
 
     // AuthException con mensaje del backend: backend wins
     test(
-        'should return backend message for AuthException with custom message',
-        () {
-      final exception = AuthException('Email o contraseña incorrectos');
-      final result = ErrorHandler.getMessage(exception);
+      'should return backend message for AuthException with custom message',
+      () {
+        final exception = AuthException('Email o contraseña incorrectos');
+        final result = ErrorHandler.getMessage(exception);
 
-      expect(result, 'Email o contraseña incorrectos');
-    });
+        expect(result, 'Email o contraseña incorrectos');
+      },
+    );
 
     // NetworkException debe mostrar mensaje de "Sin conexión"
     test('should return "Sin conexión a internet" for NetworkException', () {
@@ -87,15 +92,12 @@ void main() {
     );
 
     // R3.3: ApiException con mensaje vacío → fallback genérico
-    test(
-      'R3.3: should return generic fallback for empty ApiException',
-      () {
-        const exception = ApiException('', 0);
-        final result = ErrorHandler.getMessage(exception);
+    test('R3.3: should return generic fallback for empty ApiException', () {
+      const exception = ApiException('', 0);
+      final result = ErrorHandler.getMessage(exception);
 
-        expect(result, 'Error inesperado. Intentalo de nuevo.');
-      },
-    );
+      expect(result, 'Error inesperado. Intentalo de nuevo.');
+    });
 
     // Triangulación: ValidationException con mensaje default
     test(
@@ -134,7 +136,9 @@ void main() {
     test(
       'should return backend message for RateLimitException with non-default message',
       () {
-        final exception = RateLimitException('Límite excedido, intentá en 30 segundos');
+        final exception = RateLimitException(
+          'Límite excedido, intentá en 30 segundos',
+        );
         final result = ErrorHandler.getMessage(exception);
 
         expect(result, 'Límite excedido, intentá en 30 segundos');
@@ -145,8 +149,9 @@ void main() {
     test(
       'should return "No autorizado" for AuthException with 403 default message',
       () {
-        final exception =
-            AuthException('Acceso denegado. No tenés permisos para esta acción.');
+        final exception = AuthException(
+          'Acceso denegado. No tenés permisos para esta acción.',
+        );
         final result = ErrorHandler.getMessage(exception);
 
         expect(result, contains('No autorizado'));

@@ -63,7 +63,8 @@ void main() {
 
     // Stub void para recordError
     when(
-      () => mockCrashlytics.recordError(any(), any(), fatal: any(named: 'fatal')),
+      () =>
+          mockCrashlytics.recordError(any(), any(), fatal: any(named: 'fatal')),
     ).thenAnswer((_) async {});
 
     // Stubs por defecto para evitar null errors en mocktail
@@ -182,9 +183,9 @@ void main() {
     test(
       'debe setear error y unauthenticated con credenciales inválidas (R3.2)',
       () async {
-        when(
-          () => mockAuthRepository.login(testEmail, testPassword),
-        ).thenThrow(const AuthException('No autorizado. Iniciá sesión nuevamente.'));
+        when(() => mockAuthRepository.login(testEmail, testPassword)).thenThrow(
+          const AuthException('No autorizado. Iniciá sesión nuevamente.'),
+        );
 
         await provider.login(testEmail, testPassword);
 
@@ -221,7 +222,11 @@ void main() {
 
         // El on ApiException catch maneja el error, el generic catch no se ejecuta
         verifyNever(
-          () => mockCrashlytics.recordError(any(), any(), fatal: any(named: 'fatal')),
+          () => mockCrashlytics.recordError(
+            any(),
+            any(),
+            fatal: any(named: 'fatal'),
+          ),
         );
         expect(provider.status, AuthStatus.unauthenticated);
       },
@@ -238,7 +243,11 @@ void main() {
         await provider.login(testEmail, testPassword);
 
         verify(
-          () => mockCrashlytics.recordError(any(), any(), fatal: any(named: 'fatal')),
+          () => mockCrashlytics.recordError(
+            any(),
+            any(),
+            fatal: any(named: 'fatal'),
+          ),
         ).called(1);
         expect(provider.status, AuthStatus.unauthenticated);
         expect(provider.error, contains('Error inesperado'));
@@ -380,7 +389,11 @@ void main() {
         await provider.register(testEmail, testPassword);
 
         verify(
-          () => mockCrashlytics.recordError(any(), any(), fatal: any(named: 'fatal')),
+          () => mockCrashlytics.recordError(
+            any(),
+            any(),
+            fatal: any(named: 'fatal'),
+          ),
         ).called(1);
         expect(provider.status, AuthStatus.unauthenticated);
         expect(provider.error, contains('Error inesperado'));
@@ -398,7 +411,11 @@ void main() {
         await provider.register(testEmail, testPassword);
 
         verifyNever(
-          () => mockCrashlytics.recordError(any(), any(), fatal: any(named: 'fatal')),
+          () => mockCrashlytics.recordError(
+            any(),
+            any(),
+            fatal: any(named: 'fatal'),
+          ),
         );
         expect(provider.status, AuthStatus.unauthenticated);
       },

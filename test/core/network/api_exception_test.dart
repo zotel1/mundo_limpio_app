@@ -214,42 +214,48 @@ void main() {
       expect(exception.code, 429);
     });
 
-    test('Edge R1.4: status 400 without response data -> fallback to fromStatusCode(400)', () {
-      final dioException = DioException(
-        requestOptions: RequestOptions(path: '/test'),
-        response: Response(
-          statusCode: 400,
+    test(
+      'Edge R1.4: status 400 without response data -> fallback to fromStatusCode(400)',
+      () {
+        final dioException = DioException(
           requestOptions: RequestOptions(path: '/test'),
-        ),
-        type: DioExceptionType.badResponse,
-      );
+          response: Response(
+            statusCode: 400,
+            requestOptions: RequestOptions(path: '/test'),
+          ),
+          type: DioExceptionType.badResponse,
+        );
 
-      final exception = ApiException.fromDioException(dioException);
+        final exception = ApiException.fromDioException(dioException);
 
-      expect(exception, isA<ValidationException>());
-      expect(exception.code, 400);
-      // Debe tener el mensaje DEFAULT de fromStatusCode(400), no uno personalizado
-      expect(exception.message, contains('Error de validación'));
-    });
+        expect(exception, isA<ValidationException>());
+        expect(exception.code, 400);
+        // Debe tener el mensaje DEFAULT de fromStatusCode(400), no uno personalizado
+        expect(exception.message, contains('Error de validación'));
+      },
+    );
 
-    test('Edge R1.5: status 409 with malformed data -> fallback to fromStatusCode(409)', () {
-      final dioException = DioException(
-        requestOptions: RequestOptions(path: '/test'),
-        response: Response(
-          statusCode: 409,
+    test(
+      'Edge R1.5: status 409 with malformed data -> fallback to fromStatusCode(409)',
+      () {
+        final dioException = DioException(
           requestOptions: RequestOptions(path: '/test'),
-          data: 'raw string body' as dynamic, // no es Map
-        ),
-        type: DioExceptionType.badResponse,
-      );
+          response: Response(
+            statusCode: 409,
+            requestOptions: RequestOptions(path: '/test'),
+            data: 'raw string body' as dynamic, // no es Map
+          ),
+          type: DioExceptionType.badResponse,
+        );
 
-      final exception = ApiException.fromDioException(dioException);
+        final exception = ApiException.fromDioException(dioException);
 
-      expect(exception, isA<ConflictException>());
-      expect(exception.code, 409);
-      // Debe tener el mensaje DEFAULT de fromStatusCode(409)
-      expect(exception.message, contains('Error de conflicto'));
-    });
+        expect(exception, isA<ConflictException>());
+        expect(exception.code, 409);
+        // Debe tener el mensaje DEFAULT de fromStatusCode(409)
+        expect(exception.message, contains('Error de conflicto'));
+      },
+    );
 
     test('should fallback to fromStatusCode for non-400/409/429 status', () {
       final dioException = DioException(

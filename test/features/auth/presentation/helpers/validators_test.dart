@@ -47,10 +47,7 @@ void main() {
   group('AuthValidators.validatePasswordStrength', () {
     // R5.3: "Abc123" → aceptado
     test('R5.3: should accept password with upper, lower and digit', () {
-      expect(
-        AuthValidators.validatePasswordStrength('Abc123'),
-        isNull,
-      );
+      expect(AuthValidators.validatePasswordStrength('Abc123'), isNull);
     });
 
     // R5.1: "abc123" → rechazado (sin mayúscula)
@@ -91,10 +88,7 @@ void main() {
 
     // Triangulación: password compleja válida
     test('should accept complex valid password', () {
-      expect(
-        AuthValidators.validatePasswordStrength('Secure1Pass!'),
-        isNull,
-      );
+      expect(AuthValidators.validatePasswordStrength('Secure1Pass!'), isNull);
     });
   });
 
@@ -107,7 +101,10 @@ void main() {
     });
 
     test('should return error when passwords do not match', () {
-      final result = AuthValidators.validateConfirmPassword('Pass123', 'Other45');
+      final result = AuthValidators.validateConfirmPassword(
+        'Pass123',
+        'Other45',
+      );
       expect(result, contains('no coinciden'));
     });
 
