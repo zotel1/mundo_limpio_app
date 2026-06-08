@@ -23,7 +23,7 @@ void main() {
 
     test('debe inicializar la base de datos sin errores', () async {
       expect(db, isNotNull);
-      expect(db.schemaVersion, 2);
+      expect(db.schemaVersion, 3);
     });
 
     test('debe tener las 5 tablas del esquema de diseño', () async {
