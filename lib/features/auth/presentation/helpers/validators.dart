@@ -39,13 +39,25 @@ class AuthValidators {
     return null;
   }
 
-  /// Valida contraseña con mínimo de 6 caracteres (para registro).
-  static String? validatePasswordMinLength(String? value) {
+  /// Valida fortaleza de contraseña (para registro).
+  ///
+  /// Reglas:
+  /// - Mínimo 6 caracteres
+  /// - Al menos 1 mayúscula (A-Z)
+  /// - Al menos 1 minúscula (a-z)
+  /// - Al menos 1 dígito (0-9)
+  static String? validatePasswordStrength(String? value) {
     if (value == null || value.isEmpty) {
       return 'La contraseña es requerida';
     }
     if (value.length < 6) {
       return 'La contraseña debe tener al menos 6 caracteres';
+    }
+    final hasUpper = value.contains(RegExp(r'[A-Z]'));
+    final hasLower = value.contains(RegExp(r'[a-z]'));
+    final hasDigit = value.contains(RegExp(r'[0-9]'));
+    if (!hasUpper || !hasLower || !hasDigit) {
+      return 'La contraseña debe contener mayúsculas, minúsculas y números';
     }
     return null;
   }

@@ -7,6 +7,8 @@
 //   throw ApiException.fromStatusCode(401);
 //   => AuthException('No autorizado')
 
+import 'package:dio/dio.dart';
+
 /// Excepción base para todos los errores de API.
 ///
 /// Almacena un [message] legible para el usuario y un [code]
@@ -27,17 +29,29 @@ class ApiException implements Exception {
 
   /// Factory que retorna el subtipo correcto según el [statusCode] HTTP.
   ///
+  /// - 400 → [ValidationException]
   /// - 401/403 → [AuthException]
+  /// - 409 → [ConflictException]
+  /// - 429 → [RateLimitException]
   /// - 5xx → [ServerException]
   /// - 0 → [NetworkException]
   /// - Otros → [ApiException] genérico
   factory ApiException.fromStatusCode(int statusCode) {
+    if (statusCode == 400) {
+      return ValidationException('Error de validación (400).');
+    }
     if (statusCode == 401 || statusCode == 403) {
       return AuthException(
         statusCode == 401
             ? 'No autorizado. Iniciá sesión nuevamente.'
             : 'Acceso denegado. No tenés permisos para esta acción.',
       );
+    }
+    if (statusCode == 409) {
+      return ConflictException('Error de conflicto (409).');
+    }
+    if (statusCode == 429) {
+      return RateLimitException('Demasiados intentos (429).');
     }
     if (statusCode >= 500 && statusCode < 600) {
       return ServerException(
@@ -50,6 +64,31 @@ class ApiException implements Exception {
       );
     }
     return ApiException('Error inesperado ($statusCode).', statusCode);
+  }
+
+  /// Factory que construye el subtipo correcto desde un [DioException].
+  ///
+  /// Intenta parsear `e.response?.data` como `Map<String, dynamic>` para
+  /// extraer `message` del backend. Si no hay data o falla el parseo,
+  /// cae en [fromStatusCode] como fallback.
+  factory ApiException.fromDioException(DioException e) {
+    try {
+      final data = e.response?.data as Map<String, dynamic>?;
+      if (data == null) {
+        return ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      }
+      final message = data['message'] as String? ?? '';
+      final status = e.response?.statusCode ?? 0;
+      return switch (status) {
+        400 => ValidationException(message),
+        401 || 403 => AuthException(message),
+        409 => ConflictException(message),
+        429 => RateLimitException(message),
+        _ => ApiException.fromStatusCode(status),
+      };
+    } catch (_) {
+      return ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+    }
   }
 }
 
@@ -77,4 +116,29 @@ class NetworkException extends ApiException {
 class ServerException extends ApiException {
   /// El código SIEMPRE es 500 (error interno del servidor).
   const ServerException(String message) : super(message, 500);
+}
+
+/// Error de validación (HTTP 400 Bad Request).
+///
+/// Indica que el backend rechazó la solicitud por datos inválidos.
+/// El mensaje suele venir del backend con detalles específicos.
+class ValidationException extends ApiException {
+  /// El código SIEMPRE es 400 (bad request).
+  const ValidationException(String message) : super(message, 400);
+}
+
+/// Error de conflicto (HTTP 409 Conflict).
+///
+/// Indica que el recurso ya existe (ej: email duplicado en registro).
+class ConflictException extends ApiException {
+  /// El código SIEMPRE es 409 (conflict).
+  const ConflictException(String message) : super(message, 409);
+}
+
+/// Error de límite de tasa (HTTP 429 Too Many Requests).
+///
+/// Indica que el cliente excedió la cuota de requests.
+class RateLimitException extends ApiException {
+  /// El código SIEMPRE es 429 (too many requests).
+  const RateLimitException(String message) : super(message, 429);
 }

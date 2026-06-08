@@ -10,25 +10,54 @@ import 'api_exception.dart';
 
 /// Traduce excepciones de API a mensajes legibles para el usuario.
 ///
-/// Cada subtipo de [ApiException] produce un mensaje distinto:
-/// - [AuthException] → "No autorizado, iniciá sesión nuevamente"
-/// - [NetworkException] → "Sin conexión a internet"
-/// - [ServerException] → "Error interno del servidor"
-/// - Genérico → el mensaje original o un fallback
+/// Cada subtipo de [ApiException] produce un mensaje distinto.
+/// La prioridad es:
+/// 1. Si el mensaje de la excepción NO es el default del subtipo →
+///    se retorna el mensaje original (vino del backend)
+/// 2. Si el mensaje ES el default → se aplica un mapeo más amigable
+/// 3. Si el mensaje está vacío → fallback genérico
 class ErrorHandler {
   ErrorHandler._();
 
   /// Retorna un mensaje en español para [exception].
   ///
-  /// Según el tipo de excepción, el mensaje se adapta:
-  /// - Si es [AuthException]: sugiere iniciar sesión de nuevo
-  /// - Si es [NetworkException]: sugiere verificar la conexión
-  /// - Si es [ServerException]: pide intentar más tarde
-  /// - Si es [ApiException] genérico: usa el mensaje original
-  /// - Si el mensaje está vacío: usa un fallback genérico
+  /// La resolución sigue este orden:
+  /// - [AuthException]: si el mensaje es el default → "No autorizado — iniciá sesión..."
+  /// - [ValidationException]: si el mensaje es el default → "Verificá los datos ingresados."
+  /// - [ConflictException]: si el mensaje es el default → "El recurso ya existe."
+  /// - [RateLimitException]: si el mensaje es el default → "Demasiados intentos. Esperá un momento."
+  /// - [NetworkException]: siempre → "Sin conexión a internet..."
+  /// - [ServerException]: siempre → "Error interno del servidor..."
+  /// - Genérico: mensaje original o fallback si está vacío
   static String getMessage(ApiException exception) {
     if (exception is AuthException) {
-      return 'No autorizado — iniciá sesión nuevamente.';
+      return _fromStatusCodeDefault(exception.message, [
+            'No autorizado. Iniciá sesión nuevamente.',
+            'Acceso denegado. No tenés permisos para esta acción.',
+          ])
+          ? 'No autorizado — iniciá sesión nuevamente.'
+          : exception.message;
+    }
+    if (exception is ValidationException) {
+      return _fromStatusCodeDefault(exception.message, [
+            'Error de validación (400).',
+          ])
+          ? 'Verificá los datos ingresados.'
+          : exception.message;
+    }
+    if (exception is ConflictException) {
+      return _fromStatusCodeDefault(exception.message, [
+            'Error de conflicto (409).',
+          ])
+          ? 'El recurso ya existe.'
+          : exception.message;
+    }
+    if (exception is RateLimitException) {
+      return _fromStatusCodeDefault(exception.message, [
+            'Demasiados intentos (429).',
+          ])
+          ? 'Demasiados intentos. Esperá un momento.'
+          : exception.message;
     }
     if (exception is NetworkException) {
       return 'Sin conexión a internet — verificá tu conexión y volvé a intentar.';
@@ -41,5 +70,12 @@ class ErrorHandler {
       return exception.message;
     }
     return 'Error inesperado. Intentalo de nuevo.';
+  }
+
+  /// Retorna `true` si [message] es uno de los mensajes default
+  /// generados por [ApiException.fromStatusCode], indicando que NO
+  /// vino del backend.
+  static bool _fromStatusCodeDefault(String message, List<String> defaults) {
+    return defaults.contains(message);
   }
 }
