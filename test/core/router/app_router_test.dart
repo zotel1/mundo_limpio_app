@@ -19,6 +19,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/router/app_router.dart';
+import 'package:mundo_limpio_app/core/widgets/not_found_screen.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/screens/register_screen.dart';
@@ -500,6 +501,24 @@ void main() {
 
       expect(find.byType(LoginScreen), findsOneWidget);
       expect(find.byType(HomeScreen), findsNothing);
+    });
+
+    // ── Error Builder ──────────────────────────────────────────
+    testWidgets('ruta inexistente muestra NotFoundScreen', (tester) async {
+      authProvider.setStatus(AuthStatus.authenticated);
+      authProvider.setRole('ADMIN');
+
+      await tester.pumpWidget(
+        createTestApp(
+          authProvider,
+          splashProvider,
+          initialLocation: '/ruta-que-no-existe',
+        ),
+      );
+      await pumpUntilSettled(tester);
+
+      // Debe mostrar la pantalla de error en vez de crash genérico
+      expect(find.byType(NotFoundScreen), findsOneWidget);
     });
   });
 }

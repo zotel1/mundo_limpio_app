@@ -42,6 +42,7 @@ import 'package:mundo_limpio_app/features/admin/backup/presentation/screens/back
 import 'package:mundo_limpio_app/features/admin/backup/presentation/screens/backup_list_screen.dart';
 import 'package:mundo_limpio_app/features/splash/presentation/splash_provider.dart';
 import 'package:mundo_limpio_app/features/splash/presentation/splash_screen.dart';
+import 'package:mundo_limpio_app/core/widgets/not_found_screen.dart';
 
 // ---------------------------------------------------------------------------
 // Fábrica del router
@@ -96,6 +97,7 @@ GoRouter createRouter(
   return GoRouter(
     initialLocation: initialLocation,
     refreshListenable: Listenable.merge([authProvider, splashProvider]),
+    errorBuilder: (context, state) => const NotFoundScreen(),
     redirect: (context, state) {
       final location = state.matchedLocation;
 
