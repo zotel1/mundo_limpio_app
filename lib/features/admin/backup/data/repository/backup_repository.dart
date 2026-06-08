@@ -9,34 +9,47 @@
 import 'package:dio/dio.dart';
 
 import 'package:mundo_limpio_app/features/admin/backup/data/api/backup_api.dart';
+// ignore: unused_import — necesario para la extension method toEntity()
 import 'package:mundo_limpio_app/features/admin/backup/data/models/backup_response.dart';
+import 'package:mundo_limpio_app/features/admin/backup/domain/entities/backup.dart'
+    as domain;
+import 'package:mundo_limpio_app/features/admin/backup/domain/repository/backup_repository.dart';
 
-/// Repositorio de Backups.
+/// Implementación concreta del repositorio de Backups.
 ///
 /// Delega todas las operaciones a [BackupApi] sin transformaciones
 /// ni lógica adicional. Cada método tiene la misma firma que su
 /// contraparte en la API.
-class BackupRepository {
+class BackupRepositoryImpl implements BackupRepository {
   final BackupApi _api;
 
-  /// Crea un [BackupRepository] con la [api] inyectada.
-  const BackupRepository({required BackupApi api}) : _api = api;
+  /// Crea un [BackupRepositoryImpl] con la [api] inyectada.
+  const BackupRepositoryImpl({required BackupApi api}) : _api = api;
 
   /// Crea un nuevo backup en el backend.
   ///
-  /// Retorna [BackupResponse] con los datos del backup creado.
-  Future<BackupResponse> createBackup() => _api.createBackup();
+  /// Retorna [domain.Backup] con los datos del backup creado.
+  @override
+  Future<domain.Backup> createBackup() async {
+    final response = await _api.createBackup();
+    return response.toEntity();
+  }
 
   /// Obtiene la lista de backups desde el backend.
   ///
-  /// Retorna [List<BackupResponse>] con todos los backups disponibles.
-  Future<List<BackupResponse>> getBackups() => _api.getBackups();
+  /// Retorna [List<domain.Backup>] con todos los backups disponibles.
+  @override
+  Future<List<domain.Backup>> getBackups() async {
+    final responses = await _api.getBackups();
+    return responses.map((r) => r.toEntity()).toList();
+  }
 
   /// Descarga un archivo de backup.
   ///
   /// [id]: ID del backup a descargar.
   /// [savePath]: ruta local donde guardar el archivo.
   /// Retorna la [Response] de Dio con la información de la descarga.
-  Future<Response> downloadBackup(int id, String savePath) =>
+  @override
+  Future<void> downloadBackup(int id, String savePath) =>
       _api.downloadBackup(id, savePath);
 }
