@@ -61,7 +61,7 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
         title:
             provider.currentInventory?.productName ?? 'Detalle de Inventario',
       ),
-      body: _buildBody(provider, canAdjust: canAdjust),
+      body: SafeArea(child: _buildBody(provider, canAdjust: canAdjust)),
     );
   }
 

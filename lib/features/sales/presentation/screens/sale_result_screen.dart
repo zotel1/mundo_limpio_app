@@ -25,103 +25,105 @@ class SaleResultScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const BrandedAppBar(title: 'Venta Creada'),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Icono de éxito
-              const Icon(Icons.check_circle, size: 64, color: Colors.green),
-              const SizedBox(height: 16),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Icono de éxito
+                const Icon(Icons.check_circle, size: 64, color: Colors.green),
+                const SizedBox(height: 16),
 
-              // Mensaje de éxito
-              const Text(
-                '¡Venta creada exitosamente!',
-                style: TextStyle(fontSize: 18),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
+                // Mensaje de éxito
+                const Text(
+                  '¡Venta creada exitosamente!',
+                  style: TextStyle(fontSize: 18),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
 
-              // Divisor
-              SizedBox(
-                width: double.infinity,
-                child: Divider(color: Colors.grey.shade300),
-              ),
-              const SizedBox(height: 16),
+                // Divisor
+                SizedBox(
+                  width: double.infinity,
+                  child: Divider(color: Colors.grey.shade300),
+                ),
+                const SizedBox(height: 16),
 
-              // Card con detalles de la venta
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Venta #${sale.id}',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Total: \$${sale.totalAmount.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.green,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Ítems:',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      ...sale.items.map(
-                        (item) => Padding(
-                          padding: const EdgeInsets.only(bottom: 4),
-                          child: Text(
-                            'Lote #${item.batchId} — ${item.quantity} x \$${item.unitPrice.toStringAsFixed(2)}',
+                // Card con detalles de la venta
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Venta #${sale.id}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 8),
+                        Text(
+                          'Total: \$${sale.totalAmount.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.green,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Ítems:',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        ...sale.items.map(
+                          (item) => Padding(
+                            padding: const EdgeInsets.only(bottom: 4),
+                            child: Text(
+                              'Lote #${item.batchId} — ${item.quantity} x \$${item.unitPrice.toStringAsFixed(2)}',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 32),
+                const SizedBox(height: 32),
 
-              // Botón "Nueva Venta"
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  onPressed: () => _handleNewSale(context),
-                  child: const Text(
-                    'Nueva Venta',
-                    style: TextStyle(fontSize: 16),
+                // Botón "Nueva Venta"
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: () => _handleNewSale(context),
+                    child: const Text(
+                      'Nueva Venta',
+                      style: TextStyle(fontSize: 16),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 12),
+                const SizedBox(height: 12),
 
-              // Botón "Volver al Inicio"
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: TextButton(
-                  onPressed: () => _handleGoHome(context),
-                  child: const Text(
-                    'Volver al Inicio',
-                    style: TextStyle(fontSize: 16),
+                // Botón "Volver al Inicio"
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: TextButton(
+                    onPressed: () => _handleGoHome(context),
+                    child: const Text(
+                      'Volver al Inicio',
+                      style: TextStyle(fontSize: 16),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -26,7 +26,7 @@ import 'package:mundo_limpio_app/features/products/data/models/product_model.dar
 /// Cada método retorna su tipo correspondiente o lanza [ApiException]
 /// (o subtipo) en caso de error.
 ///
-/// Los errores HTTP se convierten con [ApiException.fromStatusCode]:
+/// Los errores HTTP se convierten con [ApiException.fromDioException]:
 /// - 401/403 → [AuthException]
 /// - 5xx → [ServerException]
 /// - 0 (red) → [NetworkException]
@@ -47,7 +47,7 @@ class ProductsApi {
           .map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
           .toList();
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -62,7 +62,7 @@ class ProductsApi {
           .map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
           .toList();
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -74,7 +74,7 @@ class ProductsApi {
       final response = await _dio.get('/api/v1/products/$id');
       return ProductModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -86,7 +86,7 @@ class ProductsApi {
       final response = await _dio.get('/api/v1/products/sku/$sku');
       return ProductModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -99,7 +99,7 @@ class ProductsApi {
       final response = await _dio.post('/api/v1/products', data: data);
       return ProductModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -111,7 +111,7 @@ class ProductsApi {
       final response = await _dio.put('/api/v1/products/$id', data: data);
       return ProductModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -122,7 +122,7 @@ class ProductsApi {
     try {
       await _dio.delete('/api/v1/products/$id');
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -134,7 +134,7 @@ class ProductsApi {
       final response = await _dio.patch('/api/v1/products/$id/reactivate');
       return ProductModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 }

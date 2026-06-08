@@ -50,7 +50,7 @@ class _BackupDetailScreenState extends State<BackupDetailScreen> {
 
     return Scaffold(
       appBar: const BrandedAppBar(title: 'Detalle de Backup'),
-      body: _buildBody(provider),
+      body: SafeArea(child: _buildBody(provider)),
     );
   }
 

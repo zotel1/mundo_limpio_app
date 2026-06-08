@@ -52,7 +52,7 @@ class _SaleDetailScreenState extends State<SaleDetailScreen> {
 
     return Scaffold(
       appBar: const BrandedAppBar(title: 'Detalle de Venta'),
-      body: _buildBody(provider),
+      body: SafeArea(child: _buildBody(provider)),
     );
   }
 

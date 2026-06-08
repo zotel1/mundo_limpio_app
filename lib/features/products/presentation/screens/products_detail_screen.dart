@@ -69,7 +69,7 @@ class _ProductsDetailScreenState extends State<ProductsDetailScreen> {
           ],
         ],
       ),
-      body: _buildBody(provider),
+      body: SafeArea(child: _buildBody(provider)),
     );
   }
 

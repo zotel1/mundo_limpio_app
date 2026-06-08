@@ -24,7 +24,7 @@ import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response
 /// Cada método retorna su tipo correspondiente o lanza [ApiException]
 /// (o subtipo) en caso de error.
 ///
-/// Los errores HTTP se convierten con [ApiException.fromStatusCode]:
+/// Los errores HTTP se convierten con [ApiException.fromDioException]:
 /// - 401/403 → [AuthException]
 /// - 5xx → [ServerException]
 /// - 0 (red) → [NetworkException]
@@ -61,7 +61,7 @@ class ReceiptsApi {
         response.data as Map<String, dynamic>,
       );
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -77,7 +77,7 @@ class ReceiptsApi {
       );
       return PurchaseResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -94,7 +94,7 @@ class ReceiptsApi {
           )
           .toList();
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -106,7 +106,7 @@ class ReceiptsApi {
       final response = await _dio.get('/api/v1/receipts/$id');
       return PurchaseResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 }

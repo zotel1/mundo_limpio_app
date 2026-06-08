@@ -71,10 +71,12 @@ class _ReceiptCaptureScreenState extends State<ReceiptCaptureScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const BrandedAppBar(title: 'Escanear Recibo'),
-      body: Consumer<ReceiptsProvider>(
-        builder: (context, provider, _) {
-          return _buildBody(provider);
-        },
+      body: SafeArea(
+        child: Consumer<ReceiptsProvider>(
+          builder: (context, provider, _) {
+            return _buildBody(provider);
+          },
+        ),
       ),
     );
   }
