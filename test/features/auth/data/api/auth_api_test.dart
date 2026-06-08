@@ -1,7 +1,8 @@
 // Pruebas unitarias para AuthApi.
 // Verifica que las llamadas HTTP a login, register y refresh
 // se hacen correctamente y que los errores HTTP se convierten
-// a ApiException con el subtipo correcto.
+// a ApiException con el subtipo correcto, preservando el mensaje
+// del backend cuando está disponible.
 //
 // TDD: RED — test escrito antes que la implementación
 
@@ -68,11 +69,11 @@ void main() {
       ).called(1);
     });
 
-    // Error 401: debe lanzar AuthException
+    // Error 401: debe lanzar AuthException y preservar mensaje del backend
     test(
-      'debe lanzar AuthException en login con credenciales inválidas (R3.2)',
+      'debe lanzar AuthException con mensaje del backend en 401 (R2.1)',
       () async {
-        // Arrange: simula 401 Unauthorized
+        // Arrange: simula 401 Unauthorized con mensaje del backend
         when(
           () => mockDio.post('/api/v1/auth/login', data: any(named: 'data')),
         ).thenThrow(
@@ -81,6 +82,7 @@ void main() {
             response: Response(
               statusCode: 401,
               requestOptions: RequestOptions(path: '/api/v1/auth/login'),
+              data: {'message': 'Email o contraseña incorrectos'},
             ),
             type: DioExceptionType.badResponse,
           ),
@@ -89,7 +91,13 @@ void main() {
         // Act & Assert
         expect(
           () => authApi.login(testEmail, testPassword),
-          throwsA(isA<AuthException>()),
+          throwsA(
+            isA<AuthException>().having(
+              (e) => e.message,
+              'message',
+              'Email o contraseña incorrectos',
+            ),
+          ),
         );
       },
     );
@@ -136,6 +144,37 @@ void main() {
         );
       },
     );
+
+    // Error 429: debe lanzar RateLimitException
+    test(
+      'debe lanzar RateLimitException en login con demasiados intentos (429)',
+      () async {
+        when(
+          () => mockDio.post('/api/v1/auth/login', data: any(named: 'data')),
+        ).thenThrow(
+          DioException(
+            requestOptions: RequestOptions(path: '/api/v1/auth/login'),
+            response: Response(
+              statusCode: 429,
+              requestOptions: RequestOptions(path: '/api/v1/auth/login'),
+              data: {'message': 'Demasiados intentos. Esperá 30 segundos.'},
+            ),
+            type: DioExceptionType.badResponse,
+          ),
+        );
+
+        expect(
+          () => authApi.login(testEmail, testPassword),
+          throwsA(
+            isA<RateLimitException>().having(
+              (e) => e.message,
+              'message',
+              'Demasiados intentos. Esperá 30 segundos.',
+            ),
+          ),
+        );
+      },
+    );
   });
 
   group('register', () {
@@ -172,9 +211,43 @@ void main() {
       ).called(1);
     });
 
-    // Error 409 (Conflict) para email duplicado
+    // Error 409: debe lanzar ConflictException con mensaje del backend (R2.2)
     test(
-      'debe lanzar ApiException en registro con email duplicado (R2.2)',
+      'debe lanzar ConflictException con mensaje del backend en 409 (R2.2)',
+      () async {
+        when(
+          () => mockDio.post('/api/v1/auth/register', data: any(named: 'data')),
+        ).thenThrow(
+          DioException(
+            requestOptions: RequestOptions(path: '/api/v1/auth/register'),
+            response: Response(
+              statusCode: 409,
+              requestOptions: RequestOptions(path: '/api/v1/auth/register'),
+              data: {
+                'code': 'EMAIL_ALREADY_IN_USE',
+                'message': 'El email ya está registrado',
+              },
+            ),
+            type: DioExceptionType.badResponse,
+          ),
+        );
+
+        expect(
+          () => authApi.register('existing@test.com', 'Pass123!'),
+          throwsA(
+            isA<ConflictException>().having(
+              (e) => e.message,
+              'message',
+              'El email ya está registrado',
+            ),
+          ),
+        );
+      },
+    );
+
+    // Error 409 sin data: debe lanzar ConflictException con mensaje default
+    test(
+      'debe lanzar ConflictException con mensaje default en 409 sin data',
       () async {
         when(
           () => mockDio.post('/api/v1/auth/register', data: any(named: 'data')),
@@ -191,7 +264,7 @@ void main() {
 
         expect(
           () => authApi.register('existing@test.com', 'Pass123!'),
-          throwsA(isA<ApiException>()),
+          throwsA(isA<ConflictException>()),
         );
       },
     );
@@ -232,7 +305,7 @@ void main() {
 
     // Error 401 en refresh: tokens expirados
     test(
-      'debe lanzar AuthException en refresh con token expirado (R4.2)',
+      'debe lanzar AuthException con mensaje del backend en refresh (R4.2)',
       () async {
         when(
           () => mockDio.post('/api/v1/auth/refresh', data: any(named: 'data')),
@@ -242,6 +315,7 @@ void main() {
             response: Response(
               statusCode: 401,
               requestOptions: RequestOptions(path: '/api/v1/auth/refresh'),
+              data: {'message': 'Token expirado'},
             ),
             type: DioExceptionType.badResponse,
           ),
@@ -249,7 +323,13 @@ void main() {
 
         expect(
           () => authApi.refresh('expired-refresh-token'),
-          throwsA(isA<AuthException>()),
+          throwsA(
+            isA<AuthException>().having(
+              (e) => e.message,
+              'message',
+              'Token expirado',
+            ),
+          ),
         );
       },
     );

@@ -44,7 +44,7 @@ class AuthApi {
       );
       return AuthResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -60,7 +60,7 @@ class AuthApi {
       );
       return AuthResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -76,7 +76,7 @@ class AuthApi {
       );
       return AuthResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 }

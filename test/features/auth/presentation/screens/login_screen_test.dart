@@ -251,7 +251,8 @@ void main() {
       await pumpUntilSettled(tester);
 
       // Assert: muestra mensaje de error (procesado por ErrorHandler)
-      expect(find.textContaining('No autorizado'), findsOneWidget);
+      // Ahora ErrorHandler respeta el mensaje original del backend
+      expect(find.textContaining('Credenciales inválidas'), findsOneWidget);
     });
 
     testWidgets('error de red debe mostrar mensaje (R3.3)', (tester) async {
