@@ -13,7 +13,8 @@ import 'package:mundo_limpio_app/core/drift/app_database.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/product_response.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/production_batch_response.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/sale_request.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
+
+import '../entities/sale.dart';
 
 /// Repositorio de Ventas.
 ///
@@ -39,23 +40,23 @@ abstract class SalesRepository {
 
   /// Obtiene la lista de ventas desde el backend.
   ///
-  /// Retorna [List<SaleResponse>] con todas las ventas.
+  /// Retorna [List<Sale>] con todas las ventas.
   /// Lanza [ApiException] en caso de error de red.
-  Future<List<SaleResponse>> getSales();
+  Future<List<Sale>> getSales();
 
   /// Obtiene una venta por su ID.
   ///
   /// [id]: ID de la venta a consultar.
-  /// Retorna [SaleResponse] con los datos de la venta.
+  /// Retorna [Sale] con los datos de la venta.
   /// Lanza [ApiException] si no existe o hay error de red.
-  Future<SaleResponse> getSaleById(int id);
+  Future<Sale> getSaleById(int id);
 
   /// Crea una nueva venta en el backend.
   ///
   /// [request]: datos de la venta (productId, quantity).
-  /// Retorna [SaleResponse] con los datos de la venta creada.
+  /// Retorna [Sale] con los datos de la venta creada.
   /// Lanza [ApiException] en caso de error (stock insuficiente, etc.).
-  Future<SaleResponse> createSale(SaleRequest request);
+  Future<Sale> createSale(SaleRequest request);
 
   /// Obtiene todos los borradores de ventas con status 'draft'.
   ///
@@ -68,5 +69,5 @@ abstract class SalesRepository {
   /// Lee el borrador de la DB, lo envía vía [createSale],
   /// y si el backend responde OK, lo marca como 'confirmed'.
   /// Si el backend falla, propaga [ApiException] y NO cambia el status.
-  Future<SaleResponse> confirmDraft(int draftId);
+  Future<Sale> confirmDraft(int draftId);
 }

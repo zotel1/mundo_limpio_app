@@ -21,8 +21,8 @@ import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_item_response.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/sale.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/sale_item.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/provider/sales_history_provider.dart';
 
 /// Pantalla que muestra el detalle completo de una venta.
@@ -77,7 +77,7 @@ class _SaleDetailScreenState extends State<SaleDetailScreen> {
     }
   }
 
-  Widget _buildDetailContent(SaleResponse sale) {
+  Widget _buildDetailContent(Sale sale) {
     final dateStr =
         '${sale.createdAt.day}/${sale.createdAt.month}/${sale.createdAt.year}';
 
@@ -128,7 +128,7 @@ class _SaleDetailScreenState extends State<SaleDetailScreen> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Total: \$${sale.totalAmount.toStringAsFixed(2)}',
+                        'Total: \$${sale.total.toStringAsFixed(2)}',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -160,7 +160,7 @@ class _SaleDetailScreenState extends State<SaleDetailScreen> {
     );
   }
 
-  Widget _buildItemRow(SaleItemResponse item) {
+  Widget _buildItemRow(SaleItem item) {
     final subtotal = item.quantity * item.unitPrice;
 
     return Card(
@@ -197,7 +197,7 @@ class _SaleDetailScreenState extends State<SaleDetailScreen> {
     );
   }
 
-  Widget _buildTotalRow(SaleResponse sale) {
+  Widget _buildTotalRow(Sale sale) {
     return Card(
       color: Colors.green.shade50,
       child: Padding(
@@ -210,7 +210,7 @@ class _SaleDetailScreenState extends State<SaleDetailScreen> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             Text(
-              '\$${sale.totalAmount.toStringAsFixed(2)}',
+              '\$${sale.total.toStringAsFixed(2)}',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,

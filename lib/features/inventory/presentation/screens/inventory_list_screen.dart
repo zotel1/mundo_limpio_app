@@ -17,7 +17,7 @@ import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
-import 'package:mundo_limpio_app/features/inventory/data/models/inventory_response.dart';
+import 'package:mundo_limpio_app/features/inventory/domain/entities/stock_item.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/provider/inventory_provider.dart';
 
 /// Pantalla que muestra los productos con stock bajo.
@@ -142,7 +142,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
   }
 
   /// Card de producto con indicador visual de low-stock.
-  Widget _buildProductCard(InventoryResponse item) {
+  Widget _buildProductCard(StockItem item) {
     final isCritical = item.currentStock <= item.minStockThreshold * 0.5;
     final warningColor = isCritical ? Colors.red : Colors.orange;
 

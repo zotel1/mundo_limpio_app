@@ -22,8 +22,8 @@
 import 'package:flutter/foundation.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
-import 'package:mundo_limpio_app/features/inventory/data/models/adjustment_request.dart';
-import 'package:mundo_limpio_app/features/inventory/data/models/inventory_response.dart';
+import 'package:mundo_limpio_app/features/inventory/domain/entities/adjustment.dart';
+import 'package:mundo_limpio_app/features/inventory/domain/entities/stock_item.dart';
 import 'package:mundo_limpio_app/features/inventory/domain/repository/inventory_repository.dart';
 
 /// Estados posibles del [InventoryProvider].
@@ -55,9 +55,9 @@ class InventoryProvider extends ChangeNotifier {
 
   // ─── Estado interno ──────────────────────────────────
   InventoryStatus _status = InventoryStatus.idle;
-  InventoryResponse? _currentInventory;
-  List<InventoryResponse> _lowStockItems = [];
-  InventoryResponse? _lastAdjustment;
+  StockItem? _currentInventory;
+  List<StockItem> _lowStockItems = [];
+  StockItem? _lastAdjustment;
   String? _errorMessage;
 
   // ─── Getters públicos ────────────────────────────────
@@ -66,13 +66,13 @@ class InventoryProvider extends ChangeNotifier {
   InventoryStatus get status => _status;
 
   /// Último inventario cargado via [loadInventory].
-  InventoryResponse? get currentInventory => _currentInventory;
+  StockItem? get currentInventory => _currentInventory;
 
   /// Lista de productos con stock bajo.
-  List<InventoryResponse> get lowStockItems => _lowStockItems;
+  List<StockItem> get lowStockItems => _lowStockItems;
 
   /// Respuesta del último ajuste exitoso.
-  InventoryResponse? get lastAdjustment => _lastAdjustment;
+  StockItem? get lastAdjustment => _lastAdjustment;
 
   /// Mensaje de error de la última operación fallida.
   String? get errorMessage => _errorMessage;
@@ -126,7 +126,7 @@ class InventoryProvider extends ChangeNotifier {
   /// Ajusta el stock de un producto.
   ///
   /// Transición: → loading → success | error
-  Future<void> adjustStock(int productId, AdjustmentRequest request) async {
+  Future<void> adjustStock(int productId, Adjustment request) async {
     _status = InventoryStatus.loading;
     _errorMessage = null;
     notifyListeners();

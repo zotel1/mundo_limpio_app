@@ -25,24 +25,23 @@ import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provid
 import 'package:mundo_limpio_app/features/auth/presentation/screens/home_screen.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/screens/register_screen.dart';
-import 'package:mundo_limpio_app/features/inventory/data/models/inventory_response.dart';
+import 'package:mundo_limpio_app/features/inventory/domain/entities/stock_item.dart';
 import 'package:mundo_limpio_app/features/inventory/domain/repository/inventory_repository.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/provider/inventory_provider.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/screens/inventory_detail_screen.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/screens/inventory_list_screen.dart';
-import 'package:mundo_limpio_app/features/production/domain/entities/bulk_product.dart';
-import 'package:mundo_limpio_app/features/production/domain/entities/production_batch.dart';
-import 'package:mundo_limpio_app/features/production/domain/repositories/i_bulk_product_repository.dart';
-import 'package:mundo_limpio_app/features/production/domain/repositories/i_production_repository.dart';
-import 'package:mundo_limpio_app/features/production/presentation/providers/bulk_product_provider.dart';
-import 'package:mundo_limpio_app/features/production/presentation/providers/production_provider.dart';
-import 'package:mundo_limpio_app/features/production/presentation/screens/bulk/bulk_product_form_screen.dart';
-import 'package:mundo_limpio_app/features/production/presentation/screens/bulk/bulk_product_list_screen.dart';
-import 'package:mundo_limpio_app/features/production/presentation/screens/production/production_batch_list_screen.dart';
-import 'package:mundo_limpio_app/features/production/presentation/screens/production/production_create_screen.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_item_response.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_request.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
+import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response.dart';
+import 'package:mundo_limpio_app/features/receipts/data/models/purchase_item_response.dart';
+import 'package:mundo_limpio_app/features/receipts/data/models/receipt_process_response.dart';
+import 'package:mundo_limpio_app/features/receipts/data/models/product_line_dto.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/purchase.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/repository/receipts_repository.dart';
+import 'package:mundo_limpio_app/features/receipts/presentation/provider/receipts_provider.dart';
+import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_capture_screen.dart';
+import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_confirmed_screen.dart';
+import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_review_screen.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/sale.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/sale_item.dart';
 import 'package:mundo_limpio_app/features/sales/domain/repository/sales_repository.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/provider/sales_provider.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/screens/create_sale_screen.dart';
@@ -215,7 +214,7 @@ void main() {
       // Stubs para evitar crash en postFrameCallback
       when(() => mockInvRepo.getLowStock()).thenAnswer((_) async => []);
       when(() => mockInvRepo.getInventory(any())).thenAnswer(
-        (_) async => const InventoryResponse(
+        (_) async => const StockItem(
           productId: 1,
           productName: 'Test',
           currentStock: 0,
@@ -306,19 +305,18 @@ void main() {
     // ─── Sale Result ──────────────────────────────────
 
     testWidgets('SaleResultScreen debe usar BrandedAppBar', (tester) async {
-      const saleItem = SaleItemResponse(
-        batchId: 1,
+      const saleItem = SaleItem(
         productId: 1,
         productName: 'Test Product',
         quantity: 10.0,
         unitPrice: 100.0,
-        unitCost: 80.0,
       );
-      final sale = SaleResponse(
+      final sale = Sale(
         id: 1,
-        totalAmount: 1000.0,
+        total: 1000.0,
         createdAt: DateTime(2026, 5, 19),
         items: const [saleItem],
+        status: 'completed',
       );
 
       await tester.pumpWidget(

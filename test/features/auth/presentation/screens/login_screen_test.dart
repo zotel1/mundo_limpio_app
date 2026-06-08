@@ -24,7 +24,7 @@ import 'package:provider/provider.dart';
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/core/storage/token_storage.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
-import 'package:mundo_limpio_app/features/auth/data/models/auth_response.dart';
+import 'package:mundo_limpio_app/features/auth/domain/entities/auth_session.dart';
 import 'package:mundo_limpio_app/features/auth/domain/repository/auth_repository.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/screens/home_screen.dart';
@@ -69,14 +69,8 @@ void main() {
     // Stubs por defecto
     when(() => mockRepo.isLoggedIn()).thenAnswer((_) async => false);
     when(() => mockRepo.login(any(), any())).thenAnswer(
-      (_) async => AuthResponse(
-        accessToken: 'test-access',
-        refreshToken: 'test-refresh',
-        role: 'user',
-        username: 'testuser',
-        roles: ['user'],
-        createdAt: DateTime(2026, 5, 9),
-      ),
+      (_) async =>
+          AuthSession(userId: 0, username: 'testuser', roles: ['user']),
     );
     when(() => mockRepo.logout()).thenAnswer((_) async {});
     when(() => mockTokenStorage.readRoles()).thenAnswer((_) async => null);
@@ -279,7 +273,7 @@ void main() {
       tester,
     ) async {
       // Arrange: login NO completa hasta que liberemos el completer
-      final completer = Completer<AuthResponse>();
+      final completer = Completer<AuthSession>();
       when(
         () => mockRepo.login(any(), any()),
       ).thenAnswer((_) => completer.future);
@@ -305,14 +299,7 @@ void main() {
 
       // Liberar el completer para no dejar el test colgado
       completer.complete(
-        AuthResponse(
-          accessToken: 'a',
-          refreshToken: 'r',
-          role: 'user',
-          username: 'u',
-          roles: ['user'],
-          createdAt: DateTime(2026, 1, 1),
-        ),
+        AuthSession(userId: 0, username: 'u', roles: ['user']),
       );
     });
   });

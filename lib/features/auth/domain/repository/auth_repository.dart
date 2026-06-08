@@ -7,28 +7,28 @@
 // Domain layer: NO importa Flutter, Dio, ni flutter_secure_storage.
 // Solo tipos de Dart puro y modelos del dominio.
 
-import '../../data/models/auth_response.dart';
+import '../entities/auth_session.dart';
 
 /// Repositorio de autenticación.
 ///
 /// Métodos:
-/// - [login]: autentica con email+password, retorna tokens JWT
-/// - [register]: registra nuevo usuario, retorna tokens JWT
+/// - [login]: autentica con email+password, retorna sesión
+/// - [register]: registra nuevo usuario, retorna sesión
 /// - [logout]: limpia la sesión local
 /// - [refreshToken]: renueva tokens usando el refresh token
 /// - [isLoggedIn]: verifica si hay una sesión activa
 abstract class AuthRepository {
   /// Autentica al usuario con [email] y [password].
   ///
-  /// Retorna [AuthResponse] con los tokens JWT si las credenciales
+  /// Retorna [AuthSession] con los datos de la sesión si las credenciales
   /// son válidas. Lanza [ApiException] en caso de error.
-  Future<AuthResponse> login(String email, String password);
+  Future<AuthSession> login(String email, String password);
 
   /// Registra un nuevo usuario con [email] y [password].
   ///
-  /// Retorna [AuthResponse] si el registro es exitoso.
+  /// Retorna [AuthSession] si el registro es exitoso.
   /// Lanza [ApiException] si el email ya está registrado (409).
-  Future<AuthResponse> register(String email, String password);
+  Future<AuthSession> register(String email, String password);
 
   /// Cierra la sesión: elimina tokens locales.
   ///
@@ -38,10 +38,10 @@ abstract class AuthRepository {
 
   /// Renueva los tokens usando [refreshToken].
   ///
-  /// Retorna un nuevo [AuthResponse] con access y refresh
+  /// Retorna un nuevo [AuthSession] con access y refresh
   /// tokens actualizados. Lanza [AuthException] si el
   /// refresh token expiró.
-  Future<AuthResponse> refreshToken(String refreshToken);
+  Future<AuthSession> refreshToken(String refreshToken);
 
   /// Verifica si hay una sesión activa localmente.
   ///

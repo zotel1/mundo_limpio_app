@@ -20,10 +20,8 @@ import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/receipts/data/models/receipt_confirm_request.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/receipt_process_response.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/product_line_dto.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/purchase_item_response.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/purchase.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/receipt.dart';
 import 'package:mundo_limpio_app/features/receipts/domain/repository/receipts_repository.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/provider/receipts_provider.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_review_screen.dart';
@@ -33,7 +31,7 @@ class MockReceiptsRepository extends Mock implements ReceiptsRepository {}
 /// Crea la app de test con ReceiptsProvider real, mock repository y GoRouter.
 Widget createTestApp({
   required ReceiptsProvider provider,
-  required ReceiptProcessResponse processResponse,
+  required Receipt processResponse,
 }) {
   final router = GoRouter(
     routes: [
@@ -70,59 +68,27 @@ void main() {
   late MockReceiptsRepository mockRepo;
   late ReceiptsProvider provider;
 
-  final processResponse = ReceiptProcessResponse(
-    detectedSupplier: 'Proveedor X',
-    detectedDate: '2026-05-15',
-    lines: const [
-      ProductLineDto(
-        name: 'Leche',
-        quantity: 2,
-        unitPrice: 150.0,
-        confidence: 0.95,
-        bulkProductId: 1,
-      ),
-      ProductLineDto(
-        name: 'Pan',
-        quantity: 1,
-        unitPrice: 80.0,
-        confidence: 0.15,
-        bulkProductId: null,
-      ),
-    ],
-    imageUrl: 'https://example.com/receipt.jpg',
+  final processResponse = Receipt(
+    id: 0,
+    filename: 'https://example.com/receipt.jpg',
+    detectedDate: DateTime(2026, 5, 15),
+    status: 'pending',
+    items: const [],
   );
 
-  final emptyProcessResponse = ReceiptProcessResponse(
-    detectedSupplier: 'Sin Datos',
+  final emptyProcessResponse = Receipt(
+    id: 0,
+    filename: 'https://example.com/empty.jpg',
     detectedDate: null,
-    lines: const [],
-    imageUrl: 'https://example.com/empty.jpg',
+    status: 'pending',
+    items: const [],
   );
 
-  final purchaseResponse = PurchaseResponse(
+  final purchaseResponse = Purchase(
     id: 1,
-    imageUrl: 'https://example.com/receipt.jpg',
     supplierName: 'Proveedor X',
-    purchaseDate: DateTime(2026, 5, 15),
     total: 380.0,
-    items: const [
-      PurchaseItemResponse(
-        id: 1,
-        description: 'Leche',
-        quantity: 2,
-        unitPrice: 150.0,
-        totalPrice: 300.0,
-        bulkProductId: 1,
-      ),
-      PurchaseItemResponse(
-        id: 2,
-        description: 'Pan',
-        quantity: 1,
-        unitPrice: 80.0,
-        totalPrice: 80.0,
-        bulkProductId: null,
-      ),
-    ],
+    createdAt: DateTime(2026, 5, 15),
   );
 
   setUpAll(() {
@@ -244,7 +210,7 @@ void main() {
       await tester.pump();
 
       // Usar Completer para mantener la confirmación pendiente
-      final completer = Completer<PurchaseResponse>();
+      final completer = Completer<Purchase>();
       when(
         () => mockRepo.confirmReceipt(any()),
       ).thenAnswer((_) => completer.future);

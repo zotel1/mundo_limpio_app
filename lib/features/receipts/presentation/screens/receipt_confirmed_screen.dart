@@ -14,7 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/purchase.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/provider/receipts_provider.dart';
 
 /// Pantalla que muestra el resumen de una compra confirmada.
@@ -23,7 +23,7 @@ import 'package:mundo_limpio_app/features/receipts/presentation/provider/receipt
 /// Muestra el resumen y un botón para iniciar un nuevo escaneo.
 class ReceiptConfirmedScreen extends StatelessWidget {
   /// Datos de la compra confirmada.
-  final PurchaseResponse purchase;
+  final Purchase purchase;
 
   const ReceiptConfirmedScreen({super.key, required this.purchase});
 
@@ -39,7 +39,7 @@ class ReceiptConfirmedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final date = purchase.purchaseDate;
+    final date = purchase.createdAt;
     final dateStr =
         '${date.day.toString().padLeft(2, '0')}/'
         '${date.month.toString().padLeft(2, '0')}/'
@@ -126,54 +126,6 @@ class ReceiptConfirmedScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 24),
-
-                  // ─── Lista de ítems ──────────────────
-                  const Text(
-                    'Ítems',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
-                  ...purchase.items.map(
-                    (item) => Card(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 3,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    item.description,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Qty: ${item.quantity}  |  '
-                                    'Unit: ${formatCurrency(item.unitPrice)}',
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Text(
-                              formatCurrency(item.totalPrice),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
                   const SizedBox(height: 24),
 
                   // ─── Botón Nuevo Escaneo ─────────────

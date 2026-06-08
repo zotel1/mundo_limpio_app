@@ -17,8 +17,11 @@ import 'package:mundo_limpio_app/core/drift/daos/inventory_cache_dao.dart';
 import 'package:mundo_limpio_app/core/drift/daos/inventory_pending_dao.dart';
 
 import 'package:mundo_limpio_app/features/inventory/data/api/inventory_api.dart';
-import 'package:mundo_limpio_app/features/inventory/data/models/adjustment_request.dart';
+import 'package:mundo_limpio_app/features/inventory/data/models/adjustment_request.dart'
+    as dto;
 import 'package:mundo_limpio_app/features/inventory/data/models/inventory_response.dart';
+import 'package:mundo_limpio_app/features/inventory/domain/entities/adjustment.dart';
+import 'package:mundo_limpio_app/features/inventory/domain/entities/stock_item.dart';
 import 'package:mundo_limpio_app/features/inventory/domain/repository/inventory_repository.dart';
 
 /// Implementación de [InventoryRepository] con soporte online/offline.
@@ -45,7 +48,7 @@ class InventoryRepositoryImpl implements InventoryRepository {
        _inventoryPendingDao = inventoryPendingDao;
 
   @override
-  Future<InventoryResponse> getInventory(int productId) async {
+  Future<StockItem> getInventory(int productId) async {
     if (_connectivity.isOnline) {
       final response = await _inventoryApi.getInventory(productId);
       await _inventoryCacheDao.upsertAll([
@@ -57,12 +60,12 @@ class InventoryRepositoryImpl implements InventoryRepository {
           updatedAt: DateTime.now(),
         ),
       ]);
-      return response;
+      return response.toEntity();
     }
     // offline: leer desde caché
     final cached = await _inventoryCacheDao.getByProductId(productId);
     if (cached == null) return _nullResponse();
-    return InventoryResponse(
+    return StockItem(
       productId: cached.productId,
       productName: cached.productName,
       currentStock: cached.currentStock,
@@ -70,12 +73,9 @@ class InventoryRepositoryImpl implements InventoryRepository {
     );
   }
 
-  /// Retorna un InventoryResponse nulo para el caso offline sin cache.
-  ///
-  /// Se usa un método privado porque es un detalle de implementación
-  /// que no pertenece al contrato público.
-  InventoryResponse _nullResponse() {
-    return const InventoryResponse(
+  /// Retorna un StockItem nulo para el caso offline sin cache.
+  StockItem _nullResponse() {
+    return const StockItem(
       productId: -1,
       productName: '',
       currentStock: 0,
@@ -84,7 +84,7 @@ class InventoryRepositoryImpl implements InventoryRepository {
   }
 
   @override
-  Future<List<InventoryResponse>> getLowStock() async {
+  Future<List<StockItem>> getLowStock() async {
     if (_connectivity.isOnline) {
       final items = await _inventoryApi.getLowStock();
       await _inventoryCacheDao.upsertAll(
@@ -100,13 +100,13 @@ class InventoryRepositoryImpl implements InventoryRepository {
             )
             .toList(),
       );
-      return items;
+      return items.map((e) => e.toEntity()).toList();
     }
     // offline: leer desde caché
     final cached = await _inventoryCacheDao.getAll();
     return cached
         .map(
-          (c) => InventoryResponse(
+          (c) => StockItem(
             productId: c.productId,
             productName: c.productName,
             currentStock: c.currentStock,
@@ -117,14 +117,22 @@ class InventoryRepositoryImpl implements InventoryRepository {
   }
 
   @override
-  Future<InventoryResponse> adjustStock(
-    int productId,
-    AdjustmentRequest request,
-  ) async {
+  Future<StockItem> adjustStock(int productId, Adjustment adjustment) async {
     if (_connectivity.isOnline) {
-      return _inventoryApi.adjustStock(productId, request);
+      final request = dto.AdjustmentRequest(
+        type: _mapDomainTypeToDto(adjustment.type),
+        quantity: adjustment.quantity,
+        reason: adjustment.reason,
+      );
+      final response = await _inventoryApi.adjustStock(productId, request);
+      return response.toEntity();
     }
     // offline: encolar como pendiente
+    final request = dto.AdjustmentRequest(
+      type: _mapDomainTypeToDto(adjustment.type),
+      quantity: adjustment.quantity,
+      reason: adjustment.reason,
+    );
     final payload = jsonEncode(request.toJson());
     await _inventoryPendingDao.insert(
       InventoryPendingQueueCompanion.insert(
@@ -132,6 +140,25 @@ class InventoryRepositoryImpl implements InventoryRepository {
         payload: payload,
       ),
     );
-    return InventoryResponse.pending();
+    return const StockItem(
+      productId: -1,
+      productName: '',
+      currentStock: 0,
+      minStockThreshold: 0,
+    );
+  }
+
+  /// Mapea [AdjustmentType] del dominio al enum DTO.
+  dto.AdjustmentType _mapDomainTypeToDto(AdjustmentType type) {
+    switch (type) {
+      case AdjustmentType.adjustment:
+        return dto.AdjustmentType.ADJUSTMENT;
+      case AdjustmentType.breakage:
+        return dto.AdjustmentType.BREAKAGE;
+      case AdjustmentType.return_:
+        return dto.AdjustmentType.RETURN;
+      case AdjustmentType.qualityLoss:
+        return dto.AdjustmentType.QUALITY_LOSS;
+    }
   }
 }

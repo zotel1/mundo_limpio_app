@@ -17,7 +17,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/core/storage/token_storage.dart';
-import 'package:mundo_limpio_app/features/auth/data/models/auth_response.dart';
+import 'package:mundo_limpio_app/features/auth/domain/entities/auth_session.dart';
 import 'package:mundo_limpio_app/features/auth/domain/repository/auth_repository.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mundo_limpio_app/core/crashlytics/crashlytics_service.dart';
@@ -40,15 +40,12 @@ void main() {
   const testEmail = 'test@example.com';
   const testPassword = 'SecurePass123!';
 
-  // AuthResponse de ejemplo para usar en múltiples tests
-  final authResponse = AuthResponse(
-    accessToken: 'access-123',
-    refreshToken: 'refresh-456',
-    role: 'user',
+  // AuthSession de ejemplo para usar en múltiples tests
+  final authSession = AuthSession(
+    userId: 0,
     username: 'testuser',
     email: 'testuser@example.com',
     roles: ['user'],
-    createdAt: DateTime(2026, 5, 9),
   );
 
   setUp(() {
@@ -71,10 +68,10 @@ void main() {
     when(() => mockAuthRepository.isLoggedIn()).thenAnswer((_) async => false);
     when(
       () => mockAuthRepository.login(any(), any()),
-    ).thenAnswer((_) async => authResponse);
+    ).thenAnswer((_) async => authSession);
     when(
       () => mockAuthRepository.register(any(), any()),
-    ).thenAnswer((_) async => authResponse);
+    ).thenAnswer((_) async => authSession);
     when(() => mockAuthRepository.logout()).thenAnswer((_) async {});
     when(() => mockTokenStorage.readRoles()).thenAnswer((_) async => null);
     when(() => mockTokenStorage.readUsername()).thenAnswer((_) async => null);
@@ -170,7 +167,7 @@ void main() {
     test('debe setear authenticated en login exitoso (R3.1)', () async {
       when(
         () => mockAuthRepository.login(testEmail, testPassword),
-      ).thenAnswer((_) async => authResponse);
+      ).thenAnswer((_) async => authSession);
 
       await provider.login(testEmail, testPassword);
 
@@ -267,7 +264,7 @@ void main() {
       () async {
         when(
           () => mockAuthRepository.login(testEmail, testPassword),
-        ).thenAnswer((_) async => authResponse);
+        ).thenAnswer((_) async => authSession);
 
         await provider.login(testEmail, testPassword);
 
@@ -280,7 +277,7 @@ void main() {
       () async {
         when(
           () => mockAuthRepository.login(testEmail, testPassword),
-        ).thenAnswer((_) async => authResponse);
+        ).thenAnswer((_) async => authSession);
 
         await provider.login(testEmail, testPassword);
 
@@ -305,13 +302,10 @@ void main() {
     });
 
     test('login sin email no debe persistir email', () async {
-      final responseSinEmail = AuthResponse(
-        accessToken: 'access-123',
-        refreshToken: 'refresh-456',
-        role: 'user',
+      final responseSinEmail = AuthSession(
+        userId: 0,
         username: 'testuser',
         roles: ['user'],
-        createdAt: DateTime(2026, 5, 9),
       );
       when(
         () => mockAuthRepository.login(any(), any()),
@@ -335,7 +329,7 @@ void main() {
     test('debe setear unauthenticated en registro exitoso (R2.1)', () async {
       when(
         () => mockAuthRepository.register(testEmail, testPassword),
-      ).thenAnswer((_) async => authResponse);
+      ).thenAnswer((_) async => authSession);
 
       await provider.register(testEmail, testPassword);
 
@@ -350,7 +344,7 @@ void main() {
     test('debe persistir roles/username/email en registro exitoso', () async {
       when(
         () => mockAuthRepository.register(testEmail, testPassword),
-      ).thenAnswer((_) async => authResponse);
+      ).thenAnswer((_) async => authSession);
 
       await provider.register(testEmail, testPassword);
 

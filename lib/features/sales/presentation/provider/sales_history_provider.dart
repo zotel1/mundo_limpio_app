@@ -14,7 +14,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/sale.dart';
 import 'package:mundo_limpio_app/features/sales/domain/repository/sales_repository.dart';
 
 /// Estados posibles del historial de ventas.
@@ -38,18 +38,18 @@ class SalesHistoryProvider extends ChangeNotifier {
   final SalesRepository _repository;
 
   SalesHistoryStatus _status = SalesHistoryStatus.idle;
-  List<SaleResponse> _sales = [];
-  SaleResponse? _selectedSale;
+  List<Sale> _sales = [];
+  Sale? _selectedSale;
   String? _errorMessage;
 
   /// Estado actual del historial de ventas.
   SalesHistoryStatus get status => _status;
 
   /// Lista de ventas cargadas desde el backend.
-  List<SaleResponse> get sales => _sales;
+  List<Sale> get sales => _sales;
 
   /// Venta seleccionada para ver detalle (null si no hay selección).
-  SaleResponse? get selectedSale => _selectedSale;
+  Sale? get selectedSale => _selectedSale;
 
   /// Mensaje de error actual (null si no hay error).
   String? get errorMessage => _errorMessage;

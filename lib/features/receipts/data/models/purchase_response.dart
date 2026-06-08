@@ -10,6 +10,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
 import 'package:mundo_limpio_app/features/receipts/data/models/purchase_item_response.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/purchase.dart';
 
 part 'purchase_response.g.dart';
 
@@ -52,4 +53,15 @@ class PurchaseResponse {
 
   /// Serializa a mapa JSON.
   Map<String, dynamic> toJson() => _$PurchaseResponseToJson(this);
+}
+
+/// Extensión para convertir [PurchaseResponse] a entidad de dominio [Purchase].
+extension PurchaseResponseMapper on PurchaseResponse {
+  /// Convierte este DTO en un [Purchase] del dominio.
+  Purchase toEntity() => Purchase(
+    id: id,
+    supplierName: supplierName,
+    total: total,
+    createdAt: purchaseDate,
+  );
 }

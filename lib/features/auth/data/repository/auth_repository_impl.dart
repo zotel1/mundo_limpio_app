@@ -11,6 +11,7 @@
 import 'package:mundo_limpio_app/core/storage/token_storage.dart';
 import 'package:mundo_limpio_app/features/auth/data/api/auth_api.dart';
 import 'package:mundo_limpio_app/features/auth/data/models/auth_response.dart';
+import 'package:mundo_limpio_app/features/auth/domain/entities/auth_session.dart';
 import 'package:mundo_limpio_app/features/auth/domain/repository/auth_repository.dart';
 
 /// Implementación de [AuthRepository] que usa [AuthApi] para
@@ -30,22 +31,22 @@ class AuthRepositoryImpl implements AuthRepository {
        _tokenStorage = tokenStorage;
 
   @override
-  Future<AuthResponse> login(String email, String password) async {
+  Future<AuthSession> login(String email, String password) async {
     final response = await _authApi.login(email, password);
 
     // Persistir tokens localmente para requests futuros (R3.1)
     await _tokenStorage.saveTokens(response.accessToken, response.refreshToken);
 
-    return response;
+    return response.toEntity();
   }
 
   @override
-  Future<AuthResponse> register(String email, String password) async {
+  Future<AuthSession> register(String email, String password) async {
     final response = await _authApi.register(email, password);
 
     // No guardar tokens en registro — el usuario debe
     // iniciar sesión después del registro exitoso (R2.1)
-    return response;
+    return response.toEntity();
   }
 
   @override
@@ -55,13 +56,13 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<AuthResponse> refreshToken(String refreshToken) async {
+  Future<AuthSession> refreshToken(String refreshToken) async {
     final response = await _authApi.refresh(refreshToken);
 
     // Guardar los nuevos tokens (R4.1)
     await _tokenStorage.saveTokens(response.accessToken, response.refreshToken);
 
-    return response;
+    return response.toEntity();
   }
 
   @override

@@ -14,8 +14,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
-import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/purchase_item_response.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/purchase.dart';
 import 'package:mundo_limpio_app/features/receipts/domain/repository/receipts_repository.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/provider/receipts_provider.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_confirmed_screen.dart';
@@ -25,7 +24,7 @@ class MockReceiptsRepository extends Mock implements ReceiptsRepository {}
 /// Crea la app de test con ReceiptsProvider real, mock repository y GoRouter.
 Widget createTestApp({
   required ReceiptsProvider provider,
-  required PurchaseResponse purchase,
+  required Purchase purchase,
 }) {
   final router = GoRouter(
     routes: [
@@ -60,30 +59,11 @@ void main() {
   late MockReceiptsRepository mockRepo;
   late ReceiptsProvider provider;
 
-  final purchase = PurchaseResponse(
+  final purchase = Purchase(
     id: 1,
-    imageUrl: 'https://example.com/receipt.jpg',
     supplierName: 'Proveedor X',
-    purchaseDate: DateTime(2026, 5, 15),
     total: 380.0,
-    items: const [
-      PurchaseItemResponse(
-        id: 1,
-        description: 'Leche',
-        quantity: 2,
-        unitPrice: 150.0,
-        totalPrice: 300.0,
-        bulkProductId: 1,
-      ),
-      PurchaseItemResponse(
-        id: 2,
-        description: 'Pan',
-        quantity: 1,
-        unitPrice: 80.0,
-        totalPrice: 80.0,
-        bulkProductId: null,
-      ),
-    ],
+    createdAt: DateTime(2026, 5, 15),
   );
 
   setUp(() {
