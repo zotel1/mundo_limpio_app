@@ -31,8 +31,8 @@ import 'package:flutter/foundation.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/features/receipts/data/models/receipt_confirm_request.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/receipt_process_response.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/purchase.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/receipt.dart';
 import 'package:mundo_limpio_app/features/receipts/domain/repository/receipts_repository.dart';
 
 /// Estados posibles del flujo de escaneo OCR de recibos.
@@ -70,8 +70,8 @@ class ReceiptsProvider extends ChangeNotifier {
   final ReceiptsRepository _repository;
 
   ReceiptsStatus _status = ReceiptsStatus.idle;
-  ReceiptProcessResponse? _processResponse;
-  PurchaseResponse? _purchaseResponse;
+  Receipt? _processResponse;
+  Purchase? _purchaseResponse;
   String? _selectedImagePath;
   String? _errorMessage;
 
@@ -79,10 +79,10 @@ class ReceiptsProvider extends ChangeNotifier {
   ReceiptsStatus get status => _status;
 
   /// Resultado del procesamiento OCR (null si no se ha procesado).
-  ReceiptProcessResponse? get processResponse => _processResponse;
+  Receipt? get processResponse => _processResponse;
 
   /// Resultado de la compra confirmada (null si no se ha confirmado).
-  PurchaseResponse? get purchaseResponse => _purchaseResponse;
+  Purchase? get purchaseResponse => _purchaseResponse;
 
   /// Ruta local de la imagen seleccionada (null si no hay selección).
   String? get selectedImagePath => _selectedImagePath;

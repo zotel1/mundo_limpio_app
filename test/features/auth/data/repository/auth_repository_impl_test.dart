@@ -35,6 +35,9 @@ void main() {
     createdAt: DateTime(2026, 5, 9),
   );
 
+  // ignore: unused_local_variable
+  final authSession = authResponse.toEntity();
+
   const testEmail = 'test@example.com';
   const testPassword = 'SecurePass123!';
 
@@ -67,9 +70,9 @@ void main() {
         // Act
         final result = await repository.login(testEmail, testPassword);
 
-        // Assert: retorna el AuthResponse correcto
-        expect(result.accessToken, 'access-123');
-        expect(result.refreshToken, 'refresh-456');
+        // Assert: retorna el AuthSession correcto
+        expect(result.username, 'testuser');
+        expect(result.roles, ['user']);
 
         // Assert: guarda ambos tokens en storage
         verify(
@@ -106,8 +109,8 @@ void main() {
         final result = await repository.register(testEmail, testPassword);
 
         // Assert
-        expect(result.accessToken, 'access-123');
         expect(result.username, 'testuser');
+        expect(result.roles, ['user']);
         verify(() => mockAuthApi.register(testEmail, testPassword)).called(1);
       },
     );
@@ -154,7 +157,7 @@ void main() {
       final result = await repository.refreshToken(refreshToken);
 
       // Assert: guarda los NUEVOS tokens
-      expect(result.accessToken, 'new-access-789');
+      expect(result.username, 'testuser');
       verify(
         () => mockTokenStorage.saveTokens('new-access-789', 'new-refresh-012'),
       ).called(1);

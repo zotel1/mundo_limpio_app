@@ -14,7 +14,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/purchase.dart';
 import 'package:mundo_limpio_app/features/receipts/domain/repository/receipts_repository.dart';
 
 /// Estados posibles del historial de recibos.
@@ -38,18 +38,18 @@ class ReceiptsHistoryProvider extends ChangeNotifier {
   final ReceiptsRepository _repository;
 
   ReceiptsHistoryStatus _status = ReceiptsHistoryStatus.idle;
-  List<PurchaseResponse> _receipts = [];
-  PurchaseResponse? _selectedReceipt;
+  List<Purchase> _receipts = [];
+  Purchase? _selectedReceipt;
   String? _errorMessage;
 
   /// Estado actual del historial de recibos.
   ReceiptsHistoryStatus get status => _status;
 
   /// Lista de compras cargadas desde el backend.
-  List<PurchaseResponse> get receipts => _receipts;
+  List<Purchase> get receipts => _receipts;
 
   /// Compra seleccionada para ver detalle (null si no hay selección).
-  PurchaseResponse? get selectedReceipt => _selectedReceipt;
+  Purchase? get selectedReceipt => _selectedReceipt;
 
   /// Mensaje de error actual (null si no hay error).
   String? get errorMessage => _errorMessage;

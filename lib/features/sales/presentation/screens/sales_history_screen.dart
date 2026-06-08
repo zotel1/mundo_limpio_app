@@ -19,7 +19,7 @@ import 'package:mundo_limpio_app/core/helpers/role_guard.dart';
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/sale.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/provider/sales_history_provider.dart';
 
 /// Pantalla que muestra el listado de ventas con sus detalles.
@@ -100,7 +100,7 @@ class _SalesHistoryScreenState extends State<SalesHistoryScreen> {
     );
   }
 
-  Widget _buildSaleCard(SaleResponse sale) {
+  Widget _buildSaleCard(Sale sale) {
     final dateStr =
         '${sale.createdAt.day}/${sale.createdAt.month}/${sale.createdAt.year}';
 
@@ -126,7 +126,7 @@ class _SalesHistoryScreenState extends State<SalesHistoryScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '\$${sale.totalAmount.toStringAsFixed(2)}',
+                      '\$${sale.total.toStringAsFixed(2)}',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.green.shade700,
@@ -157,7 +157,7 @@ class _SalesHistoryScreenState extends State<SalesHistoryScreen> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${sale.items.length} ítems',
+                          '${sale.items.length} ítem(s)',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey.shade600,

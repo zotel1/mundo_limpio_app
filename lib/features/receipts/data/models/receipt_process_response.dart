@@ -10,6 +10,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
 import 'package:mundo_limpio_app/features/receipts/data/models/product_line_dto.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/receipt.dart';
 
 part 'receipt_process_response.g.dart';
 
@@ -44,4 +45,21 @@ class ReceiptProcessResponse {
 
   /// Serializa a mapa JSON.
   Map<String, dynamic> toJson() => _$ReceiptProcessResponseToJson(this);
+}
+
+/// Extensión para convertir [ReceiptProcessResponse] a entidad de dominio [Receipt].
+extension ReceiptProcessResponseMapper on ReceiptProcessResponse {
+  /// Convierte este DTO en un [Receipt] del dominio.
+  ///
+  /// Nota: la entidad [Receipt] no tiene campos para [detectedSupplier],
+  /// [lines] ni [imageUrl]. Se mapean solo los campos compatibles.
+  Receipt toEntity() => Receipt(
+    id: 0, // La respuesta OCR no tiene ID asignado
+    filename: imageUrl,
+    detectedDate: detectedDate != null
+        ? DateTime.tryParse(detectedDate!)
+        : null,
+    status: 'pending',
+    items: const [],
+  );
 }

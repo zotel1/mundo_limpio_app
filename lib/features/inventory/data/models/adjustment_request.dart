@@ -9,6 +9,9 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'package:mundo_limpio_app/features/inventory/domain/entities/adjustment.dart'
+    as domain;
+
 part 'adjustment_request.g.dart';
 
 /// Tipo de ajuste de inventario.
@@ -58,4 +61,31 @@ class AdjustmentRequest {
 
   /// Serializa a mapa JSON para enviar al backend.
   Map<String, dynamic> toJson() => _$AdjustmentRequestToJson(this);
+}
+
+/// Extensión para convertir [AdjustmentType] del DTO a [domain.AdjustmentType].
+extension DtoAdjustmentTypeMapper on AdjustmentType {
+  /// Convierte este enum del DTO a su equivalente del dominio.
+  domain.AdjustmentType toDomain() {
+    switch (this) {
+      case AdjustmentType.ADJUSTMENT:
+        return domain.AdjustmentType.adjustment;
+      case AdjustmentType.BREAKAGE:
+        return domain.AdjustmentType.breakage;
+      case AdjustmentType.RETURN:
+        return domain.AdjustmentType.return_;
+      case AdjustmentType.QUALITY_LOSS:
+        return domain.AdjustmentType.qualityLoss;
+    }
+  }
+}
+
+/// Extensión para convertir [AdjustmentRequest] a entidad de dominio [Adjustment].
+extension AdjustmentRequestMapper on AdjustmentRequest {
+  /// Convierte este DTO en un [domain.Adjustment] del dominio.
+  domain.Adjustment toEntity() => domain.Adjustment(
+    type: type.toDomain(),
+    quantity: quantity,
+    reason: reason,
+  );
 }

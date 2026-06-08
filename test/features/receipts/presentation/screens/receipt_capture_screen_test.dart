@@ -21,8 +21,7 @@ import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/receipt_process_response.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/product_line_dto.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/receipt.dart';
 import 'package:mundo_limpio_app/features/receipts/domain/repository/receipts_repository.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/provider/receipts_provider.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_capture_screen.dart';
@@ -70,19 +69,12 @@ void main() {
   late MockReceiptsRepository mockRepo;
   late ReceiptsProvider provider;
 
-  final processResponse = ReceiptProcessResponse(
-    detectedSupplier: 'Proveedor X',
-    detectedDate: '2026-05-15',
-    lines: const [
-      ProductLineDto(
-        name: 'Leche',
-        quantity: 2,
-        unitPrice: 150.0,
-        confidence: 0.95,
-        bulkProductId: 1,
-      ),
-    ],
-    imageUrl: 'https://example.com/receipt.jpg',
+  final processResponse = Receipt(
+    id: 0,
+    filename: 'https://example.com/receipt.jpg',
+    detectedDate: DateTime(2026, 5, 15),
+    status: 'pending',
+    items: const [],
   );
 
   setUp(() {
@@ -154,7 +146,7 @@ void main() {
       tester,
     ) async {
       // Arrange: mantener el procesamiento pendiente con un Completer
-      final completer = Completer<ReceiptProcessResponse>();
+      final completer = Completer<Receipt>();
       when(
         () => mockRepo.processReceipt(any()),
       ).thenAnswer((_) => completer.future);

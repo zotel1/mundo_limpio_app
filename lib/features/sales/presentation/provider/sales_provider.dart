@@ -21,7 +21,7 @@ import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/product_response.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/production_batch_response.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/sale_request.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/sale.dart';
 import 'package:mundo_limpio_app/features/sales/domain/repository/sales_repository.dart';
 
 /// Estados posibles del flujo de creación de venta.
@@ -53,7 +53,7 @@ class SalesProvider extends ChangeNotifier {
   List<DraftSale> _drafts = [];
   int? _selectedProductId;
   String? _errorMessage;
-  SaleResponse? _lastSale;
+  Sale? _lastSale;
 
   /// Estado actual del flujo de venta.
   SalesStatus get status => _status;
@@ -77,7 +77,7 @@ class SalesProvider extends ChangeNotifier {
       _batches.fold<double>(0, (sum, batch) => sum + batch.currentStock);
 
   /// Última venta creada (null si no hay venta).
-  SaleResponse? get lastSale => _lastSale;
+  Sale? get lastSale => _lastSale;
 
   /// Lista de borradores de ventas offline pendientes de confirmar.
   List<DraftSale> get drafts => _drafts;

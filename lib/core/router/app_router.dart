@@ -18,7 +18,7 @@ import 'package:mundo_limpio_app/features/auth/presentation/screens/login_screen
 import 'package:mundo_limpio_app/features/auth/presentation/screens/register_screen.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/screens/inventory_detail_screen.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/screens/inventory_list_screen.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/sale.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/screens/create_sale_screen.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/screens/sale_detail_screen.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/screens/sale_result_screen.dart';
@@ -31,8 +31,8 @@ import 'package:mundo_limpio_app/features/users/presentation/screens/users_list_
 import 'package:mundo_limpio_app/features/production/presentation/screens/bulk/bulk_product_list_screen.dart';
 import 'package:mundo_limpio_app/features/production/presentation/screens/production/production_batch_list_screen.dart';
 import 'package:mundo_limpio_app/features/production/presentation/screens/production/production_create_screen.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/receipt_process_response.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/purchase.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/receipt.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_capture_screen.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_review_screen.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_confirmed_screen.dart';
@@ -202,7 +202,7 @@ GoRouter createRouter(
           // CreateSaleScreen navega via Navigator.pushReplacement
           // pasando el objeto directamente, pero la ruta existe
           // para futura navegación con GoRouter (state.extra).
-          final sale = state.extra as SaleResponse?;
+          final sale = state.extra as Sale?;
           if (sale == null) {
             return const Scaffold(
               body: Center(child: Text('Error: datos de venta no disponibles')),
@@ -233,7 +233,7 @@ GoRouter createRouter(
       GoRoute(
         path: '/receipts/review',
         builder: (context, state) {
-          final response = state.extra as ReceiptProcessResponse?;
+          final response = state.extra as Receipt?;
           if (response == null) {
             return const Scaffold(
               body: Center(
@@ -247,7 +247,7 @@ GoRouter createRouter(
       GoRoute(
         path: '/receipts/confirmed',
         builder: (context, state) {
-          final purchase = state.extra as PurchaseResponse?;
+          final purchase = state.extra as Purchase?;
           if (purchase == null) {
             return const Scaffold(
               body: Center(

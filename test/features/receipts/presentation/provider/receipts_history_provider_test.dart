@@ -12,8 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/purchase_item_response.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/purchase.dart';
 import 'package:mundo_limpio_app/features/receipts/domain/repository/receipts_repository.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/provider/receipts_history_provider.dart';
 
@@ -23,31 +22,18 @@ void main() {
   late MockReceiptsRepository mockRepo;
   late ReceiptsHistoryProvider provider;
 
-  const purchaseItem = PurchaseItemResponse(
+  final receipt1 = Purchase(
     id: 1,
-    description: 'Leche',
-    quantity: 2,
-    unitPrice: 150.0,
-    totalPrice: 300.0,
-    bulkProductId: 1,
-  );
-
-  final receipt1 = PurchaseResponse(
-    id: 1,
-    imageUrl: 'https://storage.example.com/receipts/img1.jpg',
     supplierName: 'Proveedor X',
-    purchaseDate: DateTime(2026, 5, 15),
     total: 300.0,
-    items: const [purchaseItem],
+    createdAt: DateTime(2026, 5, 15),
   );
 
-  final receipt2 = PurchaseResponse(
+  final receipt2 = Purchase(
     id: 2,
-    imageUrl: 'https://storage.example.com/receipts/img2.jpg',
     supplierName: 'Proveedor Y',
-    purchaseDate: DateTime(2026, 5, 16),
     total: 500.0,
-    items: const [purchaseItem],
+    createdAt: DateTime(2026, 5, 16),
   );
 
   setUp(() {

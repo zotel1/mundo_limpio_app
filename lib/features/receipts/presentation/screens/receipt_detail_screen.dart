@@ -20,8 +20,7 @@ import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/purchase_item_response.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/purchase.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/provider/receipts_history_provider.dart';
 
 /// Pantalla que muestra el detalle completo de una compra.
@@ -76,9 +75,9 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
     }
   }
 
-  Widget _buildDetailContent(PurchaseResponse receipt) {
+  Widget _buildDetailContent(Purchase receipt) {
     final dateStr =
-        '${receipt.purchaseDate.day}/${receipt.purchaseDate.month}/${receipt.purchaseDate.year}';
+        '${receipt.createdAt.day}/${receipt.createdAt.month}/${receipt.createdAt.year}';
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -140,52 +139,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 24),
-
-          // ── Items section ───────────────────────────────────
-          Text(
-            'Ítems (${receipt.items.length})',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
-
-          ...receipt.items.map(_buildItemRow),
         ],
-      ),
-    );
-  }
-
-  Widget _buildItemRow(PurchaseItemResponse item) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              item.description,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '${item.quantity} x \$${item.unitPrice.toStringAsFixed(2)}',
-                  style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
-                ),
-                Text(
-                  '\$${item.totalPrice.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
       ),
     );
   }

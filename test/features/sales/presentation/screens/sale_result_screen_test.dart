@@ -12,9 +12,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
-import 'package:mundo_limpio_app/features/sales/data/models/sale_item_response.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/sale_request.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/sale.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/sale_item.dart';
 import 'package:mundo_limpio_app/features/sales/domain/repository/sales_repository.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/provider/sales_provider.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/screens/sale_result_screen.dart';
@@ -25,7 +25,7 @@ class MockSalesRepository extends Mock implements SalesRepository {}
 ///
 /// La pantalla inicial tiene un botón "IR" que navega a SaleResultScreen.
 /// Esto permite testear que pop regresa a la pantalla anterior.
-Widget createTestApp(SalesProvider provider, SaleResponse sale) {
+Widget createTestApp(SalesProvider provider, Sale sale) {
   return ChangeNotifierProvider<SalesProvider>.value(
     value: provider,
     child: MaterialApp(
@@ -50,19 +50,18 @@ void main() {
   late SalesProvider provider;
 
   final testDate = DateTime(2026, 5, 10, 10, 30, 0);
-  const saleItem = SaleItemResponse(
-    batchId: 42,
+  const saleItem = SaleItem(
     productId: 1,
     productName: 'Test Product',
     quantity: 30.0,
     unitPrice: 150.00,
-    unitCost: 100.00,
   );
-  final sale = SaleResponse(
+  final sale = Sale(
     id: 1,
-    totalAmount: 375.00,
+    total: 375.00,
     createdAt: testDate,
     items: const [saleItem],
+    status: 'completed',
   );
 
   setUpAll(() {
@@ -104,8 +103,8 @@ void main() {
       expect(find.textContaining('\$375.00'), findsOneWidget);
 
       // Detalle del item
-      expect(find.textContaining('42'), findsOneWidget);
-      expect(find.textContaining('30.0'), findsOneWidget);
+      expect(find.textContaining('Test Product'), findsOneWidget);
+      expect(find.textContaining('150.00'), findsOneWidget);
     });
   });
 

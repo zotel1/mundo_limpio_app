@@ -6,34 +6,20 @@
 // TDD: RED — test escrito antes que la implementación
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mundo_limpio_app/features/auth/data/models/auth_response.dart';
+import 'package:mundo_limpio_app/features/auth/domain/entities/auth_session.dart';
 import 'package:mundo_limpio_app/features/auth/domain/repository/auth_repository.dart';
 
 // Implementación concreta de prueba para verificar que
 // el contrato abstracto de AuthRepository es correcto.
 class TestAuthRepository implements AuthRepository {
   @override
-  Future<AuthResponse> login(String email, String password) async {
-    return AuthResponse(
-      accessToken: 'test-access',
-      refreshToken: 'test-refresh',
-      role: 'user',
-      username: 'test',
-      roles: ['user'],
-      createdAt: DateTime(2026, 1, 1),
-    );
+  Future<AuthSession> login(String email, String password) async {
+    return const AuthSession(userId: 1, username: 'test', roles: ['user']);
   }
 
   @override
-  Future<AuthResponse> register(String email, String password) async {
-    return AuthResponse(
-      accessToken: 'test-access',
-      refreshToken: 'test-refresh',
-      role: 'user',
-      username: 'test',
-      roles: ['user'],
-      createdAt: DateTime(2026, 1, 1),
-    );
+  Future<AuthSession> register(String email, String password) async {
+    return const AuthSession(userId: 2, username: 'test', roles: ['user']);
   }
 
   @override
@@ -42,15 +28,8 @@ class TestAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<AuthResponse> refreshToken(String refreshToken) async {
-    return AuthResponse(
-      accessToken: 'refreshed-access',
-      refreshToken: 'refreshed-refresh',
-      role: 'user',
-      username: 'test',
-      roles: ['user'],
-      createdAt: DateTime(2026, 1, 1),
-    );
+  Future<AuthSession> refreshToken(String refreshToken) async {
+    return const AuthSession(userId: 1, username: 'test', roles: ['user']);
   }
 
   @override
@@ -68,19 +47,19 @@ void main() {
     });
 
     // Verifica que los métodos retornan los tipos correctos
-    test('login debe retornar AuthResponse', () async {
+    test('login debe retornar AuthSession', () async {
       final repo = TestAuthRepository();
       final result = await repo.login('a@b.com', 'pass');
 
-      expect(result, isA<AuthResponse>());
-      expect(result.accessToken, 'test-access');
+      expect(result, isA<AuthSession>());
+      expect(result.username, 'test');
     });
 
-    test('register debe retornar AuthResponse', () async {
+    test('register debe retornar AuthSession', () async {
       final repo = TestAuthRepository();
       final result = await repo.register('a@b.com', 'pass');
 
-      expect(result, isA<AuthResponse>());
+      expect(result, isA<AuthSession>());
     });
 
     test('logout no debe lanzar excepción', () async {
@@ -88,12 +67,12 @@ void main() {
       await repo.logout(); // No debe lanzar
     });
 
-    test('refreshToken debe retornar AuthResponse', () async {
+    test('refreshToken debe retornar AuthSession', () async {
       final repo = TestAuthRepository();
       final result = await repo.refreshToken('refresh-token');
 
-      expect(result, isA<AuthResponse>());
-      expect(result.accessToken, 'refreshed-access');
+      expect(result, isA<AuthSession>());
+      expect(result.username, 'test');
     });
 
     test('isLoggedIn debe retornar bool', () async {

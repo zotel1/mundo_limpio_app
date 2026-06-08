@@ -14,8 +14,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
-import 'package:mundo_limpio_app/features/inventory/data/models/adjustment_request.dart';
-import 'package:mundo_limpio_app/features/inventory/data/models/inventory_response.dart';
+import 'package:mundo_limpio_app/features/inventory/domain/entities/adjustment.dart';
+import 'package:mundo_limpio_app/features/inventory/domain/entities/stock_item.dart';
 import 'package:mundo_limpio_app/features/inventory/domain/repository/inventory_repository.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/provider/inventory_provider.dart';
 
@@ -27,32 +27,32 @@ void main() {
   late InventoryProvider provider;
 
   const testProductId = 1;
-  const testInventory = InventoryResponse(
+  const testInventory = StockItem(
     productId: testProductId,
     productName: 'Jabón Líquido',
     currentStock: 50.0,
     minStockThreshold: 10.0,
   );
   final testLowStockItems = [
-    const InventoryResponse(
+    const StockItem(
       productId: 2,
       productName: 'Detergente',
       currentStock: 3.0,
       minStockThreshold: 20.0,
     ),
-    const InventoryResponse(
+    const StockItem(
       productId: 3,
       productName: 'Lavandina',
       currentStock: 5.0,
       minStockThreshold: 15.0,
     ),
   ];
-  const testAdjustmentRequest = AdjustmentRequest(
-    type: AdjustmentType.ADJUSTMENT,
+  const testAdjustmentRequest = Adjustment(
+    type: AdjustmentType.adjustment,
     quantity: 10.0,
     reason: 'ajuste manual',
   );
-  const testAdjustmentResponse = InventoryResponse(
+  const testAdjustmentResponse = StockItem(
     productId: testProductId,
     productName: 'Jabón Líquido',
     currentStock: 60.0,
@@ -82,7 +82,7 @@ void main() {
   // ──────────────────────────────────────────────
   group('2. loadInventory', () {
     test('success: idle → loading → inventoryLoaded con data', () async {
-      final completer = Completer<InventoryResponse>();
+      final completer = Completer<StockItem>();
       when(
         () => mockRepository.getInventory(testProductId),
       ).thenAnswer((_) => completer.future);
@@ -108,7 +108,7 @@ void main() {
     });
 
     test('error: idle → loading → error con ApiException', () async {
-      final completer = Completer<InventoryResponse>();
+      final completer = Completer<StockItem>();
       when(
         () => mockRepository.getInventory(testProductId),
       ).thenAnswer((_) => completer.future);
@@ -133,7 +133,7 @@ void main() {
   // ──────────────────────────────────────────────
   group('3. loadLowStock', () {
     test('success: idle → loading → lowStockLoaded con lista', () async {
-      final completer = Completer<List<InventoryResponse>>();
+      final completer = Completer<List<StockItem>>();
       when(
         () => mockRepository.getLowStock(),
       ).thenAnswer((_) => completer.future);
@@ -155,7 +155,7 @@ void main() {
     });
 
     test('error: idle → loading → error con ApiException', () async {
-      final completer = Completer<List<InventoryResponse>>();
+      final completer = Completer<List<StockItem>>();
       when(
         () => mockRepository.getLowStock(),
       ).thenAnswer((_) => completer.future);
@@ -178,7 +178,7 @@ void main() {
   // ──────────────────────────────────────────────
   group('4. adjustStock', () {
     test('success: → loading → success con response', () async {
-      final completer = Completer<InventoryResponse>();
+      final completer = Completer<StockItem>();
       when(
         () => mockRepository.adjustStock(testProductId, testAdjustmentRequest),
       ).thenAnswer((_) => completer.future);
@@ -198,7 +198,7 @@ void main() {
     test(
       'error 400: → loading → error con mensaje (stock insuficiente)',
       () async {
-        final completer = Completer<InventoryResponse>();
+        final completer = Completer<StockItem>();
         when(
           () =>
               mockRepository.adjustStock(testProductId, testAdjustmentRequest),
@@ -223,7 +223,7 @@ void main() {
     test(
       'error 409: → loading → error con mensaje (conflicto de versión)',
       () async {
-        final completer = Completer<InventoryResponse>();
+        final completer = Completer<StockItem>();
         when(
           () =>
               mockRepository.adjustStock(testProductId, testAdjustmentRequest),

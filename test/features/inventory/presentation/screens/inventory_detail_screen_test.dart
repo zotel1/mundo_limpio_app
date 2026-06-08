@@ -20,7 +20,7 @@ import 'package:provider/provider.dart';
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
-import 'package:mundo_limpio_app/features/inventory/data/models/inventory_response.dart';
+import 'package:mundo_limpio_app/features/inventory/domain/entities/stock_item.dart';
 import 'package:mundo_limpio_app/features/inventory/domain/repository/inventory_repository.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/provider/inventory_provider.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/screens/inventory_detail_screen.dart';
@@ -61,7 +61,7 @@ void main() {
   late InventoryProvider provider;
 
   const testProductId = 1;
-  const testInventory = InventoryResponse(
+  const testInventory = StockItem(
     productId: testProductId,
     productName: 'Jabón Líquido',
     currentStock: 50.0,
@@ -80,7 +80,7 @@ void main() {
     testWidgets('debe mostrar spinner mientras carga el detalle', (
       tester,
     ) async {
-      final completer = Completer<InventoryResponse>();
+      final completer = Completer<StockItem>();
       when(
         () => mockRepo.getInventory(testProductId),
       ).thenAnswer((_) => completer.future);

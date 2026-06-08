@@ -8,6 +8,8 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'package:mundo_limpio_app/features/inventory/domain/entities/stock_item.dart';
+
 part 'inventory_response.g.dart';
 
 /// Respuesta del backend con los datos de inventario de un producto.
@@ -59,4 +61,15 @@ class InventoryResponse {
 
   /// Serializa a mapa JSON para enviar al backend.
   Map<String, dynamic> toJson() => _$InventoryResponseToJson(this);
+}
+
+/// Extensión para convertir [InventoryResponse] a entidad de dominio [StockItem].
+extension InventoryResponseMapper on InventoryResponse {
+  /// Convierte este DTO en un [StockItem] del dominio.
+  StockItem toEntity() => StockItem(
+    productId: productId,
+    productName: productName,
+    currentStock: currentStock,
+    minStockThreshold: minStockThreshold,
+  );
 }

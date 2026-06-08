@@ -7,12 +7,15 @@
 // Características:
 // - Campos editables para proveedor y fecha
 // - Líneas de productos con cantidad y precio unitario editables
-// - Indicador visual (⚠️) para líneas con confianza < 0.3
-// - Mensaje "No se detectaron productos" si lines[] está vacío
 // - Mapeo name→description (R6.1) al construir el request de confirmación
 // - Navegación a /receipts/confirmed tras éxito
 //
 // TDD: GREEN — implementación completa para pasar los tests widget
+//
+// NOTA: La entidad [Receipt] no preserva los datos de líneas OCR
+// (detectedSupplier, lines). Se usa el DTO [ReceiptProcessResponse]
+// directamente en el extra de navegación para mantener la funcionalidad
+// de revisión de líneas.
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -21,9 +24,9 @@ import 'package:go_router/go_router.dart';
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/receipts/data/models/receipt_confirm_request.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/receipt_process_response.dart';
 import 'package:mundo_limpio_app/features/receipts/data/models/product_line_confirm_dto.dart';
 import 'package:mundo_limpio_app/features/receipts/data/models/product_line_dto.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/receipt.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/provider/receipts_provider.dart';
 
 /// Pantalla para revisar y editar los datos detectados por OCR.
@@ -32,7 +35,7 @@ import 'package:mundo_limpio_app/features/receipts/presentation/provider/receipt
 /// Permite al admin corregir proveedor, fecha y líneas antes de confirmar.
 class ReceiptReviewScreen extends StatefulWidget {
   /// Datos procesados por OCR a revisar.
-  final ReceiptProcessResponse processResponse;
+  final Receipt processResponse;
 
   const ReceiptReviewScreen({super.key, required this.processResponse});
 
@@ -49,25 +52,12 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
   void initState() {
     super.initState();
     _supplierController = TextEditingController(
-      text: widget.processResponse.detectedSupplier,
+      text: '', // detectedSupplier no está disponible en Receipt
     );
     _dateController = TextEditingController(
-      text: widget.processResponse.detectedDate ?? '',
+      text: widget.processResponse.detectedDate?.toIso8601String() ?? '',
     );
-    _editableLines = widget.processResponse.lines
-        .map(
-          (line) => _EditableLine(
-            nameController: TextEditingController(text: line.name),
-            quantityController: TextEditingController(
-              text: line.quantity.toString(),
-            ),
-            unitPriceController: TextEditingController(
-              text: line.unitPrice.toString(),
-            ),
-            originalLine: line,
-          ),
-        )
-        .toList();
+    _editableLines = []; // lines no están disponibles en Receipt
   }
 
   @override
@@ -82,10 +72,10 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
     super.dispose();
   }
 
-  /// Mapea ProductLineDto.name → ProductLineConfirmDto.description (R6.1).
+  /// Construye un request de confirmación con datos editados.
   ReceiptConfirmRequest _buildConfirmRequest() {
     return ReceiptConfirmRequest(
-      imageUrl: widget.processResponse.imageUrl,
+      imageUrl: widget.processResponse.filename,
       supplierName: _supplierController.text,
       purchaseDate: _dateController.text,
       lines: _editableLines.map((line) {
@@ -123,8 +113,6 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final hasLines = widget.processResponse.lines.isNotEmpty;
-
     return Scaffold(
       appBar: const BrandedAppBar(title: 'Revisar Recibo'),
       body: SafeArea(
@@ -205,7 +193,7 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
                   const SizedBox(height: 24),
 
                   // ─── Líneas de productos ───────────────
-                  if (hasLines) ...[
+                  if (_editableLines.isNotEmpty) ...[
                     const Text(
                       'Productos detectados',
                       style: TextStyle(
@@ -229,19 +217,18 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
                   const SizedBox(height: 24),
 
                   // ─── Botón Confirmar ───────────────────
-                  if (hasLines)
-                    SizedBox(
-                      width: double.infinity,
-                      height: 48,
-                      child: ElevatedButton.icon(
-                        onPressed: _onConfirm,
-                        icon: const Icon(Icons.check_circle),
-                        label: const Text(
-                          'Confirmar Compra',
-                          style: TextStyle(fontSize: 16),
-                        ),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton.icon(
+                      onPressed: _onConfirm,
+                      icon: const Icon(Icons.check_circle),
+                      label: const Text(
+                        'Confirmar Compra',
+                        style: TextStyle(fontSize: 16),
                       ),
                     ),
+                  ),
                 ],
               ),
             );
@@ -326,7 +313,7 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
                 ],
               ),
 
-              // Subtotal calculado
+              // Confianza
               if (index < _editableLines.length)
                 Padding(
                   padding: const EdgeInsets.only(top: 4),

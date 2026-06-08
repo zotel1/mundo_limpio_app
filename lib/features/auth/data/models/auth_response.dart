@@ -10,6 +10,8 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'package:mundo_limpio_app/features/auth/domain/entities/auth_session.dart';
+
 part 'auth_response.g.dart';
 
 /// Respuesta del backend después de login o refresh exitoso.
@@ -77,4 +79,15 @@ class AuthResponse {
 
   /// Serializa a mapa JSON para enviar al backend.
   Map<String, dynamic> toJson() => _$AuthResponseToJson(this);
+}
+
+/// Extensión para convertir [AuthResponse] a entidad de dominio [AuthSession].
+extension AuthResponseMapper on AuthResponse {
+  /// Convierte este DTO en una [AuthSession] del dominio.
+  AuthSession toEntity() => AuthSession(
+    userId: 0, // El backend no envía userId en auth response
+    username: username,
+    email: email,
+    roles: roles,
+  );
 }

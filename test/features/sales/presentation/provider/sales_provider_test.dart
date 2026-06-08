@@ -14,9 +14,9 @@ import 'package:mundo_limpio_app/core/drift/app_database.dart';
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/product_response.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/production_batch_response.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_item_response.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/sale_request.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/sale.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/sale_item.dart';
 import 'package:mundo_limpio_app/features/sales/domain/repository/sales_repository.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/provider/sales_provider.dart';
 
@@ -31,6 +31,9 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(const SaleRequest(productId: 0, quantity: 0));
+    registerFallbackValue(
+      const SaleItem(productId: 0, productName: '', quantity: 0, unitPrice: 0),
+    );
   });
 
   setUp(() {
@@ -263,25 +266,24 @@ void main() {
     }
 
     test(
-      'debe transitar stockLoaded → loading → success y exponer SaleResponse (R4-4)',
+      'debe transitar stockLoaded → loading → success y exponer Sale (R4-4)',
       () async {
         // Arrange
         await setupLoaded();
 
-        final response = SaleResponse(
+        final response = Sale(
           id: 1,
-          totalAmount: 375.00,
+          total: 375.00,
           createdAt: DateTime(2026, 5, 10, 10, 30, 0),
           items: const [
-            SaleItemResponse(
-              batchId: 42,
+            SaleItem(
               productId: 1,
               productName: 'Test Product',
               quantity: 30.0,
               unitPrice: 150.00,
-              unitCost: 100.00,
             ),
           ],
+          status: 'completed',
         );
         when(
           () => mockRepo.createSale(any()),
@@ -294,7 +296,7 @@ void main() {
         expect(provider.status, SalesStatus.success);
         expect(provider.lastSale, isNotNull);
         expect(provider.lastSale!.id, 1);
-        expect(provider.lastSale!.totalAmount, 375.00);
+        expect(provider.lastSale!.total, 375.00);
         expect(provider.lastSale!.items, hasLength(1));
       },
     );
@@ -324,11 +326,12 @@ void main() {
         // Arrange
         await setupLoaded();
         when(() => mockRepo.createSale(any())).thenAnswer(
-          (_) async => SaleResponse(
+          (_) async => Sale(
             id: 1,
-            totalAmount: 100,
+            total: 100,
             createdAt: DateTime(2026),
             items: [],
+            status: 'completed',
           ),
         );
 
@@ -382,11 +385,12 @@ void main() {
       await provider.loadStock(1);
 
       when(() => mockRepo.createSale(any())).thenAnswer(
-        (_) async => SaleResponse(
+        (_) async => Sale(
           id: 1,
-          totalAmount: 100,
+          total: 100,
           createdAt: DateTime(2026),
           items: [],
+          status: 'completed',
         ),
       );
       await provider.createSale(30.0);
@@ -513,11 +517,12 @@ void main() {
       when(() => mockRepo.getBatchesByProduct(1)).thenAnswer((_) async => []);
       await provider.loadStock(1);
       when(() => mockRepo.createSale(any())).thenAnswer(
-        (_) async => SaleResponse(
+        (_) async => Sale(
           id: 1,
-          totalAmount: 100,
+          total: 100,
           createdAt: DateTime(2026),
           items: [],
+          status: 'completed',
         ),
       );
 
@@ -626,20 +631,19 @@ void main() {
       'debe llamar repository.confirmDraft y actualizar estado a success',
       () async {
         // Arrange
-        final response = SaleResponse(
+        final response = Sale(
           id: 99,
-          totalAmount: 1500.00,
+          total: 1500.00,
           createdAt: DateTime(2026, 5, 10, 12, 0, 0),
           items: const [
-            SaleItemResponse(
-              batchId: 10,
+            SaleItem(
               productId: 1,
               productName: 'Test Product',
               quantity: 10.0,
               unitPrice: 150.00,
-              unitCost: 100.00,
             ),
           ],
+          status: 'completed',
         );
         when(() => mockRepo.confirmDraft(5)).thenAnswer((_) async => response);
 
@@ -704,7 +708,13 @@ void main() {
         );
         await provider.loadStock(1);
 
-        final draftResponse = SaleResponse.draft();
+        final draftResponse = Sale(
+          id: -1,
+          total: 0,
+          createdAt: DateTime(2026),
+          items: [],
+          status: 'draft',
+        );
         when(
           () => mockRepo.createSale(any()),
         ).thenAnswer((_) async => draftResponse);

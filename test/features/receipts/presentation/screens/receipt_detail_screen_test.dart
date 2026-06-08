@@ -20,8 +20,7 @@ import 'package:provider/provider.dart';
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/purchase_item_response.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/purchase.dart';
 import 'package:mundo_limpio_app/features/receipts/domain/repository/receipts_repository.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/provider/receipts_history_provider.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_detail_screen.dart';
@@ -57,22 +56,11 @@ void main() {
   late MockReceiptsRepository mockRepo;
   late ReceiptsHistoryProvider provider;
 
-  const purchaseItem = PurchaseItemResponse(
-    id: 1,
-    description: 'Leche',
-    quantity: 2,
-    unitPrice: 150.0,
-    totalPrice: 300.0,
-    bulkProductId: 1,
-  );
-
-  final receipt = PurchaseResponse(
+  final receipt = Purchase(
     id: 42,
-    imageUrl: 'https://storage.example.com/receipts/img1.jpg',
     supplierName: 'Proveedor de Prueba',
-    purchaseDate: DateTime(2026, 5, 15, 10, 30, 0),
     total: 300.0,
-    items: const [purchaseItem],
+    createdAt: DateTime(2026, 5, 15, 10, 30, 0),
   );
 
   setUp(() {
@@ -89,7 +77,7 @@ void main() {
     ) async {
       when(
         () => mockRepo.getReceiptById(any()),
-      ).thenAnswer((_) => Completer<PurchaseResponse>().future);
+      ).thenAnswer((_) => Completer<Purchase>().future);
 
       await tester.pumpWidget(createTestApp(provider, 42));
       await pumpUntilSettled(tester);
@@ -114,10 +102,8 @@ void main() {
       expect(find.text('Proveedor de Prueba'), findsOneWidget);
       expect(find.textContaining('\$300.00'), findsAtLeast(1));
 
-      // Items
-      expect(find.text('Leche'), findsOneWidget);
-      expect(find.textContaining('2'), findsAtLeast(1));
-      expect(find.textContaining('\$150.00'), findsAtLeast(1));
+      // Fecha
+      expect(find.textContaining('15/5/2026'), findsOneWidget);
     });
 
     testWidgets('debe mostrar mensaje cuando no hay compra seleccionada', (

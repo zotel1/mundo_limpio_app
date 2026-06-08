@@ -17,7 +17,7 @@ import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/purchase.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/provider/receipts_history_provider.dart';
 
 /// Pantalla que muestra el listado de compras con sus detalles.
@@ -89,9 +89,9 @@ class _ReceiptsHistoryScreenState extends State<ReceiptsHistoryScreen> {
     );
   }
 
-  Widget _buildReceiptCard(PurchaseResponse receipt) {
+  Widget _buildReceiptCard(Purchase receipt) {
     final dateStr =
-        '${receipt.purchaseDate.day}/${receipt.purchaseDate.month}/${receipt.purchaseDate.year}';
+        '${receipt.createdAt.day}/${receipt.createdAt.month}/${receipt.createdAt.year}';
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -146,7 +146,7 @@ class _ReceiptsHistoryScreenState extends State<ReceiptsHistoryScreen> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${receipt.items.length} ítems',
+                          '1 ítem',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey.shade600,
