@@ -221,10 +221,11 @@ void main() {
       // ESCENARIO 3: Completar formulario de registro exitoso (R2.1)
       // =========================================================================
       // Act: llenar los 3 campos del formulario
+      // password debe cumplir validatePasswordStrength: mayúscula + minúscula + dígito
       final emailFields = find.byType(TextFormField);
       await tester.enterText(emailFields.at(0), 'nuevo@usuario.com');
-      await tester.enterText(emailFields.at(1), 'password123');
-      await tester.enterText(emailFields.at(2), 'password123');
+      await tester.enterText(emailFields.at(1), 'Password123');
+      await tester.enterText(emailFields.at(2), 'Password123');
 
       // Act: tocar botón de registro (segundo "Crear Cuenta" es el AppBar)
       await tester.tap(find.widgetWithText(ElevatedButton, 'Crear Cuenta'));

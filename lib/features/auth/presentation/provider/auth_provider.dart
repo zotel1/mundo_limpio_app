@@ -156,6 +156,7 @@ class AuthProvider extends ChangeNotifier {
       _status = AuthStatus.unauthenticated;
     } catch (e) {
       // Error genérico (no debería ocurrir en condiciones normales)
+      CrashlyticsService.recordError(e);
       _role = null;
       _email = null;
       _roles = null;
@@ -195,6 +196,7 @@ class AuthProvider extends ChangeNotifier {
       _error = ErrorHandler.getMessage(e);
       _status = AuthStatus.unauthenticated;
     } catch (e) {
+      CrashlyticsService.recordError(e);
       _error = 'Error inesperado. Intentalo de nuevo.';
       _status = AuthStatus.unauthenticated;
     }

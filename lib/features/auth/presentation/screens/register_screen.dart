@@ -126,7 +126,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   obscureText: true,
                   textInputAction: TextInputAction.next,
-                  validator: AuthValidators.validatePasswordMinLength,
+                  validator: AuthValidators.validatePasswordStrength,
                 ),
                 const SizedBox(height: 16),
 
