@@ -51,7 +51,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
 
     return Scaffold(
       appBar: const BrandedAppBar(title: 'Detalle de Compra'),
-      body: _buildBody(provider),
+      body: SafeArea(child: _buildBody(provider)),
     );
   }
 

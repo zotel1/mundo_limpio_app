@@ -51,7 +51,7 @@ class _BackupListScreenState extends State<BackupListScreen> {
         icon: const Icon(Icons.add),
         label: const Text('Crear Backup'),
       ),
-      body: _buildBody(provider),
+      body: SafeArea(child: _buildBody(provider)),
     );
   }
 

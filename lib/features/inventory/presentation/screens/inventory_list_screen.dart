@@ -51,7 +51,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
 
     return Scaffold(
       appBar: const BrandedAppBar(title: 'Inventario'),
-      body: _buildBody(provider),
+      body: SafeArea(child: _buildBody(provider)),
     );
   }
 

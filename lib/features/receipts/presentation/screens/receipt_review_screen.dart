@@ -127,121 +127,126 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
 
     return Scaffold(
       appBar: const BrandedAppBar(title: 'Revisar Recibo'),
-      body: Consumer<ReceiptsProvider>(
-        builder: (context, provider, _) {
-          if (provider.status == ReceiptsStatus.confirming) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CatLoadingIndicator.decorative(),
-                  SizedBox(height: 16),
-                  Text(
-                    'Confirmando compra...',
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (provider.status == ReceiptsStatus.error) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
+      body: SafeArea(
+        child: Consumer<ReceiptsProvider>(
+          builder: (context, provider, _) {
+            if (provider.status == ReceiptsStatus.confirming) {
+              return const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
-                      Icons.error_outline,
-                      size: 64,
-                      color: Colors.red,
-                    ),
-                    const SizedBox(height: 16),
+                    CatLoadingIndicator.decorative(),
+                    SizedBox(height: 16),
                     Text(
-                      provider.errorMessage ?? 'Error al confirmar',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 16, color: Colors.red),
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton.icon(
-                      onPressed: _onRetry,
-                      icon: const Icon(Icons.refresh),
-                      label: const Text('Reintentar'),
+                      'Confirmando compra...',
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
                     ),
                   ],
                 ),
+              );
+            }
+
+            if (provider.status == ReceiptsStatus.error) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: Colors.red,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        provider.errorMessage ?? 'Error al confirmar',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16, color: Colors.red),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton.icon(
+                        onPressed: _onRetry,
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Reintentar'),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // ─── Proveedor ─────────────────────────
+                  TextField(
+                    controller: _supplierController,
+                    decoration: const InputDecoration(
+                      labelText: 'Proveedor',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.store),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // ─── Fecha ─────────────────────────────
+                  TextField(
+                    controller: _dateController,
+                    decoration: const InputDecoration(
+                      labelText: 'Fecha',
+                      hintText: 'yyyy-MM-dd',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.calendar_today),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // ─── Líneas de productos ───────────────
+                  if (hasLines) ...[
+                    const Text(
+                      'Productos detectados',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ..._buildLineWidgets(),
+                  ] else ...[
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 32),
+                        child: Text(
+                          'No se detectaron productos',
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                        ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 24),
+
+                  // ─── Botón Confirmar ───────────────────
+                  if (hasLines)
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: ElevatedButton.icon(
+                        onPressed: _onConfirm,
+                        icon: const Icon(Icons.check_circle),
+                        label: const Text(
+                          'Confirmar Compra',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             );
-          }
-
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // ─── Proveedor ─────────────────────────
-                TextField(
-                  controller: _supplierController,
-                  decoration: const InputDecoration(
-                    labelText: 'Proveedor',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.store),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // ─── Fecha ─────────────────────────────
-                TextField(
-                  controller: _dateController,
-                  decoration: const InputDecoration(
-                    labelText: 'Fecha',
-                    hintText: 'yyyy-MM-dd',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.calendar_today),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // ─── Líneas de productos ───────────────
-                if (hasLines) ...[
-                  const Text(
-                    'Productos detectados',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
-                  ..._buildLineWidgets(),
-                ] else ...[
-                  const Center(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 32),
-                      child: Text(
-                        'No se detectaron productos',
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
-                      ),
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 24),
-
-                // ─── Botón Confirmar ───────────────────
-                if (hasLines)
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton.icon(
-                      onPressed: _onConfirm,
-                      icon: const Icon(Icons.check_circle),
-                      label: const Text(
-                        'Confirmar Compra',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          );
-        },
+          },
+        ),
       ),
     );
   }

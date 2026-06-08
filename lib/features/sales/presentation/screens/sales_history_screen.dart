@@ -55,7 +55,7 @@ class _SalesHistoryScreenState extends State<SalesHistoryScreen> {
 
     return Scaffold(
       appBar: const BrandedAppBar(title: 'Historial de Ventas'),
-      body: _buildBody(provider),
+      body: SafeArea(child: _buildBody(provider)),
     );
   }
 

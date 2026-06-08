@@ -44,7 +44,7 @@ class _ReceiptsHistoryScreenState extends State<ReceiptsHistoryScreen> {
 
     return Scaffold(
       appBar: const BrandedAppBar(title: 'Historial de Compras'),
-      body: _buildBody(provider),
+      body: SafeArea(child: _buildBody(provider)),
     );
   }
 

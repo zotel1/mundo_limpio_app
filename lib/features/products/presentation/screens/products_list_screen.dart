@@ -47,7 +47,7 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
 
     return Scaffold(
       appBar: const BrandedAppBar(title: 'Productos'),
-      body: _buildBody(provider),
+      body: SafeArea(child: _buildBody(provider)),
       floatingActionButton: canWrite
           ? FloatingActionButton(
               onPressed: () => _navigateToForm(provider),

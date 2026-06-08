@@ -96,9 +96,11 @@ class _CreateSaleScreenState extends State<CreateSaleScreen> {
 
     return Scaffold(
       appBar: const BrandedAppBar(title: 'Nueva Venta'),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: _buildBody(provider),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: _buildBody(provider),
+        ),
       ),
     );
   }

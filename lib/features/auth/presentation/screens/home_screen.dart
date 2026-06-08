@@ -42,15 +42,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: _buildAppBar(auth),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: [
-          _buildLandingForRole(roles),
-          roles.contains('ADMIN')
-              ? _buildLandingForRole(roles)
-              : _buildProductsTab(),
-          _buildProfileTab(auth),
-        ],
+      body: SafeArea(
+        child: IndexedStack(
+          index: _currentIndex,
+          children: [
+            _buildLandingForRole(roles),
+            roles.contains('ADMIN')
+                ? _buildLandingForRole(roles)
+                : _buildProductsTab(),
+            _buildProfileTab(auth),
+          ],
+        ),
       ),
       bottomNavigationBar: _buildBottomNav(roles),
     );
