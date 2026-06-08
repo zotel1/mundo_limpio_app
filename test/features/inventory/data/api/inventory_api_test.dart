@@ -141,6 +141,32 @@ void main() {
         verify(() => mockDio.get('/api/v1/inventory/low-stock')).called(1);
       },
     );
+
+    // TDD: RED — test para el bug de array vacío en getLowStock
+    // Cuando el backend devuelve [] directamente (sin wrapper {content: ...}),
+    // el código anterior crasheaba con "type 'String' is not a subtype of type 'int'".
+    test(
+      'debe retornar lista vacía cuando el backend devuelve [] directamente',
+      () async {
+        // Arrange: backend devuelve array vacío directamente
+        final response = Response(
+          requestOptions: RequestOptions(path: '/api/v1/inventory/low-stock'),
+          data: <dynamic>[],
+          statusCode: 200,
+        );
+
+        when(
+          () => mockDio.get('/api/v1/inventory/low-stock'),
+        ).thenAnswer((_) async => response);
+
+        // Act
+        final result = await inventoryApi.getLowStock();
+
+        // Assert: debe retornar lista vacía sin crashear
+        expect(result, isEmpty);
+        verify(() => mockDio.get('/api/v1/inventory/low-stock')).called(1);
+      },
+    );
   });
 
   group('adjustStock', () {
