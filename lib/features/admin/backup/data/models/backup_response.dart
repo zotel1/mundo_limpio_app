@@ -5,6 +5,9 @@
 //
 // TDD: GREEN — implementación mínima para pasar los tests
 
+import 'package:mundo_limpio_app/features/admin/backup/domain/entities/backup.dart'
+    as domain;
+
 /// Estado de un backup en el backend.
 ///
 /// Mapea el enum Java `BackupStatus`:
@@ -63,4 +66,17 @@ class BackupResponse {
       downloadUrl: json['downloadUrl'] as String?,
     );
   }
+
+  /// Convierte este DTO a la entidad de dominio [domain.Backup].
+  domain.Backup toEntity() => domain.Backup(
+    id: id,
+    filename: filename,
+    size: size,
+    compressedSize: compressedSize,
+    status: status == BackupStatus.completed
+        ? domain.BackupStatus.completed
+        : domain.BackupStatus.failed,
+    createdAt: createdAt,
+    downloadUrl: downloadUrl,
+  );
 }

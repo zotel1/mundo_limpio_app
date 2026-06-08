@@ -7,7 +7,7 @@
 // - Muestra error con botón de reintentar
 // - Crear backup via FAB
 //
-// Usa BackupProvider real con MockBackupRepository.
+// Usa BackupProvider real con MockBackupRepository (abstracto de dominio).
 //
 // TDD: GREEN — implementación que pasa los tests de BackupListScreen
 
@@ -20,8 +20,8 @@ import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
-import 'package:mundo_limpio_app/features/admin/backup/data/models/backup_response.dart';
-import 'package:mundo_limpio_app/features/admin/backup/data/repository/backup_repository.dart';
+import 'package:mundo_limpio_app/features/admin/backup/domain/entities/backup.dart';
+import 'package:mundo_limpio_app/features/admin/backup/domain/repository/backup_repository.dart';
 import 'package:mundo_limpio_app/features/admin/backup/presentation/provider/backup_provider.dart';
 import 'package:mundo_limpio_app/features/admin/backup/presentation/screens/backup_list_screen.dart';
 
@@ -49,7 +49,7 @@ void main() {
   late MockBackupRepository mockRepo;
   late BackupProvider provider;
 
-  final backup1 = BackupResponse(
+  final backup1 = Backup(
     id: 1,
     filename: 'backup_20260501.sql.gz',
     size: 1048576,
@@ -58,7 +58,7 @@ void main() {
     createdAt: DateTime(2026, 5, 1),
   );
 
-  final backup2 = BackupResponse(
+  final backup2 = Backup(
     id: 2,
     filename: 'backup_20260502.sql.gz',
     size: 2097152,
@@ -81,7 +81,7 @@ void main() {
     ) async {
       when(
         () => mockRepo.getBackups(),
-      ).thenAnswer((_) => Completer<List<BackupResponse>>().future);
+      ).thenAnswer((_) => Completer<List<Backup>>().future);
 
       await tester.pumpWidget(createTestApp(provider));
       await pumpUntilSettled(tester);

@@ -5,13 +5,12 @@
 //
 // TDD: RED — test escrito antes que la implementación
 
-import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
-import 'package:mundo_limpio_app/features/admin/backup/data/models/backup_response.dart';
-import 'package:mundo_limpio_app/features/admin/backup/data/repository/backup_repository.dart';
+import 'package:mundo_limpio_app/features/admin/backup/domain/entities/backup.dart';
+import 'package:mundo_limpio_app/features/admin/backup/domain/repository/backup_repository.dart';
 import 'package:mundo_limpio_app/features/admin/backup/presentation/provider/backup_provider.dart';
 
 class MockBackupRepository extends Mock implements BackupRepository {}
@@ -20,7 +19,7 @@ void main() {
   late MockBackupRepository mockRepo;
   late BackupProvider provider;
 
-  final backup1 = BackupResponse(
+  final backup1 = Backup(
     id: 1,
     filename: 'backup_20260601.sql.gz',
     size: 1048576,
@@ -29,7 +28,7 @@ void main() {
     createdAt: DateTime(2026, 6, 1),
   );
 
-  final backup2 = BackupResponse(
+  final backup2 = Backup(
     id: 2,
     filename: 'backup_20260602.sql.gz',
     size: 2097152,
@@ -136,14 +135,9 @@ void main() {
   group('BackupProvider — downloadBackup', () {
     test('con éxito → retorna ruta, downloadedFilePath seteado', () async {
       // Arrange
-      when(() => mockRepo.downloadBackup(any(), any())).thenAnswer(
-        (_) async => Response(
-          requestOptions: RequestOptions(
-            path: '/api/v1/admin/backups/1/download',
-          ),
-          statusCode: 200,
-        ),
-      );
+      when(
+        () => mockRepo.downloadBackup(any(), any()),
+      ).thenAnswer((_) async {});
 
       // Act
       final filePath = await provider.downloadBackup(1);

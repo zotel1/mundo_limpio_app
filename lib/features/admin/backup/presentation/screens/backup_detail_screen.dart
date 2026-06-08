@@ -20,7 +20,7 @@ import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
-import 'package:mundo_limpio_app/features/admin/backup/data/models/backup_response.dart';
+import 'package:mundo_limpio_app/features/admin/backup/domain/entities/backup.dart';
 import 'package:mundo_limpio_app/features/admin/backup/presentation/provider/backup_provider.dart';
 
 /// Pantalla que muestra el detalle completo de un backup.
@@ -65,7 +65,7 @@ class _BackupDetailScreenState extends State<BackupDetailScreen> {
           ),
         );
       case BackupProviderStatus.success:
-        final backup = provider.backups.cast<BackupResponse?>().firstWhere(
+        final backup = provider.backups.cast<Backup?>().firstWhere(
           (b) => b!.id == widget.backupId,
           orElse: () => null,
         );
@@ -78,7 +78,7 @@ class _BackupDetailScreenState extends State<BackupDetailScreen> {
     }
   }
 
-  Widget _buildDetailContent(BackupResponse backup, BackupProvider provider) {
+  Widget _buildDetailContent(Backup backup, BackupProvider provider) {
     final dateStr =
         '${backup.createdAt.day}/${backup.createdAt.month}/${backup.createdAt.year}';
     final sizeStr = _formatFileSize(backup.size);

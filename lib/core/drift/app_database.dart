@@ -122,11 +122,22 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
+      onCreate: (migrator) async {
+        await migrator.createAll();
+        await customStatement(
+          'CREATE INDEX IF NOT EXISTS idx_draft_sales_status '
+          'ON draft_sales (status)',
+        );
+        await customStatement(
+          'CREATE INDEX IF NOT EXISTS idx_batch_cache_product_id '
+          'ON batch_cache (product_id)',
+        );
+      },
       onUpgrade: (migrator, from, to) async {
         if (from == 1) {
           await migrator.addColumn(productCache, productCache.sku);
@@ -137,6 +148,16 @@ class AppDatabase extends _$AppDatabase {
           // a filas existentes en todas las versiones de SQLite)
           await customStatement(
             'UPDATE product_cache SET active = 1 WHERE active IS NULL',
+          );
+        }
+        if (from < 3) {
+          await customStatement(
+            'CREATE INDEX IF NOT EXISTS idx_draft_sales_status '
+            'ON draft_sales (status)',
+          );
+          await customStatement(
+            'CREATE INDEX IF NOT EXISTS idx_batch_cache_product_id '
+            'ON batch_cache (product_id)',
           );
         }
       },

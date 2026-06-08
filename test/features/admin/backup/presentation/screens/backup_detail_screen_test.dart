@@ -7,14 +7,12 @@
 // - Download exitoso: muestra SnackBar verde
 // - Download fallido: muestra SnackBar rojo
 //
-// Usa BackupProvider real con MockBackupRepository.
-// Usa GoRouter local (como inventory_list_screen_test.dart).
+// Usa BackupProvider real con MockBackupRepository (abstracto de dominio).
 //
 // TDD: RED — test escrito antes que la implementación de la pantalla
 
 import 'dart:async';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -23,8 +21,8 @@ import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
-import 'package:mundo_limpio_app/features/admin/backup/data/models/backup_response.dart';
-import 'package:mundo_limpio_app/features/admin/backup/data/repository/backup_repository.dart';
+import 'package:mundo_limpio_app/features/admin/backup/domain/entities/backup.dart';
+import 'package:mundo_limpio_app/features/admin/backup/domain/repository/backup_repository.dart';
 import 'package:mundo_limpio_app/features/admin/backup/presentation/provider/backup_provider.dart';
 import 'package:mundo_limpio_app/features/admin/backup/presentation/screens/backup_detail_screen.dart';
 
@@ -67,7 +65,7 @@ void main() {
   late MockBackupRepository mockRepo;
   late BackupProvider provider;
 
-  final backup = BackupResponse(
+  final backup = Backup(
     id: 1,
     filename: 'backup_20260601.sql.gz',
     size: 1048576,
@@ -88,7 +86,7 @@ void main() {
   group('BackupDetailScreen — loading', () {
     testWidgets('debe mostrar indicador de carga al iniciar', (tester) async {
       // Arrange — no completar la future para mantener loading
-      final completer = Completer<List<BackupResponse>>();
+      final completer = Completer<List<Backup>>();
       when(() => mockRepo.getBackups()).thenAnswer((_) => completer.future);
 
       // Act
@@ -160,14 +158,9 @@ void main() {
     testWidgets('debe mostrar SnackBar verde al descargar', (tester) async {
       // Arrange
       when(() => mockRepo.getBackups()).thenAnswer((_) async => [backup]);
-      when(() => mockRepo.downloadBackup(any(), any())).thenAnswer(
-        (_) async => Response(
-          requestOptions: RequestOptions(
-            path: '/api/v1/admin/backups/1/download',
-          ),
-          statusCode: 200,
-        ),
-      );
+      when(
+        () => mockRepo.downloadBackup(any(), any()),
+      ).thenAnswer((_) async {});
 
       // Act
       await tester.pumpWidget(createTestApp(provider));

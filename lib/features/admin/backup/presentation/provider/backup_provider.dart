@@ -16,8 +16,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
-import 'package:mundo_limpio_app/features/admin/backup/data/models/backup_response.dart';
-import 'package:mundo_limpio_app/features/admin/backup/data/repository/backup_repository.dart';
+import 'package:mundo_limpio_app/features/admin/backup/domain/entities/backup.dart';
+import 'package:mundo_limpio_app/features/admin/backup/domain/repository/backup_repository.dart';
 
 /// Estados posibles del provider de backups.
 ///
@@ -40,7 +40,7 @@ class BackupProvider extends ChangeNotifier {
   final BackupRepository _repository;
 
   BackupProviderStatus _status = BackupProviderStatus.idle;
-  List<BackupResponse> _backups = [];
+  List<Backup> _backups = [];
   String? _errorMessage;
   String? _downloadedFilePath;
 
@@ -48,7 +48,7 @@ class BackupProvider extends ChangeNotifier {
   BackupProviderStatus get status => _status;
 
   /// Lista de backups cargados desde el backend.
-  List<BackupResponse> get backups => _backups;
+  List<Backup> get backups => _backups;
 
   /// Mensaje de error actual (null si no hay error).
   String? get errorMessage => _errorMessage;
