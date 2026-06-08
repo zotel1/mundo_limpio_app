@@ -30,16 +30,18 @@ import 'package:mundo_limpio_app/features/inventory/domain/repository/inventory_
 import 'package:mundo_limpio_app/features/inventory/presentation/provider/inventory_provider.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/screens/inventory_detail_screen.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/screens/inventory_list_screen.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/purchase_item_response.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/receipt_process_response.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/product_line_dto.dart';
-import 'package:mundo_limpio_app/features/receipts/domain/entities/purchase.dart';
-import 'package:mundo_limpio_app/features/receipts/domain/repository/receipts_repository.dart';
-import 'package:mundo_limpio_app/features/receipts/presentation/provider/receipts_provider.dart';
-import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_capture_screen.dart';
-import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_confirmed_screen.dart';
-import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_review_screen.dart';
+import 'package:mundo_limpio_app/features/production/domain/entities/bulk_product.dart';
+import 'package:mundo_limpio_app/features/production/domain/entities/production_batch.dart';
+import 'package:mundo_limpio_app/features/production/domain/repositories/i_bulk_product_repository.dart';
+import 'package:mundo_limpio_app/features/production/domain/repositories/i_production_repository.dart';
+import 'package:mundo_limpio_app/features/production/presentation/providers/bulk_product_provider.dart';
+import 'package:mundo_limpio_app/features/production/presentation/providers/production_provider.dart';
+import 'package:mundo_limpio_app/features/production/presentation/screens/bulk/bulk_product_form_screen.dart';
+import 'package:mundo_limpio_app/features/production/presentation/screens/bulk/bulk_product_list_screen.dart';
+import 'package:mundo_limpio_app/features/production/presentation/screens/production/production_batch_list_screen.dart';
+import 'package:mundo_limpio_app/features/production/presentation/screens/production/production_create_screen.dart';
+
+import 'package:mundo_limpio_app/features/sales/data/models/sale_request.dart';
 import 'package:mundo_limpio_app/features/sales/domain/entities/sale.dart';
 import 'package:mundo_limpio_app/features/sales/domain/entities/sale_item.dart';
 import 'package:mundo_limpio_app/features/sales/domain/repository/sales_repository.dart';
@@ -81,7 +83,7 @@ void main() {
     // Para stubs que usan any() con tipos no primitivos
     registerFallbackValue(const SaleRequest(productId: 0, quantity: 0));
     registerFallbackValue(
-      const InventoryResponse(
+      const StockItem(
         productId: 0,
         productName: '',
         currentStock: 0,

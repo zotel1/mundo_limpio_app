@@ -35,6 +35,7 @@ void main() {
     createdAt: DateTime(2026, 5, 9),
   );
 
+  // ignore: unused_local_variable
   final authSession = authResponse.toEntity();
 
   const testEmail = 'test@example.com';
