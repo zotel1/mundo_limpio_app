@@ -63,7 +63,8 @@ class InventoryApi {
       if (rawData is List<dynamic>) {
         // El backend devolvió un array directamente (ej. vacío [])
         data = rawData;
-      } else if (rawData is Map<String, dynamic> && rawData.containsKey('content')) {
+      } else if (rawData is Map<String, dynamic> &&
+          rawData.containsKey('content')) {
         // El backend devolvió un wrapper paginado {content: [...]}
         data = rawData['content'] as List<dynamic>;
       } else {
