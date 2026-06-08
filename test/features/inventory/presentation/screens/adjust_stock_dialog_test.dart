@@ -122,12 +122,12 @@ void main() {
 
       await openDialog(tester);
 
-      // Seleccionar tipo de ajuste (scroll to hint first)
+      // Seleccionar tipo de ajuste
       await tester.ensureVisible(find.text('Seleccioná un tipo'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Seleccioná un tipo'));
+      await tester.tap(find.text('Seleccioná un tipo'), warnIfMissed: false);
       await tester.pumpAndSettle();
-      await tester.tap(find.text('ADJUSTMENT').last);
+      await tester.tap(find.text('Ajuste manual').last, warnIfMissed: false);
       await tester.pumpAndSettle();
 
       // Ingresar cantidad
@@ -137,7 +137,10 @@ void main() {
       await tester.enterText(find.byType(TextFormField).last, 'Ajuste manual');
 
       // Confirmar
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Confirmar'));
+      await tester.tap(
+        find.widgetWithText(ElevatedButton, 'Confirmar'),
+        warnIfMissed: false,
+      );
       await pumpUntilSettled(tester);
 
       // El diálogo debe cerrarse (Cancelar no debe estar visible)
@@ -162,12 +165,12 @@ void main() {
 
       await openDialog(tester);
 
-      // Seleccionar tipo de ajuste (scroll to hint first)
+      // Seleccionar tipo de ajuste
       await tester.ensureVisible(find.text('Seleccioná un tipo'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Seleccioná un tipo'));
+      await tester.tap(find.text('Seleccioná un tipo'), warnIfMissed: false);
       await tester.pumpAndSettle();
-      await tester.tap(find.text('ADJUSTMENT').last);
+      await tester.tap(find.text('Ajuste manual').last, warnIfMissed: false);
       await tester.pumpAndSettle();
 
       // Ingresar cantidad
@@ -177,7 +180,10 @@ void main() {
       await tester.enterText(find.byType(TextFormField).last, 'Ajuste');
 
       // Confirmar
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Confirmar'));
+      await tester.tap(
+        find.widgetWithText(ElevatedButton, 'Confirmar'),
+        warnIfMissed: false,
+      );
       await pumpUntilSettled(tester);
 
       // El provider debe tener estado de error

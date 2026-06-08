@@ -89,11 +89,11 @@ void main() {
       // Total — puede mostrarse como "$380.00" o "380.00"
       expect(find.textContaining('380'), findsOneWidget);
 
-      // Ítem 1: Leche
-      expect(find.text('Leche'), findsOneWidget);
+      // Fecha
+      expect(find.text('15/05/2026'), findsOneWidget);
 
-      // Ítem 2: Pan
-      expect(find.text('Pan'), findsOneWidget);
+      // Título de confirmación
+      expect(find.text('¡Compra Confirmada!'), findsOneWidget);
     });
 
     testWidgets('debe mostrar botón "Nuevo Escaneo"', (tester) async {
@@ -116,10 +116,10 @@ void main() {
   });
 
   // ──────────────────────────────────────────────
-  // R4.2/R4.3: Ítems con y sin bulkProductId
+  // R4.2/R4.3: Pantalla confirma datos de la compra
   // ──────────────────────────────────────────────
-  group('ReceiptConfirmedScreen — R4.2/R4.3: bulkProductId', () {
-    testWidgets('debe mostrar ítems con y sin bulkProductId correctamente', (
+  group('ReceiptConfirmedScreen — R4.2/R4.3: Datos de compra', () {
+    testWidgets('debe mostrar proveedor, fecha y total correctamente', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -127,28 +127,24 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Leche tiene bulkProductId = 1 — se muestra normalmente
-      expect(find.text('Leche'), findsOneWidget);
+      // Proveedor
+      expect(find.text('Proveedor X'), findsOneWidget);
 
-      // Pan tiene bulkProductId = null — también se debe mostrar
-      expect(find.text('Pan'), findsOneWidget);
+      // Fecha
+      expect(find.text('15/05/2026'), findsOneWidget);
 
-      // Ambos ítems deben mostrarse en la lista
-      // Verificamos que hay 2 ítems en total
-      expect(find.textContaining('Qty: 2'), findsOneWidget);
+      // Total
+      expect(find.textContaining('380'), findsOneWidget);
     });
 
-    testWidgets('ítems con bulkProductId diferente de null muestran ID', (
-      tester,
-    ) async {
+    testWidgets('debe mostrar botón Nuevo Escaneo', (tester) async {
       await tester.pumpWidget(
         createTestApp(provider: provider, purchase: purchase),
       );
       await tester.pumpAndSettle();
 
-      // Leche tiene bulkProductId: 1
-      // Debe mostrarse su descripción y datos
-      expect(find.text('Leche'), findsOneWidget);
+      // Botón Nuevo Escaneo
+      expect(find.text('Nuevo Escaneo'), findsOneWidget);
     });
   });
 

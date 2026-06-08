@@ -103,8 +103,8 @@ void main() {
       expect(find.textContaining('\$375.00'), findsOneWidget);
 
       // Detalle del item
-      expect(find.textContaining('42'), findsOneWidget);
-      expect(find.textContaining('30.0'), findsOneWidget);
+      expect(find.textContaining('Test Product'), findsOneWidget);
+      expect(find.textContaining('150.00'), findsOneWidget);
     });
   });
 

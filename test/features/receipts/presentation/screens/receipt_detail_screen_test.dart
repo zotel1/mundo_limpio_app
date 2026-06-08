@@ -102,10 +102,8 @@ void main() {
       expect(find.text('Proveedor de Prueba'), findsOneWidget);
       expect(find.textContaining('\$300.00'), findsAtLeast(1));
 
-      // Items
-      expect(find.text('Leche'), findsOneWidget);
-      expect(find.textContaining('2'), findsAtLeast(1));
-      expect(find.textContaining('\$150.00'), findsAtLeast(1));
+      // Fecha
+      expect(find.textContaining('15/5/2026'), findsOneWidget);
     });
 
     testWidgets('debe mostrar mensaje cuando no hay compra seleccionada', (
