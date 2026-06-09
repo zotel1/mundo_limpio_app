@@ -68,6 +68,64 @@ class AppTheme {
           foregroundColor: Colors.white,
         ),
       ),
+
+      // --- Input Fields ---
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: AppColors.surface,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: AppColors.accent),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: AppColors.accent),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: AppColors.error),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: AppColors.error, width: 2),
+        ),
+        labelStyle: const TextStyle(color: AppColors.primary),
+        hintStyle: TextStyle(color: AppColors.accent.withValues(alpha: 0.7)),
+      ),
+
+      // --- Cards ---
+      cardTheme: CardThemeData(
+        elevation: 1,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: EdgeInsets.zero,
+      ),
+
+      // --- Bottom Navigation ---
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: AppColors.surface,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: Colors.grey,
+      ),
+
+      // --- Text Button ---
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(foregroundColor: AppColors.primary),
+      ),
+
+      // --- Divider ---
+      dividerTheme: DividerThemeData(
+        space: 0,
+        thickness: 1,
+        color: Colors.grey.shade300,
+      ),
     );
   }
 }

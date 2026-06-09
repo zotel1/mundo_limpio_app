@@ -12,6 +12,7 @@
 // TDD: GREEN — implementación mínima para pasar sync_service_test.dart
 
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
@@ -106,11 +107,24 @@ class SyncService {
         await _inventoryApi.adjustStock(op.productId, request);
         await _inventoryPendingDao.delete(op.id);
       } on ApiException catch (e) {
-        await _inventoryPendingDao.updateStatus(
-          op.id,
-          'failed',
-          '${e.code}: ${e.message}',
-        );
+        final currentRetry = op.retryCount;
+        await _inventoryPendingDao.incrementRetry(op.id);
+        final newRetryCount = currentRetry + 1;
+
+        if (newRetryCount >= 3) {
+          await _inventoryPendingDao.updateStatus(
+            op.id,
+            'failed',
+            '${e.code}: ${e.message}',
+          );
+        } else {
+          // Backoff exponencial antes del próximo reintento
+          await Future.delayed(
+            Duration(seconds: pow(2, newRetryCount - 1).toInt()),
+          );
+        }
+      } catch (e) {
+        await _inventoryPendingDao.updateStatus(op.id, 'failed', e.toString());
       }
     }
   }

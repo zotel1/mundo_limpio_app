@@ -14,6 +14,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../firebase_options.dart';
+
 class CrashlyticsService {
   static FirebaseCrashlytics? __testInstance;
   static bool _optOut = false;
@@ -48,7 +50,9 @@ class CrashlyticsService {
     // Inicializar Firebase si no está inicializado (puede fallar en tests)
     try {
       if (Firebase.apps.isEmpty) {
-        await Firebase.initializeApp();
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
       }
     } catch (_) {
       // Firebase no disponible en entorno de test — continuar sin crash
