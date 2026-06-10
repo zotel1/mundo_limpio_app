@@ -22,7 +22,7 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
           )
           .toList();
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -34,7 +34,7 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
         response.data as Map<String, dynamic>,
       ).toEntity();
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -55,7 +55,7 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
         response.data as Map<String, dynamic>,
       ).toEntity();
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -76,7 +76,7 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
         response.data as Map<String, dynamic>,
       ).toEntity();
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -85,7 +85,7 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
     try {
       await _dio.delete('/api/v1/bulk-products/$id');
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 }

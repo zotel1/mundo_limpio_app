@@ -22,7 +22,7 @@ class ProductionRepositoryImpl implements IProductionRepository {
           )
           .toList();
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -34,7 +34,7 @@ class ProductionRepositoryImpl implements IProductionRepository {
         response.data as Map<String, dynamic>,
       ).toEntity();
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -55,7 +55,7 @@ class ProductionRepositoryImpl implements IProductionRepository {
         response.data as Map<String, dynamic>,
       ).toEntity();
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 }

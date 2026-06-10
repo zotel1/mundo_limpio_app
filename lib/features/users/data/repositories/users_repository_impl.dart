@@ -23,7 +23,7 @@ class UsersRepositoryImpl implements IUsersRepository {
     } on ApiException {
       rethrow;
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -35,7 +35,7 @@ class UsersRepositoryImpl implements IUsersRepository {
     } on ApiException {
       rethrow;
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -47,7 +47,7 @@ class UsersRepositoryImpl implements IUsersRepository {
     } on ApiException {
       rethrow;
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -58,7 +58,7 @@ class UsersRepositoryImpl implements IUsersRepository {
     } on ApiException {
       rethrow;
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 }
