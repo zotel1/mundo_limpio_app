@@ -139,6 +139,12 @@ class BulkProductProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  @override
+  // ignore: unnecessary_overrides
+  void dispose() {
+    super.dispose();
+  }
+
   /// Setea estado a loading y notifica.
   void _setLoading() {
     _status = BulkProductStatus.loading;

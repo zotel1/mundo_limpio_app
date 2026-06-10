@@ -40,7 +40,7 @@ class _ProductionBatchListScreenState extends State<ProductionBatchListScreen> {
     final provider = context.watch<ProductionProvider>();
     return Scaffold(
       appBar: const BrandedAppBar(title: 'Historial de Producción'),
-      body: _buildBody(provider),
+      body: SafeArea(child: _buildBody(provider)),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _navigateToCreate(provider),
         child: const Icon(Icons.add),

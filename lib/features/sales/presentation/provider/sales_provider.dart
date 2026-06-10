@@ -153,6 +153,12 @@ class SalesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  @override
+  // ignore: unnecessary_overrides
+  void dispose() {
+    super.dispose();
+  }
+
   /// Resetea todos los campos al estado inicial.
   ///
   /// Transición: cualquier estado → idle
