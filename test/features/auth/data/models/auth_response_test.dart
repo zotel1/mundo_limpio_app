@@ -2,10 +2,25 @@
 // Verifica que el modelo se serializa/deserializa correctamente
 // desde/hacia JSON usando json_serializable.
 //
+// También verifica que toEntity() extrae el userId correctamente:
+// - Prioriza userId del JSON
+// - Fallback a JwtDecoder.getUserId(accessToken)
+// - Fallback final a 0
+//
 // TDD: RED — test escrito antes que la implementación
+
+import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mundo_limpio_app/features/auth/data/models/auth_response.dart';
+
+/// Helper: construye un token JWT simulado con sub específico.
+String _makeJwt(dynamic sub) {
+  final header = base64Url.encode(utf8.encode('{"alg":"HS256"}'));
+  final payload = base64Url.encode(utf8.encode(jsonEncode({'sub': sub})));
+  final sig = base64Url.encode(utf8.encode('fake'));
+  return '$header.$payload.$sig';
+}
 
 void main() {
   // Datos de ejemplo representando una respuesta típica del backend
@@ -116,6 +131,155 @@ void main() {
       final result = AuthResponse.fromJson(jsonValid);
 
       expect(result.createdAt, isA<DateTime>());
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // Tests de toEntity() — extracción de userId
+  //
+  // Escenarios de la spec sprint-correcciones Task B:
+  // ESC-HAPPY-B1, B2, B3, ESC-EDGE-B1, B2, B3
+  // ═══════════════════════════════════════════════════════════
+  group('AuthResponseMapper.toEntity() — userId', () {
+    // ═══════════════════════════════════════════════════════════
+    // ESC-HAPPY-B1: Backend envía userId en el JSON → se usa ese valor
+    // ═══════════════════════════════════════════════════════════
+    test('debe usar userId del JSON cuando está presente (ESC-HAPPY-B1)', () {
+      final response = AuthResponse.fromJson({...jsonValid, 'userId': 42});
+
+      final session = response.toEntity();
+
+      expect(
+        session.userId,
+        42,
+        reason: 'Debe usar el userId del response JSON',
+      );
+    });
+
+    // ═══════════════════════════════════════════════════════════
+    // ESC-HAPPY-B2: Backend NO envía userId, pero JWT tiene sub
+    // ═══════════════════════════════════════════════════════════
+    test('debe extraer userId del JWT cuando el JSON no tiene userId '
+        '(ESC-HAPPY-B2)', () {
+      final token = _makeJwt(42);
+      final response = AuthResponse.fromJson({
+        ...jsonValid,
+        'accessToken': token,
+        // sin userId
+      });
+
+      final session = response.toEntity();
+
+      expect(
+        session.userId,
+        42,
+        reason: 'Debe extraer el userId del JWT payload',
+      );
+    });
+
+    // ═══════════════════════════════════════════════════════════
+    // ESC-HAPPY-B3: Backend envía AMBOS → userId del JSON prioriza
+    // ═══════════════════════════════════════════════════════════
+    test('debe priorizar userId del JSON sobre el JWT '
+        '(ESC-HAPPY-B3)', () {
+      final token = _makeJwt(99);
+      final response = AuthResponse.fromJson({
+        ...jsonValid,
+        'userId': 42,
+        'accessToken': token,
+      });
+
+      final session = response.toEntity();
+
+      expect(
+        session.userId,
+        42,
+        reason: 'userId del JSON debe tener prioridad sobre JWT',
+      );
+    });
+
+    // ═══════════════════════════════════════════════════════════
+    // ESC-EDGE-B1: JWT mal formado → userId = 0
+    // ═══════════════════════════════════════════════════════════
+    test('debe retornar 0 con JWT mal formado (ESC-EDGE-B1)', () {
+      final response = AuthResponse.fromJson({
+        ...jsonValid,
+        'accessToken': 'token_mal_formado',
+        // sin userId
+      });
+
+      final session = response.toEntity();
+
+      expect(
+        session.userId,
+        0,
+        reason: 'JWT mal formado debe resultar en userId 0',
+      );
+    });
+
+    // ═══════════════════════════════════════════════════════════
+    // ESC-EDGE-B2: JWT válido pero sin sub → userId = 0
+    // ═══════════════════════════════════════════════════════════
+    test('debe retornar 0 cuando el JWT no tiene sub (ESC-EDGE-B2)', () {
+      final header = base64Url.encode(utf8.encode('{"alg":"HS256"}'));
+      final payload = base64Url.encode(
+        utf8.encode('{"name":"test","role":"admin"}'),
+      );
+      final sig = base64Url.encode(utf8.encode('fake'));
+      final token = '$header.$payload.$sig';
+
+      final response = AuthResponse.fromJson({
+        ...jsonValid,
+        'accessToken': token,
+        // sin userId
+      });
+
+      final session = response.toEntity();
+
+      expect(
+        session.userId,
+        0,
+        reason: 'JWT sin sub debe resultar en userId 0',
+      );
+    });
+
+    // ═══════════════════════════════════════════════════════════
+    // ESC-EDGE-B3: JWT con sub no numérico → userId = 0
+    // ═══════════════════════════════════════════════════════════
+    test('debe retornar 0 cuando sub no es numérico (ESC-EDGE-B3)', () {
+      final token = _makeJwt('not_a_number');
+      final response = AuthResponse.fromJson({
+        ...jsonValid,
+        'accessToken': token,
+        // sin userId
+      });
+
+      final session = response.toEntity();
+
+      expect(
+        session.userId,
+        0,
+        reason: 'Sub no numérico debe resultar en userId 0 sin crash',
+      );
+    });
+
+    // ═══════════════════════════════════════════════════════════
+    // Caso: sin userId en JSON, sin accessToken (null) → userId 0
+    // ═══════════════════════════════════════════════════════════
+    test('debe retornar 0 cuando no hay userId ni accessToken', () {
+      final response = AuthResponse.fromJson({
+        ...jsonValid,
+        'accessToken': '',
+        // sin userId
+      });
+
+      final session = response.toEntity();
+
+      expect(
+        session.userId,
+        0,
+        reason: 'Sin userId ni JWT válido debe resultar en 0',
+      );
     });
   });
 }

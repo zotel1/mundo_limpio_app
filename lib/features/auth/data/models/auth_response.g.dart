@@ -13,6 +13,7 @@ AuthResponse _$AuthResponseFromJson(Map<String, dynamic> json) => AuthResponse(
   username: json['username'] as String,
   email: json['email'] as String?,
   roles: (json['roles'] as List<dynamic>).map((e) => e as String).toList(),
+  userId: json['userId'] as int?,
   createdAt: DateTime.parse(json['createdAt'] as String),
 );
 
@@ -24,5 +25,6 @@ Map<String, dynamic> _$AuthResponseToJson(AuthResponse instance) =>
       'username': instance.username,
       'email': instance.email,
       'roles': instance.roles,
+      'userId': instance.userId,
       'createdAt': instance.createdAt.toIso8601String(),
     };
