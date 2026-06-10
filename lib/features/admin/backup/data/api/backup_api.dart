@@ -70,7 +70,7 @@ class BackupApi {
   /// [id]: ID del backup a descargar.
   /// [savePath]: ruta local donde guardar el archivo.
   /// Retorna la [Response] de Dio con la información de la descarga.
-  Future<Response> downloadBackup(int id, String savePath) async {
+  Future<Response<dynamic>> downloadBackup(int id, String savePath) async {
     try {
       return await _dio.download(
         '/api/v1/admin/backups/$id/download',
