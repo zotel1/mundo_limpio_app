@@ -169,7 +169,7 @@ void main() {
         final result = await api.downloadBackup(1, savePath);
 
         // Assert
-        expect(result, isA<Response>());
+        expect(result, isA<Response<dynamic>>());
         expect(result.statusCode, equals(200));
         verify(
           () => mockDio.download('/api/v1/admin/backups/1/download', savePath),

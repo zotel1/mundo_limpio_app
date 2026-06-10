@@ -63,7 +63,7 @@ void main() {
       expect(json['id'], 5);
       expect(json['totalAmount'], 500.00);
       expect(json['createdAt'], '2026-05-09T12:00:00.000');
-      expect(json['items'], isA<List>());
+      expect(json['items'], isA<List<dynamic>>());
       expect((json['items'] as List).length, 1);
     });
 
