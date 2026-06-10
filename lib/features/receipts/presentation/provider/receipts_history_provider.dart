@@ -96,6 +96,12 @@ class ReceiptsHistoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  @override
+  // ignore: unnecessary_overrides
+  void dispose() {
+    super.dispose();
+  }
+
   /// Limpia el mensaje de error y vuelve a idle.
   ///
   /// Transición: error → idle

@@ -142,6 +142,12 @@ class InventoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  @override
+  // ignore: unnecessary_overrides
+  void dispose() {
+    super.dispose();
+  }
+
   /// Resetea el estado a idle, limpiando datos y errores.
   ///
   /// Útil después de mostrar un error para volver
