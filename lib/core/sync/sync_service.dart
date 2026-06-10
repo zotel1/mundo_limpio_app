@@ -23,11 +23,11 @@ import '../drift/daos/inventory_cache_dao.dart';
 import '../drift/daos/inventory_pending_dao.dart';
 import '../drift/daos/product_cache_dao.dart';
 import '../network/api_exception.dart';
-import '../../features/inventory/data/api/inventory_api.dart';
-import '../../features/inventory/data/models/adjustment_request.dart';
-import '../../features/inventory/data/models/inventory_response.dart';
-import '../../features/sales/data/api/sales_api.dart';
-import '../../features/sales/data/models/product_response.dart';
+import 'package:mundo_limpio_app/features/inventory/data/api/inventory_api.dart';
+import 'package:mundo_limpio_app/features/inventory/data/models/adjustment_request.dart';
+import 'package:mundo_limpio_app/features/inventory/data/models/inventory_response.dart';
+import 'package:mundo_limpio_app/features/sales/data/api/sales_api.dart';
+import 'package:mundo_limpio_app/features/sales/data/models/product_response.dart';
 
 /// Orquesta la sincronización de datos offline al reconectar.
 ///
