@@ -13,7 +13,7 @@ AuthResponse _$AuthResponseFromJson(Map<String, dynamic> json) => AuthResponse(
   username: json['username'] as String,
   email: json['email'] as String?,
   roles: (json['roles'] as List<dynamic>).map((e) => e as String).toList(),
-  userId: json['userId'] as int?,
+  userId: (json['userId'] as num?)?.toInt(),
   createdAt: DateTime.parse(json['createdAt'] as String),
 );
 
