@@ -38,9 +38,15 @@ class InventoryApi {
   /// Obtiene los datos de inventario de un producto específico.
   ///
   /// Endpoint: `GET /api/v1/inventory/{productId}`
-  Future<InventoryResponse> getInventory(int productId) async {
+  Future<InventoryResponse> getInventory(
+    int productId, {
+    CancelToken? cancelToken,
+  }) async {
     try {
-      final response = await _dio.get('/api/v1/inventory/$productId');
+      final response = await _dio.get(
+        '/api/v1/inventory/$productId',
+        cancelToken: cancelToken,
+      );
       return InventoryResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
@@ -55,9 +61,14 @@ class InventoryApi {
   /// - `{content: [...]}` (respuesta paginada con wrapper)
   /// - `[]` (array vacío directamente)
   /// Ambos formatos se manejan para evitar crashes.
-  Future<List<InventoryResponse>> getLowStock() async {
+  Future<List<InventoryResponse>> getLowStock({
+    CancelToken? cancelToken,
+  }) async {
     try {
-      final response = await _dio.get('/api/v1/inventory/low-stock');
+      final response = await _dio.get(
+        '/api/v1/inventory/low-stock',
+        cancelToken: cancelToken,
+      );
       final rawData = response.data;
       final List<dynamic> data;
       if (rawData is List<dynamic>) {
@@ -84,12 +95,14 @@ class InventoryApi {
   /// Body: serialización JSON de [request]
   Future<InventoryResponse> adjustStock(
     int productId,
-    AdjustmentRequest request,
-  ) async {
+    AdjustmentRequest request, {
+    CancelToken? cancelToken,
+  }) async {
     try {
       final response = await _dio.post(
         '/api/v1/inventory/$productId/adjust',
         data: request.toJson(),
+        cancelToken: cancelToken,
       );
       return InventoryResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {

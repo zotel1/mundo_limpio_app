@@ -45,7 +45,10 @@ class ReceiptsApi {
   ///
   /// Endpoint: `POST /api/v1/receipts/process`
   /// Body: multipart FormData con el campo 'image'
-  Future<ReceiptProcessResponse> processReceipt(String imagePath) async {
+  Future<ReceiptProcessResponse> processReceipt(
+    String imagePath, {
+    CancelToken? cancelToken,
+  }) async {
     try {
       final formData = FormData.fromMap({
         'image': await MultipartFile.fromFile(
@@ -56,6 +59,7 @@ class ReceiptsApi {
       final response = await _dio.post(
         '/api/v1/receipts/process',
         data: formData,
+        cancelToken: cancelToken,
       );
       return ReceiptProcessResponse.fromJson(
         response.data as Map<String, dynamic>,
@@ -69,11 +73,15 @@ class ReceiptsApi {
   ///
   /// Endpoint: `POST /api/v1/receipts/confirm`
   /// Body: serialización JSON de [request]
-  Future<PurchaseResponse> confirmReceipt(ReceiptConfirmRequest request) async {
+  Future<PurchaseResponse> confirmReceipt(
+    ReceiptConfirmRequest request, {
+    CancelToken? cancelToken,
+  }) async {
     try {
       final response = await _dio.post(
         '/api/v1/receipts/confirm',
         data: request.toJson(),
+        cancelToken: cancelToken,
       );
       return PurchaseResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
@@ -84,9 +92,14 @@ class ReceiptsApi {
   /// Obtiene la lista de compras (recibos confirmados).
   ///
   /// Endpoint: `GET /api/v1/receipts`
-  Future<List<PurchaseResponse>> getPurchases() async {
+  Future<List<PurchaseResponse>> getPurchases({
+    CancelToken? cancelToken,
+  }) async {
     try {
-      final response = await _dio.get('/api/v1/receipts');
+      final response = await _dio.get(
+        '/api/v1/receipts',
+        cancelToken: cancelToken,
+      );
       final List<dynamic> data = response.data['content'] as List<dynamic>;
       return data
           .map(
@@ -101,9 +114,15 @@ class ReceiptsApi {
   /// Obtiene una compra (recibo confirmado) por su ID.
   ///
   /// Endpoint: `GET /api/v1/receipts/{id}`
-  Future<PurchaseResponse> getPurchaseById(int id) async {
+  Future<PurchaseResponse> getPurchaseById(
+    int id, {
+    CancelToken? cancelToken,
+  }) async {
     try {
-      final response = await _dio.get('/api/v1/receipts/$id');
+      final response = await _dio.get(
+        '/api/v1/receipts/$id',
+        cancelToken: cancelToken,
+      );
       return PurchaseResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);

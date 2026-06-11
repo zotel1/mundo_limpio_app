@@ -39,9 +39,12 @@ class ProductsApi {
   /// Obtiene la lista de productos activos.
   ///
   /// Endpoint: `GET /api/v1/products`
-  Future<List<ProductModel>> getProducts() async {
+  Future<List<ProductModel>> getProducts({CancelToken? cancelToken}) async {
     try {
-      final response = await _dio.get('/api/v1/products');
+      final response = await _dio.get(
+        '/api/v1/products',
+        cancelToken: cancelToken,
+      );
       final data = response.data['content'] as List<dynamic>;
       return data
           .map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
@@ -54,9 +57,12 @@ class ProductsApi {
   /// Obtiene la lista de todos los productos (activos e inactivos).
   ///
   /// Endpoint: `GET /api/v1/products/all`
-  Future<List<ProductModel>> getAllProducts() async {
+  Future<List<ProductModel>> getAllProducts({CancelToken? cancelToken}) async {
     try {
-      final response = await _dio.get('/api/v1/products/all');
+      final response = await _dio.get(
+        '/api/v1/products/all',
+        cancelToken: cancelToken,
+      );
       final data = response.data['content'] as List<dynamic>;
       return data
           .map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
@@ -69,9 +75,15 @@ class ProductsApi {
   /// Obtiene un producto por su ID.
   ///
   /// Endpoint: `GET /api/v1/products/{id}`
-  Future<ProductModel> getProductById(int id) async {
+  Future<ProductModel> getProductById(
+    int id, {
+    CancelToken? cancelToken,
+  }) async {
     try {
-      final response = await _dio.get('/api/v1/products/$id');
+      final response = await _dio.get(
+        '/api/v1/products/$id',
+        cancelToken: cancelToken,
+      );
       return ProductModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
@@ -81,9 +93,15 @@ class ProductsApi {
   /// Obtiene un producto por su SKU.
   ///
   /// Endpoint: `GET /api/v1/products/sku/{sku}`
-  Future<ProductModel> getProductBySku(String sku) async {
+  Future<ProductModel> getProductBySku(
+    String sku, {
+    CancelToken? cancelToken,
+  }) async {
     try {
-      final response = await _dio.get('/api/v1/products/sku/$sku');
+      final response = await _dio.get(
+        '/api/v1/products/sku/$sku',
+        cancelToken: cancelToken,
+      );
       return ProductModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
@@ -94,9 +112,16 @@ class ProductsApi {
   ///
   /// Endpoint: `POST /api/v1/products`
   /// [data] debe contener los campos del producto (sku, name, minPrice, active).
-  Future<ProductModel> createProduct(Map<String, dynamic> data) async {
+  Future<ProductModel> createProduct(
+    Map<String, dynamic> data, {
+    CancelToken? cancelToken,
+  }) async {
     try {
-      final response = await _dio.post('/api/v1/products', data: data);
+      final response = await _dio.post(
+        '/api/v1/products',
+        data: data,
+        cancelToken: cancelToken,
+      );
       return ProductModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
@@ -106,9 +131,17 @@ class ProductsApi {
   /// Actualiza un producto existente.
   ///
   /// Endpoint: `PUT /api/v1/products/{id}`
-  Future<ProductModel> updateProduct(int id, Map<String, dynamic> data) async {
+  Future<ProductModel> updateProduct(
+    int id,
+    Map<String, dynamic> data, {
+    CancelToken? cancelToken,
+  }) async {
     try {
-      final response = await _dio.put('/api/v1/products/$id', data: data);
+      final response = await _dio.put(
+        '/api/v1/products/$id',
+        data: data,
+        cancelToken: cancelToken,
+      );
       return ProductModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
@@ -118,9 +151,9 @@ class ProductsApi {
   /// Elimina (soft delete) un producto.
   ///
   /// Endpoint: `DELETE /api/v1/products/{id}`
-  Future<void> deleteProduct(int id) async {
+  Future<void> deleteProduct(int id, {CancelToken? cancelToken}) async {
     try {
-      await _dio.delete('/api/v1/products/$id');
+      await _dio.delete('/api/v1/products/$id', cancelToken: cancelToken);
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
     }
@@ -129,9 +162,15 @@ class ProductsApi {
   /// Reactiva un producto previamente eliminado.
   ///
   /// Endpoint: `PATCH /api/v1/products/{id}/reactivate`
-  Future<ProductModel> reactivateProduct(int id) async {
+  Future<ProductModel> reactivateProduct(
+    int id, {
+    CancelToken? cancelToken,
+  }) async {
     try {
-      final response = await _dio.patch('/api/v1/products/$id/reactivate');
+      final response = await _dio.patch(
+        '/api/v1/products/$id/reactivate',
+        cancelToken: cancelToken,
+      );
       return ProductModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);

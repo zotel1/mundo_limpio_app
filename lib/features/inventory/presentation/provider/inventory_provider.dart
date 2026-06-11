@@ -19,6 +19,7 @@
 //
 // TDD: GREEN — implementación mínima para pasar los tests
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
@@ -52,6 +53,7 @@ enum InventoryStatus {
 /// Disparar acciones con `context.read<InventoryProvider>().metodo()`.
 class InventoryProvider extends ChangeNotifier {
   final InventoryRepository _repository;
+  final CancelToken _cancelToken;
 
   // ─── Estado interno ──────────────────────────────────
   InventoryStatus _status = InventoryStatus.idle;
@@ -80,8 +82,11 @@ class InventoryProvider extends ChangeNotifier {
   /// Crea un [InventoryProvider] con el repositorio inyectado.
   ///
   /// [repository]: implementación de [InventoryRepository].
-  InventoryProvider({required InventoryRepository repository})
-    : _repository = repository;
+  InventoryProvider({
+    required InventoryRepository repository,
+    CancelToken? cancelToken,
+  }) : _repository = repository,
+       _cancelToken = cancelToken ?? CancelToken();
 
   // ─── Acciones ────────────────────────────────────────
 
@@ -94,7 +99,10 @@ class InventoryProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _currentInventory = await _repository.getInventory(productId);
+      _currentInventory = await _repository.getInventory(
+        productId,
+        cancelToken: _cancelToken,
+      );
       _status = InventoryStatus.inventoryLoaded;
     } on ApiException catch (e) {
       _errorMessage = e.message;
@@ -113,7 +121,7 @@ class InventoryProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _lowStockItems = await _repository.getLowStock();
+      _lowStockItems = await _repository.getLowStock(cancelToken: _cancelToken);
       _status = InventoryStatus.lowStockLoaded;
     } on ApiException catch (e) {
       _errorMessage = e.message;
@@ -132,7 +140,11 @@ class InventoryProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _lastAdjustment = await _repository.adjustStock(productId, request);
+      _lastAdjustment = await _repository.adjustStock(
+        productId,
+        request,
+        cancelToken: _cancelToken,
+      );
       _status = InventoryStatus.success;
     } on ApiException catch (e) {
       _errorMessage = e.message;
@@ -143,8 +155,8 @@ class InventoryProvider extends ChangeNotifier {
   }
 
   @override
-  // ignore: unnecessary_overrides
   void dispose() {
+    _cancelToken.cancel('dispose');
     super.dispose();
   }
 

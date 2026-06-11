@@ -13,6 +13,7 @@
 // - updatingRole: actualización de roles en progreso
 // - resettingPassword: reseteo de contraseña en progreso
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
@@ -49,6 +50,7 @@ enum UsersStatus {
 /// 3. Setea status/error y notifica
 class UsersProvider extends ChangeNotifier {
   final IUsersRepository _repository;
+  final CancelToken _cancelToken;
 
   UsersStatus _status = UsersStatus.initial;
   String? _error;
@@ -76,7 +78,8 @@ class UsersProvider extends ChangeNotifier {
       _status == UsersStatus.resettingPassword;
 
   /// Crea un [UsersProvider] con el [repository] inyectado.
-  UsersProvider(this._repository);
+  UsersProvider(this._repository, {CancelToken? cancelToken})
+    : _cancelToken = cancelToken ?? CancelToken();
 
   /// Obtiene la lista completa de usuarios.
   ///
@@ -86,7 +89,7 @@ class UsersProvider extends ChangeNotifier {
     _status = UsersStatus.loading;
     notifyListeners();
     try {
-      _users = await _repository.getUsers();
+      _users = await _repository.getUsers(cancelToken: _cancelToken);
       _status = UsersStatus.loaded;
       _error = null;
     } on ApiException catch (e) {
@@ -104,7 +107,7 @@ class UsersProvider extends ChangeNotifier {
     _status = UsersStatus.loading;
     notifyListeners();
     try {
-      _selectedUser = await _repository.getUser(id);
+      _selectedUser = await _repository.getUser(id, cancelToken: _cancelToken);
       _status = UsersStatus.loaded;
       _error = null;
     } on ApiException catch (e) {
@@ -125,7 +128,11 @@ class UsersProvider extends ChangeNotifier {
     _status = UsersStatus.updatingRole;
     notifyListeners();
     try {
-      _selectedUser = await _repository.updateRoles(userId, roles);
+      _selectedUser = await _repository.updateRoles(
+        userId,
+        roles,
+        cancelToken: _cancelToken,
+      );
       _status = UsersStatus.loaded;
       _error = null;
     } on ApiException catch (e) {
@@ -139,8 +146,8 @@ class UsersProvider extends ChangeNotifier {
   }
 
   @override
-  // ignore: unnecessary_overrides
   void dispose() {
+    _cancelToken.cancel('dispose');
     super.dispose();
   }
 
@@ -152,7 +159,11 @@ class UsersProvider extends ChangeNotifier {
     _status = UsersStatus.resettingPassword;
     notifyListeners();
     try {
-      await _repository.resetPassword(userId, newPassword);
+      await _repository.resetPassword(
+        userId,
+        newPassword,
+        cancelToken: _cancelToken,
+      );
       _status = UsersStatus.loaded;
       _error = null;
     } on ApiException catch (e) {

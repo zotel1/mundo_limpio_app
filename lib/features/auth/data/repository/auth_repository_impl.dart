@@ -8,6 +8,8 @@
 // - refreshToken: renueva tokens vía API → guarda nuevos
 // - isLoggedIn: verifica existencia de tokens locales
 
+import 'package:dio/dio.dart';
+
 import 'package:mundo_limpio_app/core/storage/token_storage.dart';
 import 'package:mundo_limpio_app/features/auth/data/api/auth_api.dart';
 import 'package:mundo_limpio_app/features/auth/data/models/auth_response.dart';
@@ -31,8 +33,16 @@ class AuthRepositoryImpl implements AuthRepository {
        _tokenStorage = tokenStorage;
 
   @override
-  Future<AuthSession> login(String email, String password) async {
-    final response = await _authApi.login(email, password);
+  Future<AuthSession> login(
+    String email,
+    String password, {
+    CancelToken? cancelToken,
+  }) async {
+    final response = await _authApi.login(
+      email,
+      password,
+      cancelToken: cancelToken,
+    );
 
     // Persistir tokens localmente para requests futuros (R3.1)
     await _tokenStorage.saveTokens(response.accessToken, response.refreshToken);
@@ -41,8 +51,16 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<AuthSession> register(String email, String password) async {
-    final response = await _authApi.register(email, password);
+  Future<AuthSession> register(
+    String email,
+    String password, {
+    CancelToken? cancelToken,
+  }) async {
+    final response = await _authApi.register(
+      email,
+      password,
+      cancelToken: cancelToken,
+    );
 
     // No guardar tokens en registro — el usuario debe
     // iniciar sesión después del registro exitoso (R2.1)
@@ -56,8 +74,14 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<AuthSession> refreshToken(String refreshToken) async {
-    final response = await _authApi.refresh(refreshToken);
+  Future<AuthSession> refreshToken(
+    String refreshToken, {
+    CancelToken? cancelToken,
+  }) async {
+    final response = await _authApi.refresh(
+      refreshToken,
+      cancelToken: cancelToken,
+    );
 
     // Guardar los nuevos tokens (R4.1)
     await _tokenStorage.saveTokens(response.accessToken, response.refreshToken);

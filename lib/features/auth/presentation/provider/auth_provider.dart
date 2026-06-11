@@ -11,6 +11,7 @@
 //
 // TDD: GREEN — implementación mínima para pasar los tests
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:mundo_limpio_app/core/crashlytics/crashlytics_service.dart';
@@ -38,6 +39,7 @@ enum AuthStatus { loading, authenticated, unauthenticated }
 class AuthProvider extends ChangeNotifier {
   final AuthRepository _repository;
   final TokenStorage _tokenStorage;
+  final CancelToken _cancelToken;
 
   AuthStatus _status = AuthStatus.loading;
   String? _error;
@@ -91,7 +93,8 @@ class AuthProvider extends ChangeNotifier {
   String? get username => _username;
 
   /// Crea un [AuthProvider] con el [repository] y [tokenStorage] inyectados.
-  AuthProvider(this._repository, this._tokenStorage);
+  AuthProvider(this._repository, this._tokenStorage, {CancelToken? cancelToken})
+    : _cancelToken = cancelToken ?? CancelToken();
 
   /// Verifica si hay tokens locales al iniciar la app.
   ///
@@ -128,7 +131,11 @@ class AuthProvider extends ChangeNotifier {
   Future<void> login(String email, String password) async {
     _setLoading();
     try {
-      final response = await _repository.login(email, password);
+      final response = await _repository.login(
+        email,
+        password,
+        cancelToken: _cancelToken,
+      );
       _roles = response.roles;
       _role = response.roles.firstOrNull;
       _email = response.email;
@@ -174,7 +181,11 @@ class AuthProvider extends ChangeNotifier {
   Future<void> register(String email, String password) async {
     _setLoading();
     try {
-      final response = await _repository.register(email, password);
+      final response = await _repository.register(
+        email,
+        password,
+        cancelToken: _cancelToken,
+      );
       // Guardar metadata del usuario incluso sin autenticar
       _roles = response.roles;
       _role = response.roles.firstOrNull;
@@ -233,8 +244,8 @@ class AuthProvider extends ChangeNotifier {
   }
 
   @override
-  // ignore: unnecessary_overrides
   void dispose() {
+    _cancelToken.cancel('dispose');
     super.dispose();
   }
 

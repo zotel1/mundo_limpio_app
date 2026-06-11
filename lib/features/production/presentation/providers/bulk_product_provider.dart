@@ -11,6 +11,7 @@
 // - loaded: operación exitosa con datos
 // - error: operación fallida con mensaje de error
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
@@ -37,6 +38,7 @@ enum BulkProductStatus { initial, loading, loaded, error }
 /// 3. Setea status/error y notifica
 class BulkProductProvider extends ChangeNotifier {
   final IBulkProductRepository _repository;
+  final CancelToken _cancelToken;
 
   BulkProductStatus _status = BulkProductStatus.initial;
   String? _error;
@@ -57,7 +59,8 @@ class BulkProductProvider extends ChangeNotifier {
   List<BulkProduct> get bulkProducts => List.unmodifiable(_bulkProducts);
 
   /// Crea un [BulkProductProvider] con el [repository] inyectado.
-  BulkProductProvider(this._repository);
+  BulkProductProvider(this._repository, {CancelToken? cancelToken})
+    : _cancelToken = cancelToken ?? CancelToken();
 
   /// Obtiene todos los productos a granel.
   ///
@@ -66,7 +69,9 @@ class BulkProductProvider extends ChangeNotifier {
   Future<void> getBulkProducts() async {
     _setLoading();
     try {
-      _bulkProducts = await _repository.getBulkProducts();
+      _bulkProducts = await _repository.getBulkProducts(
+        cancelToken: _cancelToken,
+      );
       _status = BulkProductStatus.loaded;
       _error = null;
     } on ApiException catch (e) {
@@ -86,7 +91,7 @@ class BulkProductProvider extends ChangeNotifier {
   Future<void> createBulkProduct(BulkProduct product) async {
     _setLoading();
     try {
-      await _repository.createBulkProduct(product);
+      await _repository.createBulkProduct(product, cancelToken: _cancelToken);
       _status = BulkProductStatus.loaded;
       _error = null;
     } on ApiException catch (e) {
@@ -106,7 +111,7 @@ class BulkProductProvider extends ChangeNotifier {
   Future<void> updateBulkProduct(BulkProduct product) async {
     _setLoading();
     try {
-      await _repository.updateBulkProduct(product);
+      await _repository.updateBulkProduct(product, cancelToken: _cancelToken);
       _status = BulkProductStatus.loaded;
       _error = null;
     } on ApiException catch (e) {
@@ -126,7 +131,7 @@ class BulkProductProvider extends ChangeNotifier {
   Future<void> deleteBulkProduct(int id) async {
     _setLoading();
     try {
-      await _repository.deleteBulkProduct(id);
+      await _repository.deleteBulkProduct(id, cancelToken: _cancelToken);
       _status = BulkProductStatus.loaded;
       _error = null;
     } on ApiException catch (e) {
@@ -140,8 +145,8 @@ class BulkProductProvider extends ChangeNotifier {
   }
 
   @override
-  // ignore: unnecessary_overrides
   void dispose() {
+    _cancelToken.cancel('dispose');
     super.dispose();
   }
 

@@ -7,6 +7,8 @@
 // Domain layer: NO importa Flutter, Dio, ni flutter_secure_storage.
 // Solo tipos de Dart puro y modelos del dominio.
 
+import 'package:dio/dio.dart';
+
 import '../entities/auth_session.dart';
 
 /// Repositorio de autenticación.
@@ -22,13 +24,21 @@ abstract class AuthRepository {
   ///
   /// Retorna [AuthSession] con los datos de la sesión si las credenciales
   /// son válidas. Lanza [ApiException] en caso de error.
-  Future<AuthSession> login(String email, String password);
+  Future<AuthSession> login(
+    String email,
+    String password, {
+    CancelToken? cancelToken,
+  });
 
   /// Registra un nuevo usuario con [email] y [password].
   ///
   /// Retorna [AuthSession] si el registro es exitoso.
   /// Lanza [ApiException] si el email ya está registrado (409).
-  Future<AuthSession> register(String email, String password);
+  Future<AuthSession> register(
+    String email,
+    String password, {
+    CancelToken? cancelToken,
+  });
 
   /// Cierra la sesión: elimina tokens locales.
   ///
@@ -41,7 +51,10 @@ abstract class AuthRepository {
   /// Retorna un nuevo [AuthSession] con access y refresh
   /// tokens actualizados. Lanza [AuthException] si el
   /// refresh token expiró.
-  Future<AuthSession> refreshToken(String refreshToken);
+  Future<AuthSession> refreshToken(
+    String refreshToken, {
+    CancelToken? cancelToken,
+  });
 
   /// Verifica si hay una sesión activa localmente.
   ///

@@ -36,11 +36,16 @@ class AuthApi {
   ///
   /// Endpoint: `POST /api/v1/auth/login`
   /// Body: `{ "email": ..., "password": ... }`
-  Future<AuthResponse> login(String email, String password) async {
+  Future<AuthResponse> login(
+    String email,
+    String password, {
+    CancelToken? cancelToken,
+  }) async {
     try {
       final response = await _dio.post(
         '/api/v1/auth/login',
         data: {'email': email, 'password': password},
+        cancelToken: cancelToken,
       );
       return AuthResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
@@ -52,11 +57,16 @@ class AuthApi {
   ///
   /// Endpoint: `POST /api/v1/auth/register`
   /// Body: `{ "email": ..., "password": ... }`
-  Future<AuthResponse> register(String email, String password) async {
+  Future<AuthResponse> register(
+    String email,
+    String password, {
+    CancelToken? cancelToken,
+  }) async {
     try {
       final response = await _dio.post(
         '/api/v1/auth/register',
         data: {'email': email, 'password': password},
+        cancelToken: cancelToken,
       );
       return AuthResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
@@ -68,11 +78,15 @@ class AuthApi {
   ///
   /// Endpoint: `POST /api/v1/auth/refresh`
   /// Body: `{ "refreshToken": ... }`
-  Future<AuthResponse> refresh(String refreshToken) async {
+  Future<AuthResponse> refresh(
+    String refreshToken, {
+    CancelToken? cancelToken,
+  }) async {
     try {
       final response = await _dio.post(
         '/api/v1/auth/refresh',
         data: {'refreshToken': refreshToken},
+        cancelToken: cancelToken,
       );
       return AuthResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {

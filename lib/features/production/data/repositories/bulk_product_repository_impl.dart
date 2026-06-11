@@ -10,9 +10,12 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
   BulkProductRepositoryImpl(this._dio);
 
   @override
-  Future<List<BulkProduct>> getBulkProducts() async {
+  Future<List<BulkProduct>> getBulkProducts({CancelToken? cancelToken}) async {
     try {
-      final response = await _dio.get('/api/v1/bulk-products');
+      final response = await _dio.get(
+        '/api/v1/bulk-products',
+        cancelToken: cancelToken,
+      );
       final List<dynamic> data = response.data['content'] as List<dynamic>;
       return data
           .map(
@@ -27,9 +30,12 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
   }
 
   @override
-  Future<BulkProduct> getBulkProduct(int id) async {
+  Future<BulkProduct> getBulkProduct(int id, {CancelToken? cancelToken}) async {
     try {
-      final response = await _dio.get('/api/v1/bulk-products/$id');
+      final response = await _dio.get(
+        '/api/v1/bulk-products/$id',
+        cancelToken: cancelToken,
+      );
       return BulkProductModel.fromJson(
         response.data as Map<String, dynamic>,
       ).toEntity();
@@ -39,7 +45,10 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
   }
 
   @override
-  Future<BulkProduct> createBulkProduct(BulkProduct product) async {
+  Future<BulkProduct> createBulkProduct(
+    BulkProduct product, {
+    CancelToken? cancelToken,
+  }) async {
     try {
       final response = await _dio.post(
         '/api/v1/bulk-products',
@@ -50,6 +59,7 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
           'conversionRatio': product.conversionRatio,
           'active': product.active,
         },
+        cancelToken: cancelToken,
       );
       return BulkProductModel.fromJson(
         response.data as Map<String, dynamic>,
@@ -60,7 +70,10 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
   }
 
   @override
-  Future<BulkProduct> updateBulkProduct(BulkProduct product) async {
+  Future<BulkProduct> updateBulkProduct(
+    BulkProduct product, {
+    CancelToken? cancelToken,
+  }) async {
     try {
       final response = await _dio.put(
         '/api/v1/bulk-products/${product.id}',
@@ -71,6 +84,7 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
           'conversionRatio': product.conversionRatio,
           'active': product.active,
         },
+        cancelToken: cancelToken,
       );
       return BulkProductModel.fromJson(
         response.data as Map<String, dynamic>,
@@ -81,9 +95,9 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
   }
 
   @override
-  Future<void> deleteBulkProduct(int id) async {
+  Future<void> deleteBulkProduct(int id, {CancelToken? cancelToken}) async {
     try {
-      await _dio.delete('/api/v1/bulk-products/$id');
+      await _dio.delete('/api/v1/bulk-products/$id', cancelToken: cancelToken);
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
     }

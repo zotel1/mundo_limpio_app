@@ -9,6 +9,8 @@
 //
 // TDD: GREEN — implementación mínima para pasar los tests
 
+import 'package:dio/dio.dart';
+
 import 'package:mundo_limpio_app/core/drift/app_database.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/product_response.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/production_batch_response.dart';
@@ -29,34 +31,37 @@ abstract class SalesRepository {
   ///
   /// Retorna [List<ProductResponse>] con todos los productos.
   /// Lanza [ApiException] en caso de error de red.
-  Future<List<ProductResponse>> getProducts();
+  Future<List<ProductResponse>> getProducts({CancelToken? cancelToken});
 
   /// Obtiene los lotes de producción de un producto específico.
   ///
   /// [productId]: ID del producto a consultar.
   /// Retorna [List<ProductionBatchResponse>] con los lotes activos.
   /// Lanza [ApiException] en caso de error de red.
-  Future<List<ProductionBatchResponse>> getBatchesByProduct(int productId);
+  Future<List<ProductionBatchResponse>> getBatchesByProduct(
+    int productId, {
+    CancelToken? cancelToken,
+  });
 
   /// Obtiene la lista de ventas desde el backend.
   ///
   /// Retorna [List<Sale>] con todas las ventas.
   /// Lanza [ApiException] en caso de error de red.
-  Future<List<Sale>> getSales();
+  Future<List<Sale>> getSales({CancelToken? cancelToken});
 
   /// Obtiene una venta por su ID.
   ///
   /// [id]: ID de la venta a consultar.
   /// Retorna [Sale] con los datos de la venta.
   /// Lanza [ApiException] si no existe o hay error de red.
-  Future<Sale> getSaleById(int id);
+  Future<Sale> getSaleById(int id, {CancelToken? cancelToken});
 
   /// Crea una nueva venta en el backend.
   ///
   /// [request]: datos de la venta (productId, quantity).
   /// Retorna [Sale] con los datos de la venta creada.
   /// Lanza [ApiException] en caso de error (stock insuficiente, etc.).
-  Future<Sale> createSale(SaleRequest request);
+  Future<Sale> createSale(SaleRequest request, {CancelToken? cancelToken});
 
   /// Obtiene todos los borradores de ventas con status 'draft'.
   ///

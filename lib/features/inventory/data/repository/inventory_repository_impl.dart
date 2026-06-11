@@ -11,6 +11,8 @@
 
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
+
 import 'package:mundo_limpio_app/core/connectivity/connectivity_service.dart';
 import 'package:mundo_limpio_app/core/drift/app_database.dart';
 import 'package:mundo_limpio_app/core/drift/daos/inventory_cache_dao.dart';
@@ -48,9 +50,15 @@ class InventoryRepositoryImpl implements InventoryRepository {
        _inventoryPendingDao = inventoryPendingDao;
 
   @override
-  Future<StockItem> getInventory(int productId) async {
+  Future<StockItem> getInventory(
+    int productId, {
+    CancelToken? cancelToken,
+  }) async {
     if (_connectivity.isOnline) {
-      final response = await _inventoryApi.getInventory(productId);
+      final response = await _inventoryApi.getInventory(
+        productId,
+        cancelToken: cancelToken,
+      );
       await _inventoryCacheDao.upsertAll([
         InventoryCacheData(
           productId: response.productId,
@@ -84,9 +92,9 @@ class InventoryRepositoryImpl implements InventoryRepository {
   }
 
   @override
-  Future<List<StockItem>> getLowStock() async {
+  Future<List<StockItem>> getLowStock({CancelToken? cancelToken}) async {
     if (_connectivity.isOnline) {
-      final items = await _inventoryApi.getLowStock();
+      final items = await _inventoryApi.getLowStock(cancelToken: cancelToken);
       await _inventoryCacheDao.upsertAll(
         items
             .map(
@@ -117,14 +125,22 @@ class InventoryRepositoryImpl implements InventoryRepository {
   }
 
   @override
-  Future<StockItem> adjustStock(int productId, Adjustment adjustment) async {
+  Future<StockItem> adjustStock(
+    int productId,
+    Adjustment adjustment, {
+    CancelToken? cancelToken,
+  }) async {
     if (_connectivity.isOnline) {
       final request = dto.AdjustmentRequest(
         type: _mapDomainTypeToDto(adjustment.type),
         quantity: adjustment.quantity,
         reason: adjustment.reason,
       );
-      final response = await _inventoryApi.adjustStock(productId, request);
+      final response = await _inventoryApi.adjustStock(
+        productId,
+        request,
+        cancelToken: cancelToken,
+      );
       return response.toEntity();
     }
     // offline: encolar como pendiente

@@ -38,9 +38,12 @@ class BackupApi {
   ///
   /// Endpoint: `POST /api/v1/admin/backups`
   /// Retorna el [BackupResponse] del backup creado.
-  Future<BackupResponse> createBackup() async {
+  Future<BackupResponse> createBackup({CancelToken? cancelToken}) async {
     try {
-      final response = await _dio.post('/api/v1/admin/backups');
+      final response = await _dio.post(
+        '/api/v1/admin/backups',
+        cancelToken: cancelToken,
+      );
       return BackupResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
@@ -52,9 +55,12 @@ class BackupApi {
   /// Endpoint: `GET /api/v1/admin/backups`
   /// Retorna la lista de [BackupResponse] desde el campo `content`
   /// de la respuesta paginada del backend.
-  Future<List<BackupResponse>> getBackups() async {
+  Future<List<BackupResponse>> getBackups({CancelToken? cancelToken}) async {
     try {
-      final response = await _dio.get('/api/v1/admin/backups');
+      final response = await _dio.get(
+        '/api/v1/admin/backups',
+        cancelToken: cancelToken,
+      );
       final List<dynamic> data = response.data['content'] as List<dynamic>;
       return data
           .map((json) => BackupResponse.fromJson(json as Map<String, dynamic>))
@@ -70,11 +76,16 @@ class BackupApi {
   /// [id]: ID del backup a descargar.
   /// [savePath]: ruta local donde guardar el archivo.
   /// Retorna la [Response] de Dio con la información de la descarga.
-  Future<Response<dynamic>> downloadBackup(int id, String savePath) async {
+  Future<Response<dynamic>> downloadBackup(
+    int id,
+    String savePath, {
+    CancelToken? cancelToken,
+  }) async {
     try {
       return await _dio.download(
         '/api/v1/admin/backups/$id/download',
         savePath,
+        cancelToken: cancelToken,
       );
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);

@@ -28,9 +28,12 @@ class UsersApi {
   /// Obtiene la lista completa de usuarios.
   ///
   /// Endpoint: `GET /api/v1/users`
-  Future<List<UserModel>> getUsers() async {
+  Future<List<UserModel>> getUsers({CancelToken? cancelToken}) async {
     try {
-      final response = await _dio.get('/api/v1/users');
+      final response = await _dio.get(
+        '/api/v1/users',
+        cancelToken: cancelToken,
+      );
       final data = response.data['content'] as List<dynamic>;
       return data
           .map((e) => UserModel.fromJson(e as Map<String, dynamic>))
@@ -43,9 +46,12 @@ class UsersApi {
   /// Obtiene un usuario por su ID.
   ///
   /// Endpoint: `GET /api/v1/users/{id}`
-  Future<UserModel> getUser(int id) async {
+  Future<UserModel> getUser(int id, {CancelToken? cancelToken}) async {
     try {
-      final response = await _dio.get('/api/v1/users/$id');
+      final response = await _dio.get(
+        '/api/v1/users/$id',
+        cancelToken: cancelToken,
+      );
       return UserModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
@@ -56,11 +62,16 @@ class UsersApi {
   ///
   /// Endpoint: `PATCH /api/v1/users/{id}/roles`
   /// Body: `{ "roles": ["STOCK_MANAGER", "ADMIN"] }`
-  Future<UserModel> updateRoles(int userId, Set<UserRole> roles) async {
+  Future<UserModel> updateRoles(
+    int userId,
+    Set<UserRole> roles, {
+    CancelToken? cancelToken,
+  }) async {
     try {
       final response = await _dio.patch(
         '/api/v1/users/$userId/roles',
         data: {'roles': roles.map((r) => r.jsonValue).toList()},
+        cancelToken: cancelToken,
       );
       return UserModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
@@ -72,11 +83,16 @@ class UsersApi {
   ///
   /// Endpoint: `PATCH /api/v1/users/{id}/password`
   /// Body: `{ "newPassword": "nueva-contraseña" }`
-  Future<void> resetPassword(int userId, String newPassword) async {
+  Future<void> resetPassword(
+    int userId,
+    String newPassword, {
+    CancelToken? cancelToken,
+  }) async {
     try {
       await _dio.patch(
         '/api/v1/users/$userId/password',
         data: {'newPassword': newPassword},
+        cancelToken: cancelToken,
       );
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);

@@ -6,6 +6,8 @@
 //
 // TDD: GREEN — implementación mínima para pasar los tests
 
+import 'package:dio/dio.dart';
+
 import 'package:mundo_limpio_app/core/connectivity/connectivity_service.dart';
 import 'package:mundo_limpio_app/core/drift/app_database.dart';
 import 'package:mundo_limpio_app/core/drift/daos/product_cache_dao.dart';
@@ -60,10 +62,10 @@ class ProductsRepositoryImpl implements IProductsRepository {
   }
 
   @override
-  Future<List<Product>> getAll() async {
+  Future<List<Product>> getAll({CancelToken? cancelToken}) async {
     if (_connectivity.isOnline) {
       try {
-        final models = await _api.getProducts();
+        final models = await _api.getProducts(cancelToken: cancelToken);
         await _cacheDao.upsertAll(models.map(_toCacheData).toList());
         return models.map((m) => m.toEntity()).toList();
       } on ApiException {
@@ -78,10 +80,10 @@ class ProductsRepositoryImpl implements IProductsRepository {
   }
 
   @override
-  Future<List<Product>> getAllProducts() async {
+  Future<List<Product>> getAllProducts({CancelToken? cancelToken}) async {
     if (_connectivity.isOnline) {
       try {
-        final models = await _api.getAllProducts();
+        final models = await _api.getAllProducts(cancelToken: cancelToken);
         await _cacheDao.upsertAll(models.map(_toCacheData).toList());
         return models.map((m) => m.toEntity()).toList();
       } on ApiException {
@@ -96,10 +98,10 @@ class ProductsRepositoryImpl implements IProductsRepository {
   }
 
   @override
-  Future<Product> getById(int id) async {
+  Future<Product> getById(int id, {CancelToken? cancelToken}) async {
     if (_connectivity.isOnline) {
       try {
-        final model = await _api.getProductById(id);
+        final model = await _api.getProductById(id, cancelToken: cancelToken);
         await _cacheDao.upsert(_toCacheData(model));
         return model.toEntity();
       } on ApiException {
@@ -114,9 +116,9 @@ class ProductsRepositoryImpl implements IProductsRepository {
   }
 
   @override
-  Future<Product> getBySku(String sku) async {
+  Future<Product> getBySku(String sku, {CancelToken? cancelToken}) async {
     try {
-      final model = await _api.getProductBySku(sku);
+      final model = await _api.getProductBySku(sku, cancelToken: cancelToken);
       return model.toEntity();
     } on ApiException {
       rethrow;
@@ -126,7 +128,7 @@ class ProductsRepositoryImpl implements IProductsRepository {
   }
 
   @override
-  Future<Product> create(Product product) async {
+  Future<Product> create(Product product, {CancelToken? cancelToken}) async {
     try {
       final model = ProductModel(
         id: product.id,
@@ -135,7 +137,10 @@ class ProductsRepositoryImpl implements IProductsRepository {
         minPrice: product.minPrice,
         active: product.active,
       );
-      final created = await _api.createProduct(model.toJson());
+      final created = await _api.createProduct(
+        model.toJson(),
+        cancelToken: cancelToken,
+      );
       await _cacheDao.upsert(_toCacheData(created));
       return created.toEntity();
     } on ApiException {
@@ -146,7 +151,7 @@ class ProductsRepositoryImpl implements IProductsRepository {
   }
 
   @override
-  Future<Product> update(Product product) async {
+  Future<Product> update(Product product, {CancelToken? cancelToken}) async {
     try {
       final model = ProductModel(
         id: product.id,
@@ -155,7 +160,11 @@ class ProductsRepositoryImpl implements IProductsRepository {
         minPrice: product.minPrice,
         active: product.active,
       );
-      final updated = await _api.updateProduct(product.id, model.toJson());
+      final updated = await _api.updateProduct(
+        product.id,
+        model.toJson(),
+        cancelToken: cancelToken,
+      );
       await _cacheDao.upsert(_toCacheData(updated));
       return updated.toEntity();
     } on ApiException {
@@ -166,9 +175,9 @@ class ProductsRepositoryImpl implements IProductsRepository {
   }
 
   @override
-  Future<void> delete(int id) async {
+  Future<void> delete(int id, {CancelToken? cancelToken}) async {
     try {
-      await _api.deleteProduct(id);
+      await _api.deleteProduct(id, cancelToken: cancelToken);
       final cached = await _cacheDao.getById(id);
       if (cached != null) {
         await _cacheDao.upsert(cached.copyWith(active: false));
@@ -181,9 +190,9 @@ class ProductsRepositoryImpl implements IProductsRepository {
   }
 
   @override
-  Future<Product> reactivate(int id) async {
+  Future<Product> reactivate(int id, {CancelToken? cancelToken}) async {
     try {
-      final model = await _api.reactivateProduct(id);
+      final model = await _api.reactivateProduct(id, cancelToken: cancelToken);
       await _cacheDao.upsert(_toCacheData(model));
       return model.toEntity();
     } on ApiException {

@@ -11,6 +11,7 @@
 //
 // TDD: GREEN — implementación mínima para pasar los tests
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
@@ -36,6 +37,7 @@ enum SalesHistoryStatus { idle, loading, success, error }
 /// 3. Actualiza estado/error y notifica
 class SalesHistoryProvider extends ChangeNotifier {
   final SalesRepository _repository;
+  final CancelToken _cancelToken;
 
   SalesHistoryStatus _status = SalesHistoryStatus.idle;
   List<Sale> _sales = [];
@@ -55,7 +57,8 @@ class SalesHistoryProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   /// Crea un [SalesHistoryProvider] con el [repository] inyectado.
-  SalesHistoryProvider(this._repository);
+  SalesHistoryProvider(this._repository, {CancelToken? cancelToken})
+    : _cancelToken = cancelToken ?? CancelToken();
 
   /// Carga la lista de ventas desde el backend.
   ///
@@ -65,7 +68,7 @@ class SalesHistoryProvider extends ChangeNotifier {
     _setLoading();
     _errorMessage = null;
     try {
-      _sales = await _repository.getSales();
+      _sales = await _repository.getSales(cancelToken: _cancelToken);
       _status = SalesHistoryStatus.success;
     } on ApiException catch (e) {
       _status = SalesHistoryStatus.error;
@@ -84,7 +87,10 @@ class SalesHistoryProvider extends ChangeNotifier {
   Future<void> loadSaleById(int id) async {
     _setLoading();
     try {
-      _selectedSale = await _repository.getSaleById(id);
+      _selectedSale = await _repository.getSaleById(
+        id,
+        cancelToken: _cancelToken,
+      );
       _status = SalesHistoryStatus.success;
     } on ApiException catch (e) {
       _status = SalesHistoryStatus.error;
@@ -97,8 +103,8 @@ class SalesHistoryProvider extends ChangeNotifier {
   }
 
   @override
-  // ignore: unnecessary_overrides
   void dispose() {
+    _cancelToken.cancel('dispose');
     super.dispose();
   }
 

@@ -10,9 +10,14 @@ class ProductionRepositoryImpl implements IProductionRepository {
   ProductionRepositoryImpl(this._dio);
 
   @override
-  Future<List<ProductionBatch>> getProductionBatches() async {
+  Future<List<ProductionBatch>> getProductionBatches({
+    CancelToken? cancelToken,
+  }) async {
     try {
-      final response = await _dio.get('/api/v1/production-batches');
+      final response = await _dio.get(
+        '/api/v1/production-batches',
+        cancelToken: cancelToken,
+      );
       final List<dynamic> data = response.data['content'] as List<dynamic>;
       return data
           .map(
@@ -27,9 +32,15 @@ class ProductionRepositoryImpl implements IProductionRepository {
   }
 
   @override
-  Future<ProductionBatch> getProductionBatch(int id) async {
+  Future<ProductionBatch> getProductionBatch(
+    int id, {
+    CancelToken? cancelToken,
+  }) async {
     try {
-      final response = await _dio.get('/api/v1/production-batches/$id');
+      final response = await _dio.get(
+        '/api/v1/production-batches/$id',
+        cancelToken: cancelToken,
+      );
       return ProductionBatchModel.fromJson(
         response.data as Map<String, dynamic>,
       ).toEntity();
@@ -40,8 +51,9 @@ class ProductionRepositoryImpl implements IProductionRepository {
 
   @override
   Future<ProductionBatch> createProductionBatch(
-    ProductionBatchRequest request,
-  ) async {
+    ProductionBatchRequest request, {
+    CancelToken? cancelToken,
+  }) async {
     try {
       final response = await _dio.post(
         '/api/v1/production-batches',
@@ -50,6 +62,7 @@ class ProductionRepositoryImpl implements IProductionRepository {
           'bulkProductId': request.bulkProductId,
           'rawQuantityUsed': request.quantityUsed,
         },
+        cancelToken: cancelToken,
       );
       return ProductionBatchModel.fromJson(
         response.data as Map<String, dynamic>,

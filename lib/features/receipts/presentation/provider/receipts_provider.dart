@@ -27,6 +27,7 @@
 //
 // TDD: GREEN — implementación mínima para pasar los tests
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
@@ -68,6 +69,7 @@ enum ReceiptsStatus {
 /// 3. Actualiza estado/error y notifica
 class ReceiptsProvider extends ChangeNotifier {
   final ReceiptsRepository _repository;
+  final CancelToken _cancelToken;
 
   ReceiptsStatus _status = ReceiptsStatus.idle;
   Receipt? _processResponse;
@@ -91,7 +93,8 @@ class ReceiptsProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   /// Crea un [ReceiptsProvider] con el [repository] inyectado.
-  ReceiptsProvider(this._repository);
+  ReceiptsProvider(this._repository, {CancelToken? cancelToken})
+    : _cancelToken = cancelToken ?? CancelToken();
 
   /// Selecciona una imagen de la galería o cámara.
   ///
@@ -124,7 +127,10 @@ class ReceiptsProvider extends ChangeNotifier {
     if (_selectedImagePath == null) return;
     _setStatus(ReceiptsStatus.processing);
     try {
-      _processResponse = await _repository.processReceipt(_selectedImagePath!);
+      _processResponse = await _repository.processReceipt(
+        _selectedImagePath!,
+        cancelToken: _cancelToken,
+      );
       _status = ReceiptsStatus.processSuccess;
     } on ApiException catch (e) {
       _status = ReceiptsStatus.error;
@@ -145,7 +151,10 @@ class ReceiptsProvider extends ChangeNotifier {
     if (_status != ReceiptsStatus.processSuccess) return;
     _setStatus(ReceiptsStatus.confirming);
     try {
-      _purchaseResponse = await _repository.confirmReceipt(request);
+      _purchaseResponse = await _repository.confirmReceipt(
+        request,
+        cancelToken: _cancelToken,
+      );
       _status = ReceiptsStatus.confirmed;
     } on ApiException catch (e) {
       _status = ReceiptsStatus.error;
@@ -158,8 +167,8 @@ class ReceiptsProvider extends ChangeNotifier {
   }
 
   @override
-  // ignore: unnecessary_overrides
   void dispose() {
+    _cancelToken.cancel('dispose');
     super.dispose();
   }
 

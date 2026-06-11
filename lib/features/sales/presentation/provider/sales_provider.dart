@@ -14,6 +14,7 @@
 //
 // TDD: GREEN — implementación mínima para pasar los tests
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:mundo_limpio_app/core/drift/app_database.dart';
@@ -46,6 +47,7 @@ enum SalesStatus { idle, loading, productsLoaded, stockLoaded, success, error }
 /// 3. Actualiza estado/error y notifica
 class SalesProvider extends ChangeNotifier {
   final SalesRepository _repository;
+  final CancelToken _cancelToken;
 
   SalesStatus _status = SalesStatus.idle;
   List<ProductResponse> _products = [];
@@ -83,7 +85,8 @@ class SalesProvider extends ChangeNotifier {
   List<DraftSale> get drafts => _drafts;
 
   /// Crea un [SalesProvider] con el [repository] inyectado.
-  SalesProvider(this._repository);
+  SalesProvider(this._repository, {CancelToken? cancelToken})
+    : _cancelToken = cancelToken ?? CancelToken();
 
   /// Carga la lista de productos desde el repositorio.
   ///
@@ -93,7 +96,7 @@ class SalesProvider extends ChangeNotifier {
     _setLoading();
     _errorMessage = null;
     try {
-      _products = await _repository.getProducts();
+      _products = await _repository.getProducts(cancelToken: _cancelToken);
       _status = SalesStatus.productsLoaded;
     } on ApiException catch (e) {
       _status = SalesStatus.error;
@@ -114,7 +117,10 @@ class SalesProvider extends ChangeNotifier {
     _setLoading();
     _selectedProductId = productId;
     try {
-      _batches = await _repository.getBatchesByProduct(productId);
+      _batches = await _repository.getBatchesByProduct(
+        productId,
+        cancelToken: _cancelToken,
+      );
       _status = SalesStatus.stockLoaded;
     } on ApiException catch (e) {
       _status = SalesStatus.error;
@@ -141,7 +147,10 @@ class SalesProvider extends ChangeNotifier {
         productId: _selectedProductId!,
         quantity: quantity,
       );
-      _lastSale = await _repository.createSale(request);
+      _lastSale = await _repository.createSale(
+        request,
+        cancelToken: _cancelToken,
+      );
       _status = SalesStatus.success;
     } on ApiException catch (e) {
       _status = SalesStatus.error;
@@ -154,8 +163,8 @@ class SalesProvider extends ChangeNotifier {
   }
 
   @override
-  // ignore: unnecessary_overrides
   void dispose() {
+    _cancelToken.cancel('dispose');
     super.dispose();
   }
 

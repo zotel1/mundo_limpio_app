@@ -10,6 +10,8 @@
 //
 // TDD: GREEN — implementación mínima para pasar los tests
 
+import 'package:dio/dio.dart';
+
 import 'package:mundo_limpio_app/core/connectivity/connectivity_service.dart';
 import 'package:mundo_limpio_app/core/drift/app_database.dart';
 import 'package:mundo_limpio_app/core/drift/daos/batch_cache_dao.dart';
@@ -51,21 +53,21 @@ class SalesRepositoryImpl implements SalesRepository {
        _draftSaleDao = draftSaleDao;
 
   @override
-  Future<List<Sale>> getSales() async {
-    final response = await _salesApi.getSales();
+  Future<List<Sale>> getSales({CancelToken? cancelToken}) async {
+    final response = await _salesApi.getSales(cancelToken: cancelToken);
     return response.map((e) => e.toEntity()).toList();
   }
 
   @override
-  Future<Sale> getSaleById(int id) async {
-    final response = await _salesApi.getSaleById(id);
+  Future<Sale> getSaleById(int id, {CancelToken? cancelToken}) async {
+    final response = await _salesApi.getSaleById(id, cancelToken: cancelToken);
     return response.toEntity();
   }
 
   @override
-  Future<List<ProductResponse>> getProducts() async {
+  Future<List<ProductResponse>> getProducts({CancelToken? cancelToken}) async {
     if (_connectivity.isOnline) {
-      final products = await _salesApi.getProducts();
+      final products = await _salesApi.getProducts(cancelToken: cancelToken);
       await _productCacheDao.upsertAll(
         products
             .map(
@@ -87,10 +89,14 @@ class SalesRepositoryImpl implements SalesRepository {
 
   @override
   Future<List<ProductionBatchResponse>> getBatchesByProduct(
-    int productId,
-  ) async {
+    int productId, {
+    CancelToken? cancelToken,
+  }) async {
     if (_connectivity.isOnline) {
-      final batches = await _salesApi.getBatchesByProduct(productId);
+      final batches = await _salesApi.getBatchesByProduct(
+        productId,
+        cancelToken: cancelToken,
+      );
       // limpia caché viejo antes de guardar el nuevo
       await _batchCacheDao.deleteByProductId(productId);
       await _batchCacheDao.upsertAll(
@@ -124,9 +130,15 @@ class SalesRepositoryImpl implements SalesRepository {
   }
 
   @override
-  Future<Sale> createSale(SaleRequest request) async {
+  Future<Sale> createSale(
+    SaleRequest request, {
+    CancelToken? cancelToken,
+  }) async {
     if (_connectivity.isOnline) {
-      final response = await _salesApi.createSale(request);
+      final response = await _salesApi.createSale(
+        request,
+        cancelToken: cancelToken,
+      );
       return response.toEntity();
     }
     // offline: guardar como borrador

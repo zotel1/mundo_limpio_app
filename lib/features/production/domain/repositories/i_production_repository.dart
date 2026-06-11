@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 import 'package:mundo_limpio_app/features/production/domain/entities/production_batch.dart';
 
 class ProductionBatchRequest {
@@ -13,7 +15,15 @@ class ProductionBatchRequest {
 }
 
 abstract class IProductionRepository {
-  Future<List<ProductionBatch>> getProductionBatches();
-  Future<ProductionBatch> getProductionBatch(int id);
-  Future<ProductionBatch> createProductionBatch(ProductionBatchRequest request);
+  Future<List<ProductionBatch>> getProductionBatches({
+    CancelToken? cancelToken,
+  });
+  Future<ProductionBatch> getProductionBatch(
+    int id, {
+    CancelToken? cancelToken,
+  });
+  Future<ProductionBatch> createProductionBatch(
+    ProductionBatchRequest request, {
+    CancelToken? cancelToken,
+  });
 }

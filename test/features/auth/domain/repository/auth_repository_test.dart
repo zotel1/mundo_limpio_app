@@ -5,6 +5,7 @@
 //
 // TDD: RED — test escrito antes que la implementación
 
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mundo_limpio_app/features/auth/domain/entities/auth_session.dart';
 import 'package:mundo_limpio_app/features/auth/domain/repository/auth_repository.dart';
@@ -13,12 +14,20 @@ import 'package:mundo_limpio_app/features/auth/domain/repository/auth_repository
 // el contrato abstracto de AuthRepository es correcto.
 class TestAuthRepository implements AuthRepository {
   @override
-  Future<AuthSession> login(String email, String password) async {
+  Future<AuthSession> login(
+    String email,
+    String password, {
+    CancelToken? cancelToken,
+  }) async {
     return const AuthSession(userId: 1, username: 'test', roles: ['user']);
   }
 
   @override
-  Future<AuthSession> register(String email, String password) async {
+  Future<AuthSession> register(
+    String email,
+    String password, {
+    CancelToken? cancelToken,
+  }) async {
     return const AuthSession(userId: 2, username: 'test', roles: ['user']);
   }
 
@@ -28,7 +37,10 @@ class TestAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<AuthSession> refreshToken(String refreshToken) async {
+  Future<AuthSession> refreshToken(
+    String refreshToken, {
+    CancelToken? cancelToken,
+  }) async {
     return const AuthSession(userId: 1, username: 'test', roles: ['user']);
   }
 

@@ -11,6 +11,7 @@
 // - loaded: operación exitosa con datos
 // - error: operación fallida con mensaje de error
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
@@ -37,6 +38,7 @@ enum ProductStatus { initial, loading, loaded, error }
 /// 3. Setea status/error y notifica
 class ProductsProvider extends ChangeNotifier {
   final IProductsRepository _repository;
+  final CancelToken _cancelToken;
 
   ProductStatus _status = ProductStatus.initial;
   String? _error;
@@ -61,7 +63,8 @@ class ProductsProvider extends ChangeNotifier {
   Product? get currentProduct => _currentProduct;
 
   /// Crea un [ProductsProvider] con el [repository] inyectado.
-  ProductsProvider(this._repository);
+  ProductsProvider(this._repository, {CancelToken? cancelToken})
+    : _cancelToken = cancelToken ?? CancelToken();
 
   /// Obtiene todos los productos activos.
   ///
@@ -70,7 +73,7 @@ class ProductsProvider extends ChangeNotifier {
   Future<void> loadProducts() async {
     _setLoading();
     try {
-      _products = await _repository.getAll();
+      _products = await _repository.getAll(cancelToken: _cancelToken);
       _status = ProductStatus.loaded;
       _error = null;
     } on ApiException catch (e) {
@@ -87,7 +90,7 @@ class ProductsProvider extends ChangeNotifier {
   Future<void> loadAllProducts() async {
     _setLoading();
     try {
-      _products = await _repository.getAllProducts();
+      _products = await _repository.getAllProducts(cancelToken: _cancelToken);
       _status = ProductStatus.loaded;
       _error = null;
     } on ApiException catch (e) {
@@ -104,7 +107,10 @@ class ProductsProvider extends ChangeNotifier {
   Future<void> loadProduct(int id) async {
     _setLoading();
     try {
-      _currentProduct = await _repository.getById(id);
+      _currentProduct = await _repository.getById(
+        id,
+        cancelToken: _cancelToken,
+      );
       _status = ProductStatus.loaded;
       _error = null;
     } on ApiException catch (e) {
@@ -121,7 +127,7 @@ class ProductsProvider extends ChangeNotifier {
   Future<void> createProduct(Product product) async {
     _setLoading();
     try {
-      await _repository.create(product);
+      await _repository.create(product, cancelToken: _cancelToken);
       _status = ProductStatus.loaded;
       _error = null;
     } on ApiException catch (e) {
@@ -138,7 +144,7 @@ class ProductsProvider extends ChangeNotifier {
   Future<void> updateProduct(Product product) async {
     _setLoading();
     try {
-      await _repository.update(product);
+      await _repository.update(product, cancelToken: _cancelToken);
       _status = ProductStatus.loaded;
       _error = null;
     } on ApiException catch (e) {
@@ -159,7 +165,7 @@ class ProductsProvider extends ChangeNotifier {
     notifyListeners();
     _setLoading();
     try {
-      await _repository.delete(id);
+      await _repository.delete(id, cancelToken: _cancelToken);
       _status = ProductStatus.loaded;
       _error = null;
     } on ApiException catch (e) {
@@ -176,7 +182,10 @@ class ProductsProvider extends ChangeNotifier {
   Future<void> reactivateProduct(int id) async {
     _setLoading();
     try {
-      _currentProduct = await _repository.reactivate(id);
+      _currentProduct = await _repository.reactivate(
+        id,
+        cancelToken: _cancelToken,
+      );
       _status = ProductStatus.loaded;
       _error = null;
     } on ApiException catch (e) {
@@ -190,8 +199,8 @@ class ProductsProvider extends ChangeNotifier {
   }
 
   @override
-  // ignore: unnecessary_overrides
   void dispose() {
+    _cancelToken.cancel('dispose');
     super.dispose();
   }
 

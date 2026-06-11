@@ -30,8 +30,8 @@ class BackupRepositoryImpl implements BackupRepository {
   ///
   /// Retorna [domain.Backup] con los datos del backup creado.
   @override
-  Future<domain.Backup> createBackup() async {
-    final response = await _api.createBackup();
+  Future<domain.Backup> createBackup({CancelToken? cancelToken}) async {
+    final response = await _api.createBackup(cancelToken: cancelToken);
     return response.toEntity();
   }
 
@@ -39,8 +39,8 @@ class BackupRepositoryImpl implements BackupRepository {
   ///
   /// Retorna [List<domain.Backup>] con todos los backups disponibles.
   @override
-  Future<List<domain.Backup>> getBackups() async {
-    final responses = await _api.getBackups();
+  Future<List<domain.Backup>> getBackups({CancelToken? cancelToken}) async {
+    final responses = await _api.getBackups(cancelToken: cancelToken);
     return responses.map((r) => r.toEntity()).toList();
   }
 
@@ -50,6 +50,9 @@ class BackupRepositoryImpl implements BackupRepository {
   /// [savePath]: ruta local donde guardar el archivo.
   /// Retorna la [Response] de Dio con la información de la descarga.
   @override
-  Future<void> downloadBackup(int id, String savePath) =>
-      _api.downloadBackup(id, savePath);
+  Future<void> downloadBackup(
+    int id,
+    String savePath, {
+    CancelToken? cancelToken,
+  }) => _api.downloadBackup(id, savePath, cancelToken: cancelToken);
 }

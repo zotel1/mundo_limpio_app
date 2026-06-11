@@ -41,9 +41,16 @@ class SalesApi {
   ///
   /// Endpoint: `POST /api/v1/sales`
   /// Body: serialización JSON de [request]
-  Future<SaleResponse> createSale(SaleRequest request) async {
+  Future<SaleResponse> createSale(
+    SaleRequest request, {
+    CancelToken? cancelToken,
+  }) async {
     try {
-      final response = await _dio.post('/api/v1/sales', data: request.toJson());
+      final response = await _dio.post(
+        '/api/v1/sales',
+        data: request.toJson(),
+        cancelToken: cancelToken,
+      );
       return SaleResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
@@ -53,9 +60,12 @@ class SalesApi {
   /// Obtiene la lista de ventas.
   ///
   /// Endpoint: `GET /api/v1/sales`
-  Future<List<SaleResponse>> getSales() async {
+  Future<List<SaleResponse>> getSales({CancelToken? cancelToken}) async {
     try {
-      final response = await _dio.get('/api/v1/sales');
+      final response = await _dio.get(
+        '/api/v1/sales',
+        cancelToken: cancelToken,
+      );
       final List<dynamic> data = response.data['content'] as List<dynamic>;
       return data
           .map((json) => SaleResponse.fromJson(json as Map<String, dynamic>))
@@ -68,9 +78,12 @@ class SalesApi {
   /// Obtiene una venta por su ID.
   ///
   /// Endpoint: `GET /api/v1/sales/{id}`
-  Future<SaleResponse> getSaleById(int id) async {
+  Future<SaleResponse> getSaleById(int id, {CancelToken? cancelToken}) async {
     try {
-      final response = await _dio.get('/api/v1/sales/$id');
+      final response = await _dio.get(
+        '/api/v1/sales/$id',
+        cancelToken: cancelToken,
+      );
       return SaleResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
@@ -80,9 +93,12 @@ class SalesApi {
   /// Obtiene la lista de productos disponibles.
   ///
   /// Endpoint: `GET /api/v1/products`
-  Future<List<ProductResponse>> getProducts() async {
+  Future<List<ProductResponse>> getProducts({CancelToken? cancelToken}) async {
     try {
-      final response = await _dio.get('/api/v1/products');
+      final response = await _dio.get(
+        '/api/v1/products',
+        cancelToken: cancelToken,
+      );
       final data = response.data['content'] as List<dynamic>;
       return data
           .map((e) => ProductResponse.fromJson(e as Map<String, dynamic>))
@@ -96,11 +112,13 @@ class SalesApi {
   ///
   /// Endpoint: `GET /api/v1/production-batches/product/{productId}`
   Future<List<ProductionBatchResponse>> getBatchesByProduct(
-    int productId,
-  ) async {
+    int productId, {
+    CancelToken? cancelToken,
+  }) async {
     try {
       final response = await _dio.get(
         '/api/v1/production-batches/product/$productId',
+        cancelToken: cancelToken,
       );
       final data = response.data['content'] as List<dynamic>;
       return data

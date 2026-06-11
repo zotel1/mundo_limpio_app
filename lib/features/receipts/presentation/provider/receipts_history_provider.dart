@@ -11,6 +11,7 @@
 //
 // TDD: GREEN — implementación mínima para pasar los tests
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
@@ -36,6 +37,7 @@ enum ReceiptsHistoryStatus { idle, loading, success, error }
 /// 3. Actualiza estado/error y notifica
 class ReceiptsHistoryProvider extends ChangeNotifier {
   final ReceiptsRepository _repository;
+  final CancelToken _cancelToken;
 
   ReceiptsHistoryStatus _status = ReceiptsHistoryStatus.idle;
   List<Purchase> _receipts = [];
@@ -55,7 +57,8 @@ class ReceiptsHistoryProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   /// Crea un [ReceiptsHistoryProvider] con el [repository] inyectado.
-  ReceiptsHistoryProvider(this._repository);
+  ReceiptsHistoryProvider(this._repository, {CancelToken? cancelToken})
+    : _cancelToken = cancelToken ?? CancelToken();
 
   /// Carga la lista de compras desde el backend.
   ///
@@ -65,7 +68,7 @@ class ReceiptsHistoryProvider extends ChangeNotifier {
     _setLoading();
     _errorMessage = null;
     try {
-      _receipts = await _repository.getReceipts();
+      _receipts = await _repository.getReceipts(cancelToken: _cancelToken);
       _status = ReceiptsHistoryStatus.success;
     } on ApiException catch (e) {
       _status = ReceiptsHistoryStatus.error;
@@ -84,7 +87,10 @@ class ReceiptsHistoryProvider extends ChangeNotifier {
   Future<void> loadReceiptById(int id) async {
     _setLoading();
     try {
-      _selectedReceipt = await _repository.getReceiptById(id);
+      _selectedReceipt = await _repository.getReceiptById(
+        id,
+        cancelToken: _cancelToken,
+      );
       _status = ReceiptsHistoryStatus.success;
     } on ApiException catch (e) {
       _status = ReceiptsHistoryStatus.error;
@@ -97,8 +103,8 @@ class ReceiptsHistoryProvider extends ChangeNotifier {
   }
 
   @override
-  // ignore: unnecessary_overrides
   void dispose() {
+    _cancelToken.cancel('dispose');
     super.dispose();
   }
 

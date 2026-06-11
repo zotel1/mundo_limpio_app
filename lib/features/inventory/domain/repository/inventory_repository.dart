@@ -9,6 +9,8 @@
 //
 // TDD: GREEN — implementación mínima para pasar los tests
 
+import 'package:dio/dio.dart';
+
 import '../entities/stock_item.dart';
 import '../entities/adjustment.dart';
 
@@ -24,13 +26,13 @@ abstract class InventoryRepository {
   /// [productId]: ID del producto a consultar.
   /// Retorna [StockItem] con los datos de stock.
   /// Lanza [ApiException] en caso de error de red.
-  Future<StockItem> getInventory(int productId);
+  Future<StockItem> getInventory(int productId, {CancelToken? cancelToken});
 
   /// Obtiene la lista de productos con stock por debajo del umbral.
   ///
   /// Retorna [List<StockItem>] con los productos críticos.
   /// Lanza [ApiException] en caso de error de red.
-  Future<List<StockItem>> getLowStock();
+  Future<List<StockItem>> getLowStock({CancelToken? cancelToken});
 
   /// Ajusta el stock de un producto en el backend.
   ///
@@ -38,5 +40,9 @@ abstract class InventoryRepository {
   /// [adjustment]: datos del ajuste (tipo, cantidad, motivo).
   /// Retorna [StockItem] con los datos actualizados.
   /// Lanza [ApiException] en caso de error (400/409).
-  Future<StockItem> adjustStock(int productId, Adjustment adjustment);
+  Future<StockItem> adjustStock(
+    int productId,
+    Adjustment adjustment, {
+    CancelToken? cancelToken,
+  });
 }

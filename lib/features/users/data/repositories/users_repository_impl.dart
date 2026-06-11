@@ -16,9 +16,9 @@ class UsersRepositoryImpl implements IUsersRepository {
   UsersRepositoryImpl({required UsersApi api}) : _api = api;
 
   @override
-  Future<List<User>> getUsers() async {
+  Future<List<User>> getUsers({CancelToken? cancelToken}) async {
     try {
-      final models = await _api.getUsers();
+      final models = await _api.getUsers(cancelToken: cancelToken);
       return models.map((m) => m.toEntity()).toList();
     } on ApiException {
       rethrow;
@@ -28,9 +28,9 @@ class UsersRepositoryImpl implements IUsersRepository {
   }
 
   @override
-  Future<User> getUser(int id) async {
+  Future<User> getUser(int id, {CancelToken? cancelToken}) async {
     try {
-      final model = await _api.getUser(id);
+      final model = await _api.getUser(id, cancelToken: cancelToken);
       return model.toEntity();
     } on ApiException {
       rethrow;
@@ -40,9 +40,17 @@ class UsersRepositoryImpl implements IUsersRepository {
   }
 
   @override
-  Future<User> updateRoles(int userId, Set<UserRole> roles) async {
+  Future<User> updateRoles(
+    int userId,
+    Set<UserRole> roles, {
+    CancelToken? cancelToken,
+  }) async {
     try {
-      final model = await _api.updateRoles(userId, roles);
+      final model = await _api.updateRoles(
+        userId,
+        roles,
+        cancelToken: cancelToken,
+      );
       return model.toEntity();
     } on ApiException {
       rethrow;
@@ -52,9 +60,13 @@ class UsersRepositoryImpl implements IUsersRepository {
   }
 
   @override
-  Future<void> resetPassword(int userId, String newPassword) async {
+  Future<void> resetPassword(
+    int userId,
+    String newPassword, {
+    CancelToken? cancelToken,
+  }) async {
     try {
-      await _api.resetPassword(userId, newPassword);
+      await _api.resetPassword(userId, newPassword, cancelToken: cancelToken);
     } on ApiException {
       rethrow;
     } on DioException catch (e) {
