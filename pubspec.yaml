@@ -61,7 +61,7 @@ dependencies:
 
   # SQLite local con tipado fuerte — offline-first.
   # Drift genera el código de la DB y DAOs a partir de anotaciones Dart.
-  drift: ^2.23.1
+  drift: ^2.34.0
 
   # Binarios nativos de SQLite para Android/iOS empaquetados con la app.
   sqlite3_flutter_libs: ^0.5.30
@@ -108,7 +108,7 @@ dev_dependencies:
   mocktail: ^1.0.0
 
   # Generador de código para Drift (base de datos y DAOs tipados).
-  drift_dev: ^2.23.1
+  drift_dev: ^2.34.0
   flutter_launcher_icons: ^0.14.4
   flutter_native_splash: ^2.4.7
   yaml: ^3.1.3
