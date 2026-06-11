@@ -13,7 +13,12 @@ import 'package:dio/dio.dart';
 ///
 /// Almacena un [message] legible para el usuario y un [code]
 /// que puede ser el código HTTP original o 0 para errores de red.
-class ApiException implements Exception {
+///
+/// Sellada con Dart 3 para que el compilador fuerce exhaustividad
+/// en los switch expressions sobre sus subtipos.
+///
+/// TDD: GREEN — refactor a sealed class + switch expression
+sealed class ApiException implements Exception {
   /// Crea una excepción con [message] descriptivo y [code] numérico.
   const ApiException(this.message, this.code);
 
@@ -63,7 +68,7 @@ class ApiException implements Exception {
         'Sin conexión a internet. Verificá tu conexión y volvé a intentar.',
       );
     }
-    return ApiException('Error inesperado ($statusCode).', statusCode);
+    return UnknownApiException('Error inesperado ($statusCode).', statusCode);
   }
 
   /// Factory que construye el subtipo correcto desde un [DioException].
@@ -96,7 +101,7 @@ class ApiException implements Exception {
 ///
 /// Indica que el token falta, expiró o es inválido.
 /// El AuthInterceptor captura esta excepción para gatillar el refresh.
-class AuthException extends ApiException {
+final class AuthException extends ApiException {
   /// El código SIEMPRE es 401 (no autorizado).
   const AuthException(String message) : super(message, 401);
 }
@@ -104,7 +109,7 @@ class AuthException extends ApiException {
 /// Error de conectividad de red (sin internet, timeout, DNS).
 ///
 /// Código 0 porque no hay un código HTTP asociado.
-class NetworkException extends ApiException {
+final class NetworkException extends ApiException {
   /// El código SIEMPRE es 0 (sin clasificación HTTP).
   const NetworkException(String message) : super(message, 0);
 }
@@ -113,7 +118,7 @@ class NetworkException extends ApiException {
 ///
 /// Indica que el backend falló. La UI debe mostrar un mensaje
 /// genérico sin exponer detalles internos.
-class ServerException extends ApiException {
+final class ServerException extends ApiException {
   /// El código SIEMPRE es 500 (error interno del servidor).
   const ServerException(String message) : super(message, 500);
 }
@@ -122,7 +127,7 @@ class ServerException extends ApiException {
 ///
 /// Indica que el backend rechazó la solicitud por datos inválidos.
 /// El mensaje suele venir del backend con detalles específicos.
-class ValidationException extends ApiException {
+final class ValidationException extends ApiException {
   /// El código SIEMPRE es 400 (bad request).
   const ValidationException(String message) : super(message, 400);
 }
@@ -130,7 +135,7 @@ class ValidationException extends ApiException {
 /// Error de conflicto (HTTP 409 Conflict).
 ///
 /// Indica que el recurso ya existe (ej: email duplicado en registro).
-class ConflictException extends ApiException {
+final class ConflictException extends ApiException {
   /// El código SIEMPRE es 409 (conflict).
   const ConflictException(String message) : super(message, 409);
 }
@@ -138,7 +143,18 @@ class ConflictException extends ApiException {
 /// Error de límite de tasa (HTTP 429 Too Many Requests).
 ///
 /// Indica que el cliente excedió la cuota de requests.
-class RateLimitException extends ApiException {
+final class RateLimitException extends ApiException {
   /// El código SIEMPRE es 429 (too many requests).
   const RateLimitException(String message) : super(message, 429);
+}
+
+/// Error desconocido o no clasificado en las categorías HTTP estándar.
+///
+/// Se usa como fallback cuando el código de estado no coincide
+/// con ninguna de las categorías conocidas (ej: 418, 302, etc.).
+/// Reemplaza la instanciación directa de ApiException que ya no
+/// es posible al ser sealed.
+final class UnknownApiException extends ApiException {
+  /// Crea un [UnknownApiException] con [message] y [code] arbitrarios.
+  const UnknownApiException(super.message, super.code);
 }

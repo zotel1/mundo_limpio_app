@@ -67,7 +67,7 @@ void main() {
       // Arrange
       when(
         () => mockRepo.getBackups(),
-      ).thenThrow(const ApiException('Error del servidor', 500));
+      ).thenThrow(const UnknownApiException('Error del servidor', 500));
 
       // Act
       await provider.loadBackups();
@@ -118,7 +118,7 @@ void main() {
       // Arrange
       when(
         () => mockRepo.createBackup(),
-      ).thenThrow(const ApiException('Error al crear backup', 500));
+      ).thenThrow(const UnknownApiException('Error al crear backup', 500));
 
       // Act
       await provider.createBackup();
@@ -154,7 +154,7 @@ void main() {
       // Arrange
       when(
         () => mockRepo.downloadBackup(any(), any()),
-      ).thenThrow(const ApiException('Error de descarga', 500));
+      ).thenThrow(const UnknownApiException('Error de descarga', 500));
 
       // Act & Assert
       await expectLater(
@@ -174,7 +174,7 @@ void main() {
       // Arrange — primero generar un error
       when(
         () => mockRepo.getBackups(),
-      ).thenThrow(const ApiException('Error', 500));
+      ).thenThrow(const UnknownApiException('Error', 500));
       await provider.loadBackups();
       expect(provider.status, equals(BackupProviderStatus.error));
       expect(provider.errorMessage, isNotNull);

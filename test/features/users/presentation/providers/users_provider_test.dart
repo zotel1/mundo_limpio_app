@@ -117,7 +117,7 @@ void main() {
     test('debe setear error cuando falla con ApiException', () async {
       when(
         () => mockRepo.getUsers(),
-      ).thenThrow(const ApiException('Error de red', 500));
+      ).thenThrow(const UnknownApiException('Error de red', 500));
 
       await provider.loadUsers();
 
@@ -157,7 +157,7 @@ void main() {
     test('debe setear error si getUser falla', () async {
       when(
         () => mockRepo.getUser(any()),
-      ).thenThrow(const ApiException('No encontrado', 404));
+      ).thenThrow(const UnknownApiException('No encontrado', 404));
 
       await provider.loadUser(99);
 
@@ -182,7 +182,7 @@ void main() {
     test('debe setear error si updateRoles falla', () async {
       when(
         () => mockRepo.updateRoles(any(), any()),
-      ).thenThrow(const ApiException('Error al actualizar', 500));
+      ).thenThrow(const UnknownApiException('Error al actualizar', 500));
 
       await provider.updateRoles(1, {UserRole.admin});
 
@@ -226,7 +226,7 @@ void main() {
     test('debe setear error si resetPassword falla', () async {
       when(
         () => mockRepo.resetPassword(any(), any()),
-      ).thenThrow(const ApiException('Error al resetear', 500));
+      ).thenThrow(const UnknownApiException('Error al resetear', 500));
 
       await provider.resetPassword(1, 'newPass123');
 

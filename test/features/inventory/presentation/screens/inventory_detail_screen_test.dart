@@ -133,7 +133,7 @@ void main() {
     testWidgets('debe mostrar error con botón reintentar', (tester) async {
       when(
         () => mockRepo.getInventory(testProductId),
-      ).thenThrow(const ApiException('Error de conexión', 500));
+      ).thenThrow(const UnknownApiException('Error de conexión', 500));
 
       await tester.pumpWidget(
         createTestApp(provider, productId: testProductId),

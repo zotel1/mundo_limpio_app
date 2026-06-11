@@ -81,7 +81,7 @@ void main() {
       () async {
         when(
           () => mockRepo.getReceipts(),
-        ).thenThrow(const ApiException('Error al cargar recibos', 500));
+        ).thenThrow(const UnknownApiException('Error al cargar recibos', 500));
 
         await provider.loadReceipts();
 
@@ -93,7 +93,7 @@ void main() {
     test('debe limpiar errorMessage antes de recargar', () async {
       when(
         () => mockRepo.getReceipts(),
-      ).thenThrow(const ApiException('Error previo', 500));
+      ).thenThrow(const UnknownApiException('Error previo', 500));
       await provider.loadReceipts();
       expect(provider.errorMessage, isNotNull);
 
@@ -149,7 +149,7 @@ void main() {
       () async {
         when(
           () => mockRepo.getReceiptById(99),
-        ).thenThrow(const ApiException('Recibo no encontrado', 404));
+        ).thenThrow(const UnknownApiException('Recibo no encontrado', 404));
 
         await provider.loadReceiptById(99);
 
@@ -177,7 +177,7 @@ void main() {
     test('debe volver a idle con errorMessage null', () async {
       when(
         () => mockRepo.getReceipts(),
-      ).thenThrow(const ApiException('Error', 500));
+      ).thenThrow(const UnknownApiException('Error', 500));
       await provider.loadReceipts();
       expect(provider.status, ReceiptsHistoryStatus.error);
 
@@ -273,7 +273,7 @@ void main() {
     test('debe llamar notifyListeners en clearError', () async {
       when(
         () => mockRepo.getReceipts(),
-      ).thenThrow(const ApiException('Error', 500));
+      ).thenThrow(const UnknownApiException('Error', 500));
       await provider.loadReceipts();
 
       var notifyCount = 0;

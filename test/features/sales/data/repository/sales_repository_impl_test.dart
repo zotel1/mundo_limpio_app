@@ -128,7 +128,7 @@ void main() {
       setOnline();
       when(
         () => mockSalesApi.getProducts(),
-      ).thenThrow(const ApiException('Error de red', 0));
+      ).thenThrow(const UnknownApiException('Error de red', 0));
 
       // Act & Assert
       expect(() => repository.getProducts(), throwsA(isA<ApiException>()));
@@ -240,7 +240,7 @@ void main() {
       setOnline();
       when(
         () => mockSalesApi.getBatchesByProduct(any()),
-      ).thenThrow(const ApiException('Producto no encontrado', 404));
+      ).thenThrow(const UnknownApiException('Producto no encontrado', 404));
 
       // Act & Assert
       expect(
@@ -392,7 +392,7 @@ void main() {
       final request = SaleRequest(productId: 1, quantity: 100.0);
       when(
         () => mockSalesApi.createSale(request),
-      ).thenThrow(const ApiException('Stock insuficiente', 400));
+      ).thenThrow(const UnknownApiException('Stock insuficiente', 400));
 
       // Act & Assert
       expect(
@@ -497,7 +497,7 @@ void main() {
         when(() => mockDraftSaleDao.getById(7)).thenAnswer((_) async => draft);
         when(
           () => mockSalesApi.createSale(any()),
-        ).thenThrow(const ApiException('Stock insuficiente', 400));
+        ).thenThrow(const UnknownApiException('Stock insuficiente', 400));
 
         // Act & Assert
         expect(() => repository.confirmDraft(7), throwsA(isA<ApiException>()));
@@ -512,7 +512,7 @@ void main() {
       // Arrange
       when(
         () => mockDraftSaleDao.getById(99),
-      ).thenThrow(const ApiException('Borrador no encontrado', 404));
+      ).thenThrow(const UnknownApiException('Borrador no encontrado', 404));
 
       // Act & Assert
       expect(() => repository.confirmDraft(99), throwsA(isA<ApiException>()));

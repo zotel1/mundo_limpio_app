@@ -16,6 +16,8 @@ import 'api_exception.dart';
 ///    se retorna el mensaje original (vino del backend)
 /// 2. Si el mensaje ES el default → se aplica un mapeo más amigable
 /// 3. Si el mensaje está vacío → fallback genérico
+///
+/// TDD: GREEN — switch expression reemplaza if-else chain
 class ErrorHandler {
   ErrorHandler._();
 
@@ -30,46 +32,35 @@ class ErrorHandler {
   /// - [ServerException]: siempre → "Error interno del servidor..."
   /// - Genérico: mensaje original o fallback si está vacío
   static String getMessage(ApiException exception) {
-    if (exception is AuthException) {
-      return _fromStatusCodeDefault(exception.message, [
-            'No autorizado. Iniciá sesión nuevamente.',
-            'Acceso denegado. No tenés permisos para esta acción.',
-          ])
-          ? 'No autorizado — iniciá sesión nuevamente.'
-          : exception.message;
-    }
-    if (exception is ValidationException) {
-      return _fromStatusCodeDefault(exception.message, [
-            'Error de validación (400).',
-          ])
-          ? 'Verificá los datos ingresados.'
-          : exception.message;
-    }
-    if (exception is ConflictException) {
-      return _fromStatusCodeDefault(exception.message, [
-            'Error de conflicto (409).',
-          ])
-          ? 'El recurso ya existe.'
-          : exception.message;
-    }
-    if (exception is RateLimitException) {
-      return _fromStatusCodeDefault(exception.message, [
-            'Demasiados intentos (429).',
-          ])
-          ? 'Demasiados intentos. Esperá un momento.'
-          : exception.message;
-    }
-    if (exception is NetworkException) {
-      return 'Sin conexión a internet — verificá tu conexión y volvé a intentar.';
-    }
-    if (exception is ServerException) {
-      return 'Error interno del servidor — intentá de nuevo más tarde.';
-    }
-    // ApiException genérica: mostrar el mensaje original si no está vacío
-    if (exception.message.isNotEmpty) {
-      return exception.message;
-    }
-    return 'Error inesperado. Intentalo de nuevo.';
+    return switch (exception) {
+      AuthException e =>
+        _fromStatusCodeDefault(e.message, [
+              'No autorizado. Iniciá sesión nuevamente.',
+              'Acceso denegado. No tenés permisos para esta acción.',
+            ])
+            ? 'No autorizado — iniciá sesión nuevamente.'
+            : e.message,
+      ValidationException e =>
+        _fromStatusCodeDefault(e.message, ['Error de validación (400).'])
+            ? 'Verificá los datos ingresados.'
+            : e.message,
+      ConflictException e =>
+        _fromStatusCodeDefault(e.message, ['Error de conflicto (409).'])
+            ? 'El recurso ya existe.'
+            : e.message,
+      RateLimitException e =>
+        _fromStatusCodeDefault(e.message, ['Demasiados intentos (429).'])
+            ? 'Demasiados intentos. Esperá un momento.'
+            : e.message,
+      NetworkException _ =>
+        'Sin conexión a internet — verificá tu conexión y volvé a intentar.',
+      ServerException _ =>
+        'Error interno del servidor — intentá de nuevo más tarde.',
+      UnknownApiException e =>
+        e.message.isNotEmpty
+            ? e.message
+            : 'Error inesperado. Intentalo de nuevo.',
+    };
   }
 
   /// Retorna `true` si [message] es uno de los mensajes default

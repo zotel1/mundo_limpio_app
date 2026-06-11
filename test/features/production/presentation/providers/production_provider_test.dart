@@ -140,7 +140,7 @@ void main() {
     test('debe setear error cuando falla', () async {
       when(
         () => mockRepo.getProductionBatches(),
-      ).thenThrow(const ApiException('Error de red', 500));
+      ).thenThrow(const UnknownApiException('Error de red', 500));
 
       await provider.getProductionBatches();
 
@@ -186,7 +186,7 @@ void main() {
       );
       when(
         () => mockRepo.createProductionBatch(request),
-      ).thenThrow(const ApiException('Error al crear batch', 500));
+      ).thenThrow(const UnknownApiException('Error al crear batch', 500));
 
       await provider.createProductionBatch(request);
 

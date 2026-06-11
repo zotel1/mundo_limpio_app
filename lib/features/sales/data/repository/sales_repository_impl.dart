@@ -152,7 +152,7 @@ class SalesRepositoryImpl implements SalesRepository {
   Future<Sale> confirmDraft(int draftId) async {
     final draft = await _draftSaleDao.getById(draftId);
     if (draft == null) {
-      throw ApiException('Borrador no encontrado', 404);
+      throw UnknownApiException('Borrador no encontrado', 404);
     }
     final request = draft.toRequest();
     final response = await _salesApi.createSale(request);

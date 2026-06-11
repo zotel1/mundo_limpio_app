@@ -159,7 +159,7 @@ void main() {
     testWidgets('debe mostrar error con botón reintentar', (tester) async {
       when(
         () => mockRepo.getLowStock(),
-      ).thenThrow(const ApiException('Error del servidor', 500));
+      ).thenThrow(const UnknownApiException('Error del servidor', 500));
 
       await tester.pumpWidget(createTestApp(provider));
       await pumpUntilSettled(tester);
@@ -175,7 +175,7 @@ void main() {
       // Arrange: falla primero
       when(
         () => mockRepo.getLowStock(),
-      ).thenThrow(const ApiException('Error', 500));
+      ).thenThrow(const UnknownApiException('Error', 500));
       await tester.pumpWidget(createTestApp(provider));
       await pumpUntilSettled(tester);
       expect(find.textContaining('Error'), findsOneWidget);

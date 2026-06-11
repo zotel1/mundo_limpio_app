@@ -110,7 +110,7 @@ void main() {
       // Arrange: forzar error primero
       when(
         () => mockRepo.processReceipt(any()),
-      ).thenThrow(const ApiException('Error de red', 0));
+      ).thenThrow(const UnknownApiException('Error de red', 0));
       provider.selectImage('/tmp/bad.jpg');
       await provider.processReceipt();
       expect(provider.status, ReceiptsStatus.error);
@@ -172,9 +172,9 @@ void main() {
       () async {
         // Arrange
         provider.selectImage(testImagePath);
-        when(
-          () => mockRepo.processReceipt(testImagePath),
-        ).thenThrow(const ApiException('Error de procesamiento OCR', 422));
+        when(() => mockRepo.processReceipt(testImagePath)).thenThrow(
+          const UnknownApiException('Error de procesamiento OCR', 422),
+        );
 
         // Act
         await provider.processReceipt();
@@ -259,9 +259,9 @@ void main() {
       () async {
         // Arrange
         await setupProcessSuccess();
-        when(
-          () => mockRepo.confirmReceipt(any()),
-        ).thenThrow(const ApiException('Datos de compra inválidos', 400));
+        when(() => mockRepo.confirmReceipt(any())).thenThrow(
+          const UnknownApiException('Datos de compra inválidos', 400),
+        );
 
         // Act
         await provider.confirmReceipt(confirmRequest);
@@ -345,7 +345,7 @@ void main() {
       provider.selectImage(testImagePath);
       when(
         () => mockRepo.processReceipt(testImagePath),
-      ).thenThrow(const ApiException('Error', 500));
+      ).thenThrow(const UnknownApiException('Error', 500));
       await provider.processReceipt();
       expect(provider.status, ReceiptsStatus.error);
 
@@ -441,7 +441,7 @@ void main() {
       provider.selectImage(testImagePath);
       when(
         () => mockRepo.processReceipt(testImagePath),
-      ).thenThrow(const ApiException('Error', 500));
+      ).thenThrow(const UnknownApiException('Error', 500));
       await provider.processReceipt();
 
       var notifyCount = 0;

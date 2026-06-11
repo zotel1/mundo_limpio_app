@@ -84,7 +84,7 @@ void main() {
     test('debe fallar con error cuando getSales lanza ApiException', () async {
       when(
         () => mockRepo.getSales(),
-      ).thenThrow(const ApiException('Error al cargar ventas', 500));
+      ).thenThrow(const UnknownApiException('Error al cargar ventas', 500));
 
       await provider.loadSales();
 
@@ -95,7 +95,7 @@ void main() {
     test('debe limpiar errorMessage antes de recargar', () async {
       when(
         () => mockRepo.getSales(),
-      ).thenThrow(const ApiException('Error previo', 500));
+      ).thenThrow(const UnknownApiException('Error previo', 500));
       await provider.loadSales();
       expect(provider.errorMessage, isNotNull);
 
@@ -149,7 +149,7 @@ void main() {
       () async {
         when(
           () => mockRepo.getSaleById(99),
-        ).thenThrow(const ApiException('Venta no encontrada', 404));
+        ).thenThrow(const UnknownApiException('Venta no encontrada', 404));
 
         await provider.loadSaleById(99);
 
@@ -177,7 +177,7 @@ void main() {
     test('debe volver a idle con errorMessage null', () async {
       when(
         () => mockRepo.getSales(),
-      ).thenThrow(const ApiException('Error', 500));
+      ).thenThrow(const UnknownApiException('Error', 500));
       await provider.loadSales();
       expect(provider.status, SalesHistoryStatus.error);
 
@@ -264,7 +264,7 @@ void main() {
     test('debe llamar notifyListeners en clearError', () async {
       when(
         () => mockRepo.getSales(),
-      ).thenThrow(const ApiException('Error', 500));
+      ).thenThrow(const UnknownApiException('Error', 500));
       await provider.loadSales();
 
       var notifyCount = 0;

@@ -11,13 +11,13 @@ import 'package:mundo_limpio_app/core/network/api_exception.dart';
 void main() {
   group('ApiException (base)', () {
     test('should store message and code', () {
-      final exception = ApiException('Error genérico', 500);
+      final exception = UnknownApiException('Error genérico', 500);
       expect(exception.message, 'Error genérico');
       expect(exception.code, 500);
     });
 
     test('should implement Exception interface', () {
-      final exception = ApiException('test', 0);
+      final exception = UnknownApiException('test', 0);
       expect(exception, isA<Exception>());
     });
   });
@@ -142,7 +142,7 @@ void main() {
     test('should return generic ApiException for unknown status codes', () {
       final exception = ApiException.fromStatusCode(418);
       expect(exception, isA<ApiException>());
-      expect(exception, isNot(isA<AuthException>()));
+      expect(exception, isA<UnknownApiException>());
       expect(exception.code, 418);
       expect(exception.message, contains('Error'));
     });
@@ -284,6 +284,61 @@ void main() {
 
       expect(exception, isA<NetworkException>());
       expect(exception.code, 0);
+    });
+  });
+
+  // TDD: RED — test escrito antes de hacer ApiException sealed
+  group('sealed class exhaustiveness (switch expression)', () {
+    /// Helper que fuerza exhaustividad sobre ApiException.
+    ///
+    /// Al hacer ApiException sealed, el compilador exige que este
+    /// switch cubra todos los subtipos. Si falta alguno, el test
+    /// ni siquiera compila.
+    String resolveExceptionLabel(ApiException e) {
+      return switch (e) {
+        AuthException() => 'auth',
+        NetworkException() => 'network',
+        ServerException() => 'server',
+        ValidationException() => 'validation',
+        ConflictException() => 'conflict',
+        RateLimitException() => 'rate_limit',
+        UnknownApiException() => 'unknown',
+      };
+    }
+
+    test('should resolve AuthException as "auth"', () {
+      final result = resolveExceptionLabel(AuthException('test'));
+      expect(result, 'auth');
+    });
+
+    test('should resolve NetworkException as "network"', () {
+      final result = resolveExceptionLabel(NetworkException('test'));
+      expect(result, 'network');
+    });
+
+    test('should resolve ServerException as "server"', () {
+      final result = resolveExceptionLabel(ServerException('test'));
+      expect(result, 'server');
+    });
+
+    test('should resolve ValidationException as "validation"', () {
+      final result = resolveExceptionLabel(ValidationException('test'));
+      expect(result, 'validation');
+    });
+
+    test('should resolve ConflictException as "conflict"', () {
+      final result = resolveExceptionLabel(ConflictException('test'));
+      expect(result, 'conflict');
+    });
+
+    test('should resolve RateLimitException as "rate_limit"', () {
+      final result = resolveExceptionLabel(RateLimitException('test'));
+      expect(result, 'rate_limit');
+    });
+
+    test('should resolve UnknownApiException as "unknown"', () {
+      final result = resolveExceptionLabel(UnknownApiException('unknown', 418));
+      expect(result, 'unknown');
     });
   });
 }
