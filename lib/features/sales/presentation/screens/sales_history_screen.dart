@@ -15,10 +15,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import 'package:mundo_limpio_app/core/helpers/role_guard.dart';
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
-import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mundo_limpio_app/features/sales/domain/entities/sale.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/provider/sales_history_provider.dart';
 
@@ -34,17 +32,10 @@ class _SalesHistoryScreenState extends State<SalesHistoryScreen> {
   @override
   void initState() {
     super.initState();
+    // NOTA: el control de acceso por rol se maneja centralizadamente
+    // en routeRoleMap dentro de app_router.dart
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final roles = context.read<AuthProvider>().roles;
-      if (!RoleGuard.hasAnyRole(roles, [
-        'ADMIN',
-        'SALES_CLERK',
-        'ACCOUNTANT',
-      ])) {
-        context.go('/');
-        return;
-      }
       context.read<SalesHistoryProvider>().loadSales();
     });
   }

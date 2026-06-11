@@ -203,15 +203,15 @@ GoRouter createRouter(
       GoRoute(
         path: '/sales/result',
         builder: (context, state) {
-          // SaleResultScreen requiere un SaleResponse recibido vía
-          // state.extra desde GoRouter. En el flujo actual,
-          // CreateSaleScreen navega via Navigator.pushReplacement
-          // pasando el objeto directamente, pero la ruta existe
-          // para futura navegación con GoRouter (state.extra).
+          // SaleResultScreen requiere un Sale recibido vía state.extra.
+          // Si state.extra es null, mostrar ErrorScreen con navegación al home.
+          // TDD: GREEN (B3) — reemplaza Scaffold muerto por ErrorScreen con Volver.
           final sale = state.extra as Sale?;
           if (sale == null) {
-            return const Scaffold(
-              body: Center(child: Text('Error: datos de venta no disponibles')),
+            return ErrorScreen(
+              message: 'Error: datos de venta no disponibles',
+              backLabel: 'Volver',
+              onBackPressed: () => context.go('/'),
             );
           }
           return SaleResultScreen(sale: sale);
@@ -241,10 +241,10 @@ GoRouter createRouter(
         builder: (context, state) {
           final response = state.extra as Receipt?;
           if (response == null) {
-            return const Scaffold(
-              body: Center(
-                child: Text('Error: datos de recibo no disponibles'),
-              ),
+            return ErrorScreen(
+              message: 'Error: datos de recibo no disponibles',
+              backLabel: 'Volver',
+              onBackPressed: () => context.go('/receipts/new'),
             );
           }
           return ReceiptReviewScreen(processResponse: response);
@@ -255,10 +255,10 @@ GoRouter createRouter(
         builder: (context, state) {
           final purchase = state.extra as Purchase?;
           if (purchase == null) {
-            return const Scaffold(
-              body: Center(
-                child: Text('Error: datos de compra no disponibles'),
-              ),
+            return ErrorScreen(
+              message: 'Error: datos de compra no disponibles',
+              backLabel: 'Volver',
+              onBackPressed: () => context.go('/receipts/new'),
             );
           }
           return ReceiptConfirmedScreen(purchase: purchase);
