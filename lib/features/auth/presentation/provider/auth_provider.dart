@@ -129,9 +129,9 @@ class AuthProvider extends ChangeNotifier {
     _setLoading();
     try {
       final response = await _repository.login(email, password);
-      _role = response.role;
-      _email = response.email;
       _roles = response.roles;
+      _role = response.roles.firstOrNull;
+      _email = response.email;
       _username = response.username;
       _status = AuthStatus.authenticated;
       _error = null;
@@ -176,9 +176,9 @@ class AuthProvider extends ChangeNotifier {
     try {
       final response = await _repository.register(email, password);
       // Guardar metadata del usuario incluso sin autenticar
-      _role = response.role;
-      _email = response.email;
       _roles = response.roles;
+      _role = response.roles.firstOrNull;
+      _email = response.email;
       _username = response.username;
 
       // Persistir roles, username y email en TokenStorage
@@ -230,6 +230,12 @@ class AuthProvider extends ChangeNotifier {
   void clearError() {
     _error = null;
     notifyListeners();
+  }
+
+  @override
+  // ignore: unnecessary_overrides
+  void dispose() {
+    super.dispose();
   }
 
   /// Setea estado a loading y notifica.

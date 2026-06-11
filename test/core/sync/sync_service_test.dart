@@ -75,14 +75,18 @@ void main() {
 
   // ── Helpers ──────────────────────────────────────────────
 
-  InventoryPendingQueueData fakeOp(int id, int productId) {
+  InventoryPendingQueueData fakeOp(
+    int id,
+    int productId, {
+    int retryCount = 0,
+  }) {
     return InventoryPendingQueueData(
       id: id,
       productId: productId,
       payload: '{"type":"ADJUSTMENT","quantity":5.0,"reason":"test"}',
       status: 'pending',
       createdAt: DateTime(2026, 5, 18),
-      retryCount: 0,
+      retryCount: retryCount,
     );
   }
 
@@ -120,6 +124,7 @@ void main() {
     when(
       () => pendingDao.updateStatus(any(), any(), any()),
     ).thenAnswer((_) async {});
+    when(() => pendingDao.incrementRetry(any())).thenAnswer((_) async {});
     when(() => pendingDao.countByStatus(any())).thenAnswer((_) async => 0);
     when(
       () => draftSaleDao.countByStatus('draft'),
@@ -177,7 +182,11 @@ void main() {
       test('debe marcar operación fallida sin bloquear la cola', () async {
         connectivityService = await createConnectivityService();
 
-        setupMocksForSync(pendingOps: [fakeOp(1, 1), fakeOp(2, 2)]);
+        // Op 1 con retryCount=2: al fallar, incrementa a 3 y se marca como failed
+        // Op 2 con retryCount=0: éxito normal
+        setupMocksForSync(
+          pendingOps: [fakeOp(1, 1, retryCount: 2), fakeOp(2, 2)],
+        );
 
         // Override: op 1 falla con stock insuficiente
         when(

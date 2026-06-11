@@ -13,9 +13,10 @@
 //
 // TDD: GREEN — interfaz puramente estructural, sin lógica
 
-import 'package:mundo_limpio_app/features/receipts/data/models/receipt_process_response.dart';
 import 'package:mundo_limpio_app/features/receipts/data/models/receipt_confirm_request.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response.dart';
+
+import '../entities/receipt.dart';
+import '../entities/purchase.dart';
 
 /// Repositorio de Recibos OCR.
 ///
@@ -30,28 +31,28 @@ abstract class ReceiptsRepository {
   /// Procesa una imagen de recibo con OCR en el backend.
   ///
   /// [imagePath]: ruta local del archivo de imagen.
-  /// Retorna [ReceiptProcessResponse] con proveedor, fecha y líneas.
+  /// Retorna [Receipt] con los datos procesados.
   /// Lanza [ApiException] en caso de error de red o procesamiento.
-  Future<ReceiptProcessResponse> processReceipt(String imagePath);
+  Future<Receipt> processReceipt(String imagePath);
 
   /// Confirma una compra desde recibo OCR en el backend.
   ///
   /// [request]: datos revisados de la compra a confirmar.
-  /// Retorna [PurchaseResponse] con los datos de la compra confirmada.
+  /// Retorna [Purchase] con los datos de la compra confirmada.
   /// Lanza [ApiException] en caso de error de validación o red.
-  Future<PurchaseResponse> confirmReceipt(ReceiptConfirmRequest request);
+  Future<Purchase> confirmReceipt(ReceiptConfirmRequest request);
 
   /// Obtiene la lista de compras (recibos confirmados) desde el backend.
   ///
   /// Endpoint: `GET /api/v1/receipts`
-  /// Retorna una lista de [PurchaseResponse].
+  /// Retorna una lista de [Purchase].
   /// Lanza [ApiException] en caso de error de red.
-  Future<List<PurchaseResponse>> getReceipts();
+  Future<List<Purchase>> getReceipts();
 
   /// Obtiene una compra (recibo confirmado) por su ID.
   ///
   /// [id]: ID único de la compra.
-  /// Retorna [PurchaseResponse] con los datos de la compra.
+  /// Retorna [Purchase] con los datos de la compra.
   /// Lanza [ApiException] si el ID no existe o hay error de red.
-  Future<PurchaseResponse> getReceiptById(int id);
+  Future<Purchase> getReceiptById(int id);
 }

@@ -381,7 +381,7 @@ void main() {
 
       // Assert
       expect(result.id, 1);
-      expect(result.totalAmount, 375.00);
+      expect(result.total, 375.00);
       verify(() => mockSalesApi.createSale(request)).called(1);
       verifyNever(() => mockDraftSaleDao.insert(any()));
     });
@@ -416,7 +416,7 @@ void main() {
 
         // Assert
         expect(result.id, -1);
-        expect(result.totalAmount, 0.0);
+        expect(result.total, 0.0);
         expect(result.items, isEmpty);
         verify(() => mockDraftSaleDao.insert(any())).called(1);
         verifyNever(() => mockSalesApi.createSale(any()));
@@ -472,7 +472,7 @@ void main() {
 
         // Assert
         expect(result.id, 99);
-        expect(result.totalAmount, 4500.00);
+        expect(result.total, 4500.00);
         verify(() => mockDraftSaleDao.getById(5)).called(1);
         verify(() => mockSalesApi.createSale(any())).called(1);
         verify(() => mockDraftSaleDao.updateStatus(5, 'confirmed')).called(1);

@@ -45,7 +45,7 @@ class _BulkProductListScreenState extends State<BulkProductListScreen> {
 
     return Scaffold(
       appBar: const BrandedAppBar(title: 'Materias Primas'),
-      body: _buildBody(provider, canWrite),
+      body: SafeArea(child: _buildBody(provider, canWrite)),
       floatingActionButton: canWrite
           ? FloatingActionButton(
               onPressed: () => _navigateToForm(provider),

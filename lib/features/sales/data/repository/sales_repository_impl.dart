@@ -21,6 +21,7 @@ import 'package:mundo_limpio_app/features/sales/data/models/product_response.dar
 import 'package:mundo_limpio_app/features/sales/data/models/production_batch_response.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/sale_request.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/sale.dart';
 import 'package:mundo_limpio_app/features/sales/domain/repository/sales_repository.dart';
 
 import 'draft_sale_extensions.dart';
@@ -50,13 +51,15 @@ class SalesRepositoryImpl implements SalesRepository {
        _draftSaleDao = draftSaleDao;
 
   @override
-  Future<List<SaleResponse>> getSales() {
-    return _salesApi.getSales();
+  Future<List<Sale>> getSales() async {
+    final response = await _salesApi.getSales();
+    return response.map((e) => e.toEntity()).toList();
   }
 
   @override
-  Future<SaleResponse> getSaleById(int id) {
-    return _salesApi.getSaleById(id);
+  Future<Sale> getSaleById(int id) async {
+    final response = await _salesApi.getSaleById(id);
+    return response.toEntity();
   }
 
   @override
@@ -121,9 +124,10 @@ class SalesRepositoryImpl implements SalesRepository {
   }
 
   @override
-  Future<SaleResponse> createSale(SaleRequest request) async {
+  Future<Sale> createSale(SaleRequest request) async {
     if (_connectivity.isOnline) {
-      return _salesApi.createSale(request);
+      final response = await _salesApi.createSale(request);
+      return response.toEntity();
     }
     // offline: guardar como borrador
     await _draftSaleDao.insert(
@@ -135,11 +139,17 @@ class SalesRepositoryImpl implements SalesRepository {
         unitPrice: 0,
       ),
     );
-    return SaleResponse.draft();
+    return Sale(
+      id: -1,
+      items: const [],
+      total: 0,
+      createdAt: DateTime.now(),
+      status: 'draft',
+    );
   }
 
   @override
-  Future<SaleResponse> confirmDraft(int draftId) async {
+  Future<Sale> confirmDraft(int draftId) async {
     final draft = await _draftSaleDao.getById(draftId);
     if (draft == null) {
       throw ApiException('Borrador no encontrado', 404);
@@ -147,7 +157,7 @@ class SalesRepositoryImpl implements SalesRepository {
     final request = draft.toRequest();
     final response = await _salesApi.createSale(request);
     await _draftSaleDao.updateStatus(draftId, 'confirmed');
-    return response;
+    return response.toEntity();
   }
 
   @override

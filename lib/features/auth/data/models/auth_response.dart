@@ -10,6 +10,9 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'package:mundo_limpio_app/core/utils/jwt_decoder.dart';
+import 'package:mundo_limpio_app/features/auth/domain/entities/auth_session.dart';
+
 part 'auth_response.g.dart';
 
 /// Respuesta del backend después de login o refresh exitoso.
@@ -40,6 +43,12 @@ class AuthResponse {
   /// Roles del usuario (requerido, fuente de verdad).
   final List<String> roles;
 
+  /// ID del usuario (opcional, puede venir en el response JSON).
+  ///
+  /// Si el backend lo envía, se usa directamente para [AuthSession.userId].
+  /// Si no, se extrae del JWT via [JwtDecoder.getUserId].
+  final int? userId;
+
   /// Fecha y hora ISO 8601 de creación de la sesión/cuenta.
   ///
   /// json_serializable parsea DateTime nativamente con DateTime.parse()
@@ -54,6 +63,7 @@ class AuthResponse {
     required this.username,
     this.email,
     required this.roles,
+    this.userId,
     required this.createdAt,
   });
 
@@ -77,4 +87,25 @@ class AuthResponse {
 
   /// Serializa a mapa JSON para enviar al backend.
   Map<String, dynamic> toJson() => _$AuthResponseToJson(this);
+}
+
+/// Extensión para convertir [AuthResponse] a entidad de dominio [AuthSession].
+extension AuthResponseMapper on AuthResponse {
+  /// Convierte este DTO en una [AuthSession] del dominio.
+  ///
+  /// La prioridad para [AuthSession.userId] es:
+  /// 1. `userId` del campo JSON si el backend lo envió (prioridad máxima).
+  /// 2. Extraído del claim `sub` del JWT accessToken via [JwtDecoder.getUserId].
+  /// 3. `0` como fallback seguro si ninguna fuente está disponible.
+  ///
+  /// TDD: GREEN — userId ya no está hardcodeado a 0.
+  AuthSession toEntity() {
+    final id = userId ?? JwtDecoder.getUserId(accessToken);
+    return AuthSession(
+      userId: id,
+      username: username,
+      email: email,
+      roles: roles,
+    );
+  }
 }

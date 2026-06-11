@@ -104,81 +104,83 @@ class _BulkProductFormScreenState extends State<BulkProductFormScreen> {
                 ? 'Editar Materia Prima'
                 : 'Nueva Materia Prima',
           ),
-          body: Form(
-            key: _formKey,
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Nombre'),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'El nombre es requerido';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _currentStockController,
-                  decoration: const InputDecoration(
-                    labelText: 'Stock Actual (litros)',
+          body: SafeArea(
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: const InputDecoration(labelText: 'Nombre'),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'El nombre es requerido';
+                      }
+                      return null;
+                    },
                   ),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'El stock es requerido';
-                    }
-                    final stock = double.tryParse(value.trim());
-                    if (stock == null || stock < 0) {
-                      return 'El stock debe ser mayor o igual a 0';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _costPerLiterController,
-                  decoration: const InputDecoration(
-                    labelText: 'Costo por Litro',
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _currentStockController,
+                    decoration: const InputDecoration(
+                      labelText: 'Stock Actual (litros)',
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'El stock es requerido';
+                      }
+                      final stock = double.tryParse(value.trim());
+                      if (stock == null || stock < 0) {
+                        return 'El stock debe ser mayor o igual a 0';
+                      }
+                      return null;
+                    },
                   ),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'El costo por litro es requerido';
-                    }
-                    final cost = double.tryParse(value.trim());
-                    if (cost == null || cost <= 0) {
-                      return 'El costo debe ser mayor a 0';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _conversionRatioController,
-                  decoration: const InputDecoration(
-                    labelText: 'Ratio de Conversión',
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _costPerLiterController,
+                    decoration: const InputDecoration(
+                      labelText: 'Costo por Litro',
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'El costo por litro es requerido';
+                      }
+                      final cost = double.tryParse(value.trim());
+                      if (cost == null || cost <= 0) {
+                        return 'El costo debe ser mayor a 0';
+                      }
+                      return null;
+                    },
                   ),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'El ratio de conversión es requerido';
-                    }
-                    final ratio = double.tryParse(value.trim());
-                    if (ratio == null || ratio <= 0) {
-                      return 'El ratio debe ser mayor a 0';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _isSaving ? null : _submit,
-                  child: Text(_isSaving ? 'Guardando...' : 'Guardar'),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _conversionRatioController,
+                    decoration: const InputDecoration(
+                      labelText: 'Ratio de Conversión',
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'El ratio de conversión es requerido';
+                      }
+                      final ratio = double.tryParse(value.trim());
+                      if (ratio == null || ratio <= 0) {
+                        return 'El ratio debe ser mayor a 0';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: _isSaving ? null : _submit,
+                    child: Text(_isSaving ? 'Guardando...' : 'Guardar'),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

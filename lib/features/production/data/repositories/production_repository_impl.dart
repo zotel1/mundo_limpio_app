@@ -15,10 +15,14 @@ class ProductionRepositoryImpl implements IProductionRepository {
       final response = await _dio.get('/api/v1/production-batches');
       final List<dynamic> data = response.data['content'] as List<dynamic>;
       return data
-          .map((json) => ProductionBatchModel.fromJson(json).toEntity())
+          .map(
+            (json) => ProductionBatchModel.fromJson(
+              json as Map<String, dynamic>,
+            ).toEntity(),
+          )
           .toList();
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -26,9 +30,11 @@ class ProductionRepositoryImpl implements IProductionRepository {
   Future<ProductionBatch> getProductionBatch(int id) async {
     try {
       final response = await _dio.get('/api/v1/production-batches/$id');
-      return ProductionBatchModel.fromJson(response.data).toEntity();
+      return ProductionBatchModel.fromJson(
+        response.data as Map<String, dynamic>,
+      ).toEntity();
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -45,9 +51,11 @@ class ProductionRepositoryImpl implements IProductionRepository {
           'rawQuantityUsed': request.quantityUsed,
         },
       );
-      return ProductionBatchModel.fromJson(response.data).toEntity();
+      return ProductionBatchModel.fromJson(
+        response.data as Map<String, dynamic>,
+      ).toEntity();
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 }

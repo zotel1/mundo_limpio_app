@@ -60,7 +60,7 @@ class _UserDetailScreenState extends State<UserDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(user?.username ?? 'Detalle del Usuario')),
-      body: _buildBody(provider, user, currentUsername),
+      body: SafeArea(child: _buildBody(provider, user, currentUsername)),
     );
   }
 

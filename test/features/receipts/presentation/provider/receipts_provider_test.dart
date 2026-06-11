@@ -13,12 +13,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/product_line_dto.dart';
 import 'package:mundo_limpio_app/features/receipts/data/models/product_line_confirm_dto.dart';
 import 'package:mundo_limpio_app/features/receipts/data/models/receipt_confirm_request.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/receipt_process_response.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/purchase_item_response.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/purchase.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/receipt.dart';
 import 'package:mundo_limpio_app/features/receipts/domain/repository/receipts_repository.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/provider/receipts_provider.dart';
 
@@ -32,19 +30,12 @@ void main() {
 
   const testImagePath = '/tmp/test_receipt.jpg';
 
-  final processSuccessResponse = ReceiptProcessResponse(
-    detectedSupplier: 'Proveedor X',
-    detectedDate: '2026-05-15',
-    lines: const [
-      ProductLineDto(
-        name: 'Leche Entera',
-        quantity: 2,
-        unitPrice: 150.0,
-        confidence: 0.95,
-        bulkProductId: 1,
-      ),
-    ],
-    imageUrl: 'https://storage.example.com/receipts/img1.jpg',
+  final processSuccessResponse = Receipt(
+    id: 0,
+    filename: 'https://storage.example.com/receipts/img1.jpg',
+    detectedDate: DateTime(2026, 5, 15),
+    status: 'pending',
+    items: const [],
   );
 
   final confirmRequest = ReceiptConfirmRequest(
@@ -61,22 +52,11 @@ void main() {
     ],
   );
 
-  final purchaseSuccessResponse = PurchaseResponse(
+  final purchaseSuccessResponse = Purchase(
     id: 42,
-    imageUrl: 'https://storage.example.com/receipts/img1.jpg',
     supplierName: 'Proveedor X',
-    purchaseDate: DateTime(2026, 5, 15),
     total: 300.0,
-    items: const [
-      PurchaseItemResponse(
-        id: 1,
-        description: 'Leche Entera',
-        quantity: 2,
-        unitPrice: 150.0,
-        totalPrice: 300.0,
-        bulkProductId: 1,
-      ),
-    ],
+    createdAt: DateTime(2026, 5, 15),
   );
 
   setUpAll(() {
@@ -183,9 +163,7 @@ void main() {
         // Assert
         expect(provider.status, ReceiptsStatus.processSuccess);
         expect(provider.processResponse, isNotNull);
-        expect(provider.processResponse!.detectedSupplier, 'Proveedor X');
-        expect(provider.processResponse!.lines, hasLength(1));
-        expect(provider.processResponse!.lines[0].name, 'Leche Entera');
+        expect(provider.processResponse!.status, 'pending');
       },
     );
 
@@ -273,7 +251,6 @@ void main() {
         expect(provider.purchaseResponse!.id, 42);
         expect(provider.purchaseResponse!.supplierName, 'Proveedor X');
         expect(provider.purchaseResponse!.total, 300.0);
-        expect(provider.purchaseResponse!.items, hasLength(1));
       },
     );
 

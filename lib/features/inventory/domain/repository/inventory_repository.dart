@@ -9,8 +9,8 @@
 //
 // TDD: GREEN — implementación mínima para pasar los tests
 
-import 'package:mundo_limpio_app/features/inventory/data/models/adjustment_request.dart';
-import 'package:mundo_limpio_app/features/inventory/data/models/inventory_response.dart';
+import '../entities/stock_item.dart';
+import '../entities/adjustment.dart';
 
 /// Repositorio de Inventario.
 ///
@@ -22,24 +22,21 @@ abstract class InventoryRepository {
   /// Obtiene los datos de inventario de un producto específico.
   ///
   /// [productId]: ID del producto a consultar.
-  /// Retorna [InventoryResponse] con los datos de stock.
+  /// Retorna [StockItem] con los datos de stock.
   /// Lanza [ApiException] en caso de error de red.
-  Future<InventoryResponse> getInventory(int productId);
+  Future<StockItem> getInventory(int productId);
 
   /// Obtiene la lista de productos con stock por debajo del umbral.
   ///
-  /// Retorna [List<InventoryResponse>] con los productos críticos.
+  /// Retorna [List<StockItem>] con los productos críticos.
   /// Lanza [ApiException] en caso de error de red.
-  Future<List<InventoryResponse>> getLowStock();
+  Future<List<StockItem>> getLowStock();
 
   /// Ajusta el stock de un producto en el backend.
   ///
   /// [productId]: ID del producto a ajustar.
-  /// [request]: datos del ajuste (tipo, cantidad, motivo).
-  /// Retorna [InventoryResponse] con los datos actualizados.
+  /// [adjustment]: datos del ajuste (tipo, cantidad, motivo).
+  /// Retorna [StockItem] con los datos actualizados.
   /// Lanza [ApiException] en caso de error (400/409).
-  Future<InventoryResponse> adjustStock(
-    int productId,
-    AdjustmentRequest request,
-  );
+  Future<StockItem> adjustStock(int productId, Adjustment adjustment);
 }

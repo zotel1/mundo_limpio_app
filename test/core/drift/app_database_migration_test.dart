@@ -20,9 +20,9 @@ import 'package:mundo_limpio_app/core/drift/daos/product_cache_dao.dart';
 
 void main() {
   group('AppDatabase v2 schema', () {
-    test('debe tener schemaVersion 2', () async {
+    test('debe tener schemaVersion 3', () async {
       final appDb = AppDatabase(NativeDatabase.memory());
-      expect(appDb.schemaVersion, 2);
+      expect(appDb.schemaVersion, 3);
       await appDb.close();
     });
 
@@ -72,13 +72,13 @@ void main() {
       await appDb.close();
     });
 
-    test('debe crear el archivo DB con schema v2', () async {
+    test('debe crear el archivo DB con schema v3', () async {
       final dir = Directory.systemTemp;
       final dbPath =
           '${dir.path}/test_v2_schema_${DateTime.now().millisecondsSinceEpoch}.db';
 
       final appDb = AppDatabase(NativeDatabase(File(dbPath)));
-      expect(appDb.schemaVersion, 2);
+      expect(appDb.schemaVersion, 3);
 
       await appDb
           .into(appDb.productCache)
@@ -95,7 +95,7 @@ void main() {
 
       // Reopen and verify data persists
       final appDb2 = AppDatabase(NativeDatabase(File(dbPath)));
-      expect(appDb2.schemaVersion, 2);
+      expect(appDb2.schemaVersion, 3);
       final products = await appDb2.select(appDb2.productCache).get();
       expect(products, hasLength(1));
       expect(products.first.sku, 'PROD-TEST');

@@ -36,7 +36,7 @@ class UsersApi {
           .map((e) => UserModel.fromJson(e as Map<String, dynamic>))
           .toList();
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -48,7 +48,7 @@ class UsersApi {
       final response = await _dio.get('/api/v1/users/$id');
       return UserModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -64,7 +64,7 @@ class UsersApi {
       );
       return UserModel.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -79,7 +79,7 @@ class UsersApi {
         data: {'newPassword': newPassword},
       );
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 }

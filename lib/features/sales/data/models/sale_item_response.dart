@@ -8,6 +8,8 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'package:mundo_limpio_app/features/sales/domain/entities/sale_item.dart';
+
 part 'sale_item_response.g.dart';
 
 /// Ítem individual dentro de una venta.
@@ -51,4 +53,15 @@ class SaleItemResponse {
 
   /// Serializa a mapa JSON para enviar al backend.
   Map<String, dynamic> toJson() => _$SaleItemResponseToJson(this);
+}
+
+/// Extensión para convertir [SaleItemResponse] a entidad de dominio [SaleItem].
+extension SaleItemResponseMapper on SaleItemResponse {
+  /// Convierte este DTO en un [SaleItem] del dominio.
+  SaleItem toEntity() => SaleItem(
+    productId: productId,
+    productName: productName,
+    quantity: quantity,
+    unitPrice: unitPrice,
+  );
 }

@@ -84,6 +84,7 @@ import 'features/users/presentation/providers/users_provider.dart';
 // ── Backups (admin) ────────────────────────────────────────
 import 'features/admin/backup/data/api/backup_api.dart';
 import 'features/admin/backup/data/repository/backup_repository.dart';
+import 'features/admin/backup/domain/repository/backup_repository.dart';
 import 'features/admin/backup/presentation/provider/backup_provider.dart';
 
 void main() async {
@@ -316,7 +317,7 @@ void main() async {
         Provider<BackupApi>(create: (ctx) => BackupApi(dio: ctx.read<Dio>())),
 
         Provider<BackupRepository>(
-          create: (ctx) => BackupRepository(api: ctx.read<BackupApi>()),
+          create: (ctx) => BackupRepositoryImpl(api: ctx.read<BackupApi>()),
         ),
 
         ChangeNotifierProvider<BackupProvider>(

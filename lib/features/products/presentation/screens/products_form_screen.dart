@@ -93,55 +93,57 @@ class _ProductsFormScreenState extends State<ProductsFormScreen> {
           appBar: BrandedAppBar(
             title: _isEditing ? 'Editar Producto' : 'Nuevo Producto',
           ),
-          body: Form(
-            key: _formKey,
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                TextFormField(
-                  controller: _skuController,
-                  decoration: const InputDecoration(labelText: 'SKU'),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'El SKU es requerido';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Nombre'),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'El nombre es requerido';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _minPriceController,
-                  decoration: const InputDecoration(
-                    labelText: 'Precio Mínimo (opcional)',
-                  ),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value != null && value.trim().isNotEmpty) {
-                      final price = double.tryParse(value.trim());
-                      if (price == null || price < 0) {
-                        return 'Debe ser un número positivo';
+          body: SafeArea(
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  TextFormField(
+                    controller: _skuController,
+                    decoration: const InputDecoration(labelText: 'SKU'),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'El SKU es requerido';
                       }
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _isSaving ? null : _submit,
-                  child: Text(_isSaving ? 'Guardando...' : 'Guardar'),
-                ),
-              ],
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: const InputDecoration(labelText: 'Nombre'),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'El nombre es requerido';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _minPriceController,
+                    decoration: const InputDecoration(
+                      labelText: 'Precio Mínimo (opcional)',
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value != null && value.trim().isNotEmpty) {
+                        final price = double.tryParse(value.trim());
+                        if (price == null || price < 0) {
+                          return 'Debe ser un número positivo';
+                        }
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: _isSaving ? null : _submit,
+                    child: Text(_isSaving ? 'Guardando...' : 'Guardar'),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

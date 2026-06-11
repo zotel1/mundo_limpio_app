@@ -17,7 +17,7 @@ import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
-import 'package:mundo_limpio_app/features/inventory/data/models/inventory_response.dart';
+import 'package:mundo_limpio_app/features/inventory/domain/entities/stock_item.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/provider/inventory_provider.dart';
 
 /// Pantalla que muestra los productos con stock bajo.
@@ -51,7 +51,7 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
 
     return Scaffold(
       appBar: const BrandedAppBar(title: 'Inventario'),
-      body: _buildBody(provider),
+      body: SafeArea(child: _buildBody(provider)),
     );
   }
 
@@ -78,47 +78,51 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
   Widget _buildLowStockList(InventoryProvider provider) {
     final items = provider.lowStockItems;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Título de sección
-          if (items.isNotEmpty) ...[
-            const Text(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Título de sección
+        if (items.isNotEmpty)
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: Text(
               'Productos con stock bajo',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
-          ],
+          ),
 
-          // Lista de low-stock items
-          ...items.map((item) => _buildProductCard(item)),
-
-          if (items.isEmpty) ...[
-            const SizedBox(height: 64),
-            const Center(
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.check_circle_outline,
-                    size: 64,
-                    color: Colors.green,
+        // Lista de low-stock items — solo construye widgets visibles
+        Expanded(
+          child: items.isEmpty
+              ? const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.check_circle_outline,
+                        size: 64,
+                        color: Colors.green,
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        'No hay productos con stock bajo',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 16),
-                  Text(
-                    'No hay productos con stock bajo',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
-            ),
-          ],
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: items.length,
+                  itemBuilder: (context, index) =>
+                      _buildProductCard(items[index]),
+                ),
+        ),
 
-          const SizedBox(height: 24),
-
-          // Botón "Ver todo el inventario"
-          SizedBox(
+        // Botón "Ver todo el inventario" (siempre visible al final)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: SizedBox(
             width: double.infinity,
             height: 48,
             child: ElevatedButton.icon(
@@ -132,13 +136,13 @@ class _InventoryListScreenState extends State<InventoryListScreen> {
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   /// Card de producto con indicador visual de low-stock.
-  Widget _buildProductCard(InventoryResponse item) {
+  Widget _buildProductCard(StockItem item) {
     final isCritical = item.currentStock <= item.minStockThreshold * 0.5;
     final warningColor = isCritical ? Colors.red : Colors.orange;
 

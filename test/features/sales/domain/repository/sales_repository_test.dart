@@ -15,8 +15,8 @@ import 'package:mocktail/mocktail.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/product_response.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/production_batch_response.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/sale_request.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_item_response.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/sale.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/sale_item.dart';
 import 'package:mundo_limpio_app/features/sales/domain/repository/sales_repository.dart';
 
 // Mock del repositorio para verificar el contrato de la interfaz
@@ -86,24 +86,23 @@ void main() {
       },
     );
 
-    // Verifica que createSale retorna SaleResponse
-    test('createSale debe retornar SaleResponse', () async {
+    // Verifica que createSale retorna Sale
+    test('createSale debe retornar Sale', () async {
       // Arrange
       final request = SaleRequest(productId: 1, quantity: 30.0);
-      final expectedResponse = SaleResponse(
+      final expectedResponse = Sale(
         id: 1,
-        totalAmount: 375.00,
+        total: 375.00,
         createdAt: DateTime(2026, 5, 10, 10, 30, 0),
         items: const [
-          SaleItemResponse(
-            batchId: 42,
+          SaleItem(
             productId: 1,
             productName: 'Test Product',
             quantity: 30.0,
             unitPrice: 150.00,
-            unitCost: 100.00,
           ),
         ],
+        status: 'completed',
       );
 
       when(
@@ -114,9 +113,9 @@ void main() {
       final result = await mockRepository.createSale(request);
 
       // Assert
-      expect(result, isA<SaleResponse>());
+      expect(result, isA<Sale>());
       expect(result.id, 1);
-      expect(result.totalAmount, 375.00);
+      expect(result.total, 375.00);
       expect(result.items, hasLength(1));
     });
 
@@ -139,11 +138,12 @@ void main() {
       // Arrange
       final request = SaleRequest(productId: 5, quantity: 10.0);
       when(() => mockRepository.createSale(request)).thenAnswer(
-        (_) async => SaleResponse(
+        (_) async => Sale(
           id: 2,
-          totalAmount: 100.0,
+          total: 100.0,
           createdAt: DateTime(2026, 5, 10),
           items: [],
+          status: 'completed',
         ),
       );
 

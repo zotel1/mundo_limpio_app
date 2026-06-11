@@ -25,9 +25,9 @@ import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/product_response.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/production_batch_response.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_item_response.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/sale_request.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/sale.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/sale_item.dart';
 import 'package:mundo_limpio_app/features/sales/domain/repository/sales_repository.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/provider/sales_provider.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/screens/create_sale_screen.dart';
@@ -71,13 +71,11 @@ void main() {
     productId: 1,
     currentStock: 100.0,
   );
-  const saleItem = SaleItemResponse(
-    batchId: 42,
+  const saleItem = SaleItem(
     productId: 1,
-    productName: 'Test Product',
-    quantity: 30.0,
-    unitPrice: 150.00,
-    unitCost: 100.00,
+    productName: 'Test Product X',
+    quantity: 5.0,
+    unitPrice: 100.0,
   );
   final testDate = DateTime(2026, 5, 10, 10, 30, 0);
 
@@ -97,11 +95,12 @@ void main() {
       () => mockRepo.getBatchesByProduct(any()),
     ).thenAnswer((_) async => [batch]);
     when(() => mockRepo.createSale(any())).thenAnswer(
-      (_) async => SaleResponse(
+      (_) async => Sale(
         id: 1,
-        totalAmount: 375.00,
+        total: 375.00,
         createdAt: testDate,
         items: const [saleItem],
+        status: 'completed',
       ),
     );
   });

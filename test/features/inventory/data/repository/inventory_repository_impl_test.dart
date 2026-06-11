@@ -20,9 +20,11 @@ import 'package:mundo_limpio_app/core/drift/daos/inventory_cache_dao.dart';
 import 'package:mundo_limpio_app/core/drift/daos/inventory_pending_dao.dart';
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/features/inventory/data/api/inventory_api.dart';
-import 'package:mundo_limpio_app/features/inventory/data/models/adjustment_request.dart';
+import 'package:mundo_limpio_app/features/inventory/data/models/adjustment_request.dart'
+    as dto;
 import 'package:mundo_limpio_app/features/inventory/data/models/inventory_response.dart';
 import 'package:mundo_limpio_app/features/inventory/data/repository/inventory_repository_impl.dart';
+import 'package:mundo_limpio_app/features/inventory/domain/entities/adjustment.dart';
 
 // ─── Mocks ──────────────────────────────────────────────────────
 
@@ -57,8 +59,15 @@ void main() {
       ),
     );
     registerFallbackValue(
-      const AdjustmentRequest(
-        type: AdjustmentType.ADJUSTMENT,
+      const dto.AdjustmentRequest(
+        type: dto.AdjustmentType.ADJUSTMENT,
+        quantity: 0,
+        reason: '',
+      ),
+    );
+    registerFallbackValue(
+      const Adjustment(
+        type: AdjustmentType.adjustment,
         quantity: 0,
         reason: '',
       ),
@@ -329,8 +338,8 @@ void main() {
   // ================================================================
 
   group('adjustStock online', () {
-    const testRequest = AdjustmentRequest(
-      type: AdjustmentType.ADJUSTMENT,
+    const testRequest = Adjustment(
+      type: AdjustmentType.adjustment,
       quantity: 10.0,
       reason: 'ajuste manual',
     );
@@ -339,32 +348,29 @@ void main() {
       when(() => mockConnectivity.isOnline).thenReturn(true);
     });
 
-    test(
-      'llama InventoryApi.adjustStock y retorna InventoryResponse',
-      () async {
-        final expectedResponse = InventoryResponse(
-          productId: testProductId,
-          productName: 'Jabón Líquido',
-          currentStock: 60.0,
-          minStockThreshold: 10.0,
-        );
-        when(
-          () => mockInventoryApi.adjustStock(testProductId, testRequest),
-        ).thenAnswer((_) async => expectedResponse);
+    test('llama InventoryApi.adjustStock y retorna StockItem', () async {
+      final expectedResponse = InventoryResponse(
+        productId: testProductId,
+        productName: 'Jabón Líquido',
+        currentStock: 60.0,
+        minStockThreshold: 10.0,
+      );
+      when(
+        () => mockInventoryApi.adjustStock(testProductId, any()),
+      ).thenAnswer((_) async => expectedResponse);
 
-        final result = await repository.adjustStock(testProductId, testRequest);
+      final result = await repository.adjustStock(testProductId, testRequest);
 
-        expect(result.currentStock, 60.0);
-        expect(result.productId, testProductId);
-        verify(
-          () => mockInventoryApi.adjustStock(testProductId, testRequest),
-        ).called(1);
-      },
-    );
+      expect(result.currentStock, 60.0);
+      expect(result.productId, testProductId);
+      verify(
+        () => mockInventoryApi.adjustStock(testProductId, any()),
+      ).called(1);
+    });
 
     test('propaga ApiException cuando la API falla', () async {
       when(
-        () => mockInventoryApi.adjustStock(testProductId, testRequest),
+        () => mockInventoryApi.adjustStock(testProductId, any()),
       ).thenThrow(const ApiException('Conflicto de versión', 409));
 
       expect(
@@ -379,8 +385,8 @@ void main() {
   // ================================================================
 
   group('adjustStock offline', () {
-    const testRequest = AdjustmentRequest(
-      type: AdjustmentType.ADJUSTMENT,
+    const testRequest = Adjustment(
+      type: AdjustmentType.adjustment,
       quantity: 10.0,
       reason: 'ajuste manual',
     );
@@ -404,7 +410,7 @@ void main() {
       expect(captured.payload.present, isTrue);
     });
 
-    test('el payload contiene el AdjustmentRequest serializado', () async {
+    test('el payload contiene el Adjustment serializado', () async {
       when(() => mockPendingDao.insert(any())).thenAnswer((_) async => 42);
 
       await repository.adjustStock(testProductId, testRequest);
@@ -418,7 +424,7 @@ void main() {
       expect(payload, contains('ajuste manual'));
     });
 
-    test('retorna InventoryResponse con productId=-1 (pendiente)', () async {
+    test('retorna StockItem con productId=-1 (pendiente)', () async {
       when(() => mockPendingDao.insert(any())).thenAnswer((_) async => 42);
 
       final result = await repository.adjustStock(testProductId, testRequest);
@@ -427,8 +433,8 @@ void main() {
     });
 
     test('con BREAKAGE: payload correcto y marcador pendiente', () async {
-      const breakageRequest = AdjustmentRequest(
-        type: AdjustmentType.BREAKAGE,
+      const breakageRequest = Adjustment(
+        type: AdjustmentType.breakage,
         quantity: -5.0,
         reason: 'quebrado',
       );

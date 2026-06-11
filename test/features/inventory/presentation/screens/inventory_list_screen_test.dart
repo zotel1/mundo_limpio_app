@@ -21,7 +21,7 @@ import 'package:provider/provider.dart';
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
-import 'package:mundo_limpio_app/features/inventory/data/models/inventory_response.dart';
+import 'package:mundo_limpio_app/features/inventory/domain/entities/stock_item.dart';
 import 'package:mundo_limpio_app/features/inventory/domain/repository/inventory_repository.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/provider/inventory_provider.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/screens/inventory_list_screen.dart';
@@ -88,13 +88,13 @@ void main() {
   late MockInventoryRepository mockRepo;
   late InventoryProvider provider;
 
-  const lowStockItem1 = InventoryResponse(
+  const lowStockItem1 = StockItem(
     productId: 1,
     productName: 'Jabón Líquido',
     currentStock: 3.0,
     minStockThreshold: 10.0,
   );
-  const lowStockItem2 = InventoryResponse(
+  const lowStockItem2 = StockItem(
     productId: 2,
     productName: 'Detergente',
     currentStock: 5.0,
@@ -139,7 +139,7 @@ void main() {
     testWidgets('debe mostrar spinner mientras carga low-stock', (
       tester,
     ) async {
-      final completer = Completer<List<InventoryResponse>>();
+      final completer = Completer<List<StockItem>>();
       when(() => mockRepo.getLowStock()).thenAnswer((_) => completer.future);
 
       await tester.pumpWidget(createTestApp(provider));

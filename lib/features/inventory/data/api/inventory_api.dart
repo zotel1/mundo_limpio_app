@@ -22,7 +22,7 @@ import 'package:mundo_limpio_app/features/inventory/data/models/inventory_respon
 /// Cada método retorna su tipo correspondiente o lanza [ApiException]
 /// (o subtipo) en caso de error.
 ///
-/// Los errores HTTP se convierten con [ApiException.fromStatusCode]:
+/// Los errores HTTP se convierten con [ApiException.fromDioException]:
 /// - 401/403 → [AuthException]
 /// - 5xx → [ServerException]
 /// - 0 (red) → [NetworkException]
@@ -43,22 +43,38 @@ class InventoryApi {
       final response = await _dio.get('/api/v1/inventory/$productId');
       return InventoryResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
   /// Obtiene la lista de productos con stock bajo.
   ///
   /// Endpoint: `GET /api/v1/inventory/low-stock`
+  ///
+  /// El backend puede devolver:
+  /// - `{content: [...]}` (respuesta paginada con wrapper)
+  /// - `[]` (array vacío directamente)
+  /// Ambos formatos se manejan para evitar crashes.
   Future<List<InventoryResponse>> getLowStock() async {
     try {
       final response = await _dio.get('/api/v1/inventory/low-stock');
-      final data = response.data['content'] as List<dynamic>;
+      final rawData = response.data;
+      final List<dynamic> data;
+      if (rawData is List<dynamic>) {
+        // El backend devolvió un array directamente (ej. vacío [])
+        data = rawData;
+      } else if (rawData is Map<String, dynamic> &&
+          rawData.containsKey('content')) {
+        // El backend devolvió un wrapper paginado {content: [...]}
+        data = rawData['content'] as List<dynamic>;
+      } else {
+        data = [];
+      }
       return data
           .map((e) => InventoryResponse.fromJson(e as Map<String, dynamic>))
           .toList();
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -77,7 +93,7 @@ class InventoryApi {
       );
       return InventoryResponse.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 }

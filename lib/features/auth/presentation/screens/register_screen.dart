@@ -80,102 +80,107 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     return Scaffold(
       appBar: const BrandedAppBar(title: 'Crear Cuenta'),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Logo de la marca arriba del formulario
-                const LogoWidget(),
-                const SizedBox(height: 16),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Logo de la marca arriba del formulario
+                  const LogoWidget(),
+                  const SizedBox(height: 16),
 
-                // Mensaje de error (inline, usa BrandedErrorBanner)
-                if (auth.error != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: BrandedErrorBanner(
-                      message: auth.error!,
-                      onDismiss: () => auth.clearError(),
+                  // Mensaje de error (inline, usa BrandedErrorBanner)
+                  if (auth.error != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: BrandedErrorBanner(
+                        message: auth.error!,
+                        onDismiss: () => auth.clearError(),
+                      ),
+                    ),
+
+                  // Campo de email
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      prefixIcon: Icon(Icons.email),
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.next,
+                    validator: AuthValidators.validateEmail,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Campo de contraseña
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: const InputDecoration(
+                      labelText: 'Contraseña',
+                      prefixIcon: Icon(Icons.lock),
+                      border: OutlineInputBorder(),
+                    ),
+                    obscureText: true,
+                    textInputAction: TextInputAction.next,
+                    validator: AuthValidators.validatePasswordStrength,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Campo de confirmación de contraseña
+                  TextFormField(
+                    controller: _confirmPasswordController,
+                    decoration: const InputDecoration(
+                      labelText: 'Confirmar Contraseña',
+                      prefixIcon: Icon(Icons.lock_outline),
+                      border: OutlineInputBorder(),
+                    ),
+                    obscureText: true,
+                    textInputAction: TextInputAction.done,
+                    onFieldSubmitted: auth.isLoading
+                        ? null
+                        : (_) => _handleRegister(),
+                    validator: (value) =>
+                        AuthValidators.validateConfirmPassword(
+                          value,
+                          _passwordController.text,
+                        ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Botón de envío
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: auth.isLoading ? null : _handleRegister,
+                      child: auth.isLoading
+                          ? const SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: CatLoadingIndicator.small(),
+                            )
+                          : const Text(
+                              'Crear Cuenta',
+                              style: TextStyle(fontSize: 16),
+                            ),
                     ),
                   ),
+                  const SizedBox(height: 16),
 
-                // Campo de email
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: Icon(Icons.email),
-                    border: OutlineInputBorder(),
+                  // Link a login
+                  TextButton(
+                    onPressed: auth.isLoading
+                        ? null
+                        : () => context.go('/login'),
+                    child: const Text('¿Ya tenés cuenta? Iniciá Sesión'),
                   ),
-                  keyboardType: TextInputType.emailAddress,
-                  textInputAction: TextInputAction.next,
-                  validator: AuthValidators.validateEmail,
-                ),
-                const SizedBox(height: 16),
-
-                // Campo de contraseña
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(
-                    labelText: 'Contraseña',
-                    prefixIcon: Icon(Icons.lock),
-                    border: OutlineInputBorder(),
-                  ),
-                  obscureText: true,
-                  textInputAction: TextInputAction.next,
-                  validator: AuthValidators.validatePasswordStrength,
-                ),
-                const SizedBox(height: 16),
-
-                // Campo de confirmación de contraseña
-                TextFormField(
-                  controller: _confirmPasswordController,
-                  decoration: const InputDecoration(
-                    labelText: 'Confirmar Contraseña',
-                    prefixIcon: Icon(Icons.lock_outline),
-                    border: OutlineInputBorder(),
-                  ),
-                  obscureText: true,
-                  textInputAction: TextInputAction.done,
-                  onFieldSubmitted: auth.isLoading
-                      ? null
-                      : (_) => _handleRegister(),
-                  validator: (value) => AuthValidators.validateConfirmPassword(
-                    value,
-                    _passwordController.text,
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Botón de envío
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: auth.isLoading ? null : _handleRegister,
-                    child: auth.isLoading
-                        ? const SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CatLoadingIndicator.small(),
-                          )
-                        : const Text(
-                            'Crear Cuenta',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Link a login
-                TextButton(
-                  onPressed: auth.isLoading ? null : () => context.go('/login'),
-                  child: const Text('¿Ya tenés cuenta? Iniciá Sesión'),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

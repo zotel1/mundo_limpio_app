@@ -12,8 +12,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_item_response.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/sale.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/sale_item.dart';
 import 'package:mundo_limpio_app/features/sales/domain/repository/sales_repository.dart';
 import 'package:mundo_limpio_app/features/sales/presentation/provider/sales_history_provider.dart';
 
@@ -23,27 +23,27 @@ void main() {
   late MockSalesRepository mockRepo;
   late SalesHistoryProvider provider;
 
-  const saleItem = SaleItemResponse(
-    batchId: 1,
+  const saleItem = SaleItem(
     productId: 10,
     productName: 'Producto A',
     quantity: 5.0,
     unitPrice: 100.0,
-    unitCost: 60.0,
   );
 
-  final sale1 = SaleResponse(
+  final sale1 = Sale(
     id: 1,
-    totalAmount: 500.0,
+    total: 500.0,
     createdAt: DateTime(2026, 5, 10),
     items: const [saleItem],
+    status: 'completed',
   );
 
-  final sale2 = SaleResponse(
+  final sale2 = Sale(
     id: 2,
-    totalAmount: 300.0,
+    total: 300.0,
     createdAt: DateTime(2026, 5, 11),
     items: const [saleItem],
+    status: 'completed',
   );
 
   setUp(() {
@@ -140,7 +140,7 @@ void main() {
         expect(provider.status, SalesHistoryStatus.success);
         expect(provider.selectedSale, isNotNull);
         expect(provider.selectedSale!.id, 1);
-        expect(provider.selectedSale!.totalAmount, 500.0);
+        expect(provider.selectedSale!.total, 500.0);
       },
     );
 

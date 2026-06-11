@@ -111,97 +111,99 @@ class _ProductionCreateScreenState extends State<ProductionCreateScreen> {
       children: [
         Scaffold(
           appBar: const BrandedAppBar(title: 'Nueva Producción'),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  const RatioExampleCards(),
-                  TextFormField(
-                    controller: _finishedProductIdController,
-                    decoration: const InputDecoration(
-                      labelText: 'ID del Producto Terminado',
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    const RatioExampleCards(),
+                    TextFormField(
+                      controller: _finishedProductIdController,
+                      decoration: const InputDecoration(
+                        labelText: 'ID del Producto Terminado',
+                      ),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'El ID del producto es requerido';
+                        }
+                        final id = int.tryParse(value.trim());
+                        if (id == null || id <= 0) {
+                          return 'El ID debe ser un número válido';
+                        }
+                        return null;
+                      },
                     ),
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'El ID del producto es requerido';
-                      }
-                      final id = int.tryParse(value.trim());
-                      if (id == null || id <= 0) {
-                        return 'El ID debe ser un número válido';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<int>(
-                    initialValue: _selectedBulkProductId,
-                    decoration: const InputDecoration(
-                      labelText: 'Materia Prima',
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<int>(
+                      initialValue: _selectedBulkProductId,
+                      decoration: const InputDecoration(
+                        labelText: 'Materia Prima',
+                      ),
+                      items: bpProvider.bulkProducts
+                          .map(
+                            (product) => DropdownMenuItem<int>(
+                              value: product.id,
+                              child: Text(product.name),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedBulkProductId = value;
+                          _conversionRatio = value != null
+                              ? bpProvider.bulkProducts
+                                    .firstWhere((p) => p.id == value)
+                                    .conversionRatio
+                              : null;
+                          _updateQuantityProduced();
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Seleccione una materia prima';
+                        }
+                        return null;
+                      },
                     ),
-                    items: bpProvider.bulkProducts
-                        .map(
-                          (product) => DropdownMenuItem<int>(
-                            value: product.id,
-                            child: Text(product.name),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedBulkProductId = value;
-                        _conversionRatio = value != null
-                            ? bpProvider.bulkProducts
-                                  .firstWhere((p) => p.id == value)
-                                  .conversionRatio
-                            : null;
-                        _updateQuantityProduced();
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Seleccione una materia prima';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _quantityUsedController,
-                    decoration: const InputDecoration(
-                      labelText: 'Cantidad Usada (kg/L)',
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _quantityUsedController,
+                      decoration: const InputDecoration(
+                        labelText: 'Cantidad Usada (kg/L)',
+                      ),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'La cantidad es requerida';
+                        }
+                        final qty = double.tryParse(value.trim());
+                        if (qty == null || qty <= 0) {
+                          return 'La cantidad debe ser mayor a 0';
+                        }
+                        return null;
+                      },
                     ),
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'La cantidad es requerida';
-                      }
-                      final qty = double.tryParse(value.trim());
-                      if (qty == null || qty <= 0) {
-                        return 'La cantidad debe ser mayor a 0';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _quantityProducedController,
-                    readOnly: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Cantidad Producida (unidades)',
-                      hintText: 'Se calcula automáticamente',
-                      helperText: 'cantidad usada × ratio de conversión',
-                      helperMaxLines: 2,
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _quantityProducedController,
+                      readOnly: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Cantidad Producida (unidades)',
+                        hintText: 'Se calcula automáticamente',
+                        helperText: 'cantidad usada × ratio de conversión',
+                        helperMaxLines: 2,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: _isSaving ? null : _submit,
-                    child: Text(_isSaving ? 'Guardando...' : 'Guardar'),
-                  ),
-                ],
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: _isSaving ? null : _submit,
+                      child: Text(_isSaving ? 'Guardando...' : 'Guardar'),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

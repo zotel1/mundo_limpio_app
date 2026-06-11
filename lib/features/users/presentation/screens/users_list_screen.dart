@@ -39,7 +39,7 @@ class _UsersListScreenState extends State<UsersListScreen> {
     final provider = context.watch<UsersProvider>();
     return Scaffold(
       appBar: const BrandedAppBar(title: 'Usuarios'),
-      body: _buildBody(provider),
+      body: SafeArea(child: _buildBody(provider)),
     );
   }
 

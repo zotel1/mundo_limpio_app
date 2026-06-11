@@ -23,7 +23,7 @@ import 'package:provider/provider.dart';
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/core/storage/token_storage.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
-import 'package:mundo_limpio_app/features/auth/data/models/auth_response.dart';
+import 'package:mundo_limpio_app/features/auth/domain/entities/auth_session.dart';
 import 'package:mundo_limpio_app/features/auth/domain/repository/auth_repository.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/screens/login_screen.dart';
@@ -66,14 +66,7 @@ void main() {
     // Stubs por defecto
     when(() => mockRepo.isLoggedIn()).thenAnswer((_) async => false);
     when(() => mockRepo.register(any(), any())).thenAnswer(
-      (_) async => AuthResponse(
-        accessToken: 'test-access',
-        refreshToken: 'test-refresh',
-        role: 'user',
-        username: 'newuser',
-        roles: ['user'],
-        createdAt: DateTime(2026, 5, 9),
-      ),
+      (_) async => AuthSession(userId: 0, username: 'newuser', roles: ['user']),
     );
     when(() => mockRepo.logout()).thenAnswer((_) async {});
     when(() => mockTokenStorage.readRoles()).thenAnswer((_) async => null);
@@ -311,7 +304,7 @@ void main() {
       tester,
     ) async {
       // Arrange: register NO completa hasta que liberemos el completer
-      final completer = Completer<AuthResponse>();
+      final completer = Completer<AuthSession>();
       when(
         () => mockRepo.register(any(), any()),
       ).thenAnswer((_) => completer.future);
@@ -344,14 +337,7 @@ void main() {
 
       // Liberar completer
       completer.complete(
-        AuthResponse(
-          accessToken: 'a',
-          refreshToken: 'r',
-          role: 'user',
-          username: 'u',
-          roles: ['user'],
-          createdAt: DateTime(2026, 1, 1),
-        ),
+        AuthSession(userId: 0, username: 'u', roles: ['user']),
       );
     });
   });

@@ -70,87 +70,89 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       appBar: const BrandedAppBar(title: 'Iniciar Sesión'),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Logo de la marca arriba del formulario
-                const LogoWidget(),
-                const SizedBox(height: 16),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Logo de la marca arriba del formulario
+                  const LogoWidget(),
+                  const SizedBox(height: 16),
 
-                // Mensaje de error (inline, usa BrandedErrorBanner)
-                if (auth.error != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: BrandedErrorBanner(
-                      message: auth.error!,
-                      onDismiss: () => auth.clearError(),
+                  // Mensaje de error (inline, usa BrandedErrorBanner)
+                  if (auth.error != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: BrandedErrorBanner(
+                        message: auth.error!,
+                        onDismiss: () => auth.clearError(),
+                      ),
+                    ),
+
+                  // Campo de email
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      prefixIcon: Icon(Icons.email),
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.next,
+                    validator: AuthValidators.validateEmail,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Campo de contraseña
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: const InputDecoration(
+                      labelText: 'Contraseña',
+                      prefixIcon: Icon(Icons.lock),
+                      border: OutlineInputBorder(),
+                    ),
+                    obscureText: true,
+                    textInputAction: TextInputAction.done,
+                    onFieldSubmitted: auth.isLoading
+                        ? null
+                        : (_) => _handleLogin(),
+                    validator: AuthValidators.validatePassword,
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Botón de envío (deshabilitado mientras carga)
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: auth.isLoading ? null : _handleLogin,
+                      child: auth.isLoading
+                          ? const SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: CatLoadingIndicator.small(),
+                            )
+                          : const Text(
+                              'Iniciar Sesión',
+                              style: TextStyle(fontSize: 16),
+                            ),
                     ),
                   ),
+                  const SizedBox(height: 16),
 
-                // Campo de email
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: Icon(Icons.email),
-                    border: OutlineInputBorder(),
+                  // Link a registro
+                  TextButton(
+                    onPressed: auth.isLoading
+                        ? null
+                        : () => context.go('/register'),
+                    child: const Text("¿No tenés cuenta? Registrate"),
                   ),
-                  keyboardType: TextInputType.emailAddress,
-                  textInputAction: TextInputAction.next,
-                  validator: AuthValidators.validateEmail,
-                ),
-                const SizedBox(height: 16),
-
-                // Campo de contraseña
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(
-                    labelText: 'Contraseña',
-                    prefixIcon: Icon(Icons.lock),
-                    border: OutlineInputBorder(),
-                  ),
-                  obscureText: true,
-                  textInputAction: TextInputAction.done,
-                  onFieldSubmitted: auth.isLoading
-                      ? null
-                      : (_) => _handleLogin(),
-                  validator: AuthValidators.validatePassword,
-                ),
-                const SizedBox(height: 24),
-
-                // Botón de envío (deshabilitado mientras carga)
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: auth.isLoading ? null : _handleLogin,
-                    child: auth.isLoading
-                        ? const SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CatLoadingIndicator.small(),
-                          )
-                        : const Text(
-                            'Iniciar Sesión',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Link a registro
-                TextButton(
-                  onPressed: auth.isLoading
-                      ? null
-                      : () => context.go('/register'),
-                  child: const Text("¿No tenés cuenta? Registrate"),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

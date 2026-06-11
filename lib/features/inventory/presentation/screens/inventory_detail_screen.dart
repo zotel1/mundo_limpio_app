@@ -19,7 +19,7 @@ import 'package:mundo_limpio_app/core/helpers/role_guard.dart';
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
-import 'package:mundo_limpio_app/features/inventory/data/models/adjustment_request.dart';
+import 'package:mundo_limpio_app/features/inventory/domain/entities/adjustment.dart';
 import 'package:mundo_limpio_app/features/inventory/presentation/provider/inventory_provider.dart';
 
 /// Pantalla de detalle de inventario de un producto.
@@ -61,7 +61,7 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
         title:
             provider.currentInventory?.productName ?? 'Detalle de Inventario',
       ),
-      body: _buildBody(provider, canAdjust: canAdjust),
+      body: SafeArea(child: _buildBody(provider, canAdjust: canAdjust)),
     );
   }
 
@@ -189,7 +189,7 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
 
   /// Muestra el diálogo de ajuste de stock.
   Future<void> _showAdjustStockDialog(InventoryProvider provider) async {
-    final result = await showDialog<AdjustmentRequest>(
+    final result = await showDialog<Adjustment>(
       context: context,
       builder: (dialogContext) => const _AdjustStockDialog(),
     );
@@ -246,7 +246,7 @@ class _InventoryDetailScreenState extends State<InventoryDetailScreen> {
 /// Diálogo para ajustar el stock de un producto.
 ///
 /// Contiene:
-/// - Dropdown para tipo de ajuste (ADJUSTMENT, BREAKAGE, RETURN, QUALITY_LOSS)
+/// - Dropdown para tipo de ajuste (adjustment, breakage, return_, qualityLoss)
 /// - Campo de cantidad (número > 0, obligatorio)
 /// - Campo de razón (texto, obligatorio)
 /// - Botones Cancelar y Confirmar
@@ -265,6 +265,13 @@ class _AdjustStockDialogState extends State<_AdjustStockDialog> {
   final _reasonController = TextEditingController();
 
   AdjustmentType? _selectedType;
+
+  static const _typeLabels = {
+    AdjustmentType.adjustment: 'Ajuste manual',
+    AdjustmentType.breakage: 'Rotura',
+    AdjustmentType.return_: 'Devolución',
+    AdjustmentType.qualityLoss: 'Pérdida QC',
+  };
 
   @override
   void dispose() {
@@ -296,7 +303,7 @@ class _AdjustStockDialogState extends State<_AdjustStockDialog> {
                 items: AdjustmentType.values.map((type) {
                   return DropdownMenuItem<AdjustmentType>(
                     value: type,
-                    child: Text(type.name),
+                    child: Text(_typeLabels[type] ?? type.name),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -371,12 +378,12 @@ class _AdjustStockDialogState extends State<_AdjustStockDialog> {
     if (!_formKey.currentState!.validate()) return;
 
     final quantity = double.parse(_quantityController.text);
-    final request = AdjustmentRequest(
+    final adjustment = Adjustment(
       type: _selectedType!,
       quantity: quantity,
       reason: _reasonController.text.trim(),
     );
 
-    Navigator.of(context).pop(request);
+    Navigator.of(context).pop(adjustment);
   }
 }

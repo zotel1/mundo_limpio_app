@@ -15,10 +15,14 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
       final response = await _dio.get('/api/v1/bulk-products');
       final List<dynamic> data = response.data['content'] as List<dynamic>;
       return data
-          .map((json) => BulkProductModel.fromJson(json).toEntity())
+          .map(
+            (json) => BulkProductModel.fromJson(
+              json as Map<String, dynamic>,
+            ).toEntity(),
+          )
           .toList();
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -26,9 +30,11 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
   Future<BulkProduct> getBulkProduct(int id) async {
     try {
       final response = await _dio.get('/api/v1/bulk-products/$id');
-      return BulkProductModel.fromJson(response.data).toEntity();
+      return BulkProductModel.fromJson(
+        response.data as Map<String, dynamic>,
+      ).toEntity();
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -45,9 +51,11 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
           'active': product.active,
         },
       );
-      return BulkProductModel.fromJson(response.data).toEntity();
+      return BulkProductModel.fromJson(
+        response.data as Map<String, dynamic>,
+      ).toEntity();
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -64,9 +72,11 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
           'active': product.active,
         },
       );
-      return BulkProductModel.fromJson(response.data).toEntity();
+      return BulkProductModel.fromJson(
+        response.data as Map<String, dynamic>,
+      ).toEntity();
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 
@@ -75,7 +85,7 @@ class BulkProductRepositoryImpl implements IBulkProductRepository {
     try {
       await _dio.delete('/api/v1/bulk-products/$id');
     } on DioException catch (e) {
-      throw ApiException.fromStatusCode(e.response?.statusCode ?? 0);
+      throw ApiException.fromDioException(e);
     }
   }
 }
