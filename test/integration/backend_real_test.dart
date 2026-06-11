@@ -31,7 +31,9 @@ import 'package:mundo_limpio_app/features/users/data/models/user_model.dart';
 
 const _adminEmail = 'zotelsigel@gmail.com';
 const _multiRoleEmail = 'zoteldev@gmail.com';
-const _password = '123456';
+// PR3-05: Password debe cumplir validación del backend
+// (al menos una mayúscula, una minúscula, un número).
+const _password = 'Admin123!';
 
 /// Helper: loguea y retorna un [Dio] autenticado + el [AuthResponse].
 ///
@@ -67,6 +69,7 @@ void main() {
     test(
       '1. Login as admin returns ADMIN role',
       () async {
+        await Future.delayed(const Duration(milliseconds: 500));
         final authApi = AuthApi(dio: dio);
         final response = await authApi.login(_adminEmail, _password);
 
@@ -96,6 +99,7 @@ void main() {
     test(
       '2. Login as multi-role user returns correct roles',
       () async {
+        await Future.delayed(const Duration(milliseconds: 500));
         final authApi = AuthApi(dio: dio);
         final response = await authApi.login(_multiRoleEmail, _password);
 
@@ -125,6 +129,7 @@ void main() {
     test(
       '3. Create product (admin token)',
       () async {
+        await Future.delayed(const Duration(milliseconds: 500));
         final auth = await _loginAs(dio, _adminEmail, _password);
         final productsApi = ProductsApi(dio: auth.dio);
         final sku = _uniqueSku();
@@ -169,6 +174,7 @@ void main() {
     // Test 5: Obtener usuarios (solo admin)
     // ═══════════════════════════════════════════════════════════
     test('5. Get users (admin only)', () async {
+      await Future.delayed(const Duration(milliseconds: 500));
       final auth = await _loginAs(dio, _adminEmail, _password);
       final usersApi = UsersApi(dio: auth.dio);
       final users = await usersApi.getUsers();
@@ -190,6 +196,7 @@ void main() {
     test(
       '6. Try create product as CUSTOMER (expect 403)',
       () async {
+        await Future.delayed(const Duration(milliseconds: 500));
         // Registrar un usuario nuevo (el rol default es CUSTOMER)
         final authApi = AuthApi(dio: dio);
         final email = _uniqueEmail();
@@ -227,6 +234,7 @@ void main() {
     // Test 7: Crear bulk product con admin
     // ═══════════════════════════════════════════════════════════
     test('7. Create bulk product', () async {
+      await Future.delayed(const Duration(milliseconds: 500));
       final auth = await _loginAs(dio, _adminEmail, _password);
       final timestamp = DateTime.now().millisecondsSinceEpoch;
 
@@ -259,6 +267,7 @@ void main() {
     // Test 8: Consultar inventario bajo (admin)
     // ═══════════════════════════════════════════════════════════
     test('8. Check inventory low-stock', () async {
+      await Future.delayed(const Duration(milliseconds: 500));
       final auth = await _loginAs(dio, _adminEmail, _password);
       final inventoryApi = InventoryApi(dio: auth.dio);
       final lowStock = await inventoryApi.getLowStock();
@@ -274,9 +283,13 @@ void main() {
     // Test 9: Crear una venta con admin
     // ═══════════════════════════════════════════════════════════
     test('9. Create sale', () async {
+      await Future.delayed(const Duration(milliseconds: 500));
       final auth = await _loginAs(dio, _adminEmail, _password);
 
-      // Obtener un producto existente para la venta
+      // Obtener producto existente para la venta.
+      // PR3-07: Iterar productos hasta encontrar uno con stock > 0,
+      // ya que products.first puede tener stock 0 y el backend
+      // rechaza la venta (error de validación).
       final productsApi = ProductsApi(dio: auth.dio);
       final products = await productsApi.getProducts();
       expect(
@@ -285,11 +298,31 @@ void main() {
         reason: 'Debe haber al menos un producto para crear una venta',
       );
 
-      final productId = products.first.id;
-
       final salesApi = SalesApi(dio: auth.dio);
-      final saleRequest = SaleRequest(productId: productId, quantity: 1.0);
+      ProductModel? productWithStock;
+      for (final p in products.reversed) {
+        try {
+          await salesApi.createSale(
+            SaleRequest(productId: p.id, quantity: 1.0),
+          );
+          productWithStock = p;
+          break;
+        } on ApiException {
+          continue; // Producto sin stock, probar el siguiente
+        }
+      }
 
+      expect(
+        productWithStock,
+        isNotNull,
+        reason: 'Debe haber al menos un producto con stock > 0',
+      );
+
+      // Crear la venta real con el producto que sí tiene stock
+      final saleRequest = SaleRequest(
+        productId: productWithStock!.id,
+        quantity: 1.0,
+      );
       final sale = await salesApi.createSale(saleRequest);
 
       expect(sale.id, greaterThan(0), reason: 'Venta debe tener ID');
