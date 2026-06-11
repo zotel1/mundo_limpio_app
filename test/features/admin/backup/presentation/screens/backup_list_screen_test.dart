@@ -145,7 +145,7 @@ void main() {
     ) async {
       when(
         () => mockRepo.getBackups(),
-      ).thenThrow(const ApiException('Error de conexión', 500));
+      ).thenThrow(const UnknownApiException('Error de conexión', 500));
 
       await tester.pumpWidget(createTestApp(provider));
       await pumpUntilSettled(tester);
@@ -157,7 +157,7 @@ void main() {
     testWidgets('Reintentar debe recargar backups', (tester) async {
       when(
         () => mockRepo.getBackups(),
-      ).thenThrow(const ApiException('Error', 500));
+      ).thenThrow(const UnknownApiException('Error', 500));
 
       await tester.pumpWidget(createTestApp(provider));
       await pumpUntilSettled(tester);

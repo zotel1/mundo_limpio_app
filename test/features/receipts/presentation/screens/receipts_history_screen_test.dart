@@ -152,7 +152,7 @@ void main() {
     ) async {
       when(
         () => mockRepo.getReceipts(),
-      ).thenThrow(const ApiException('Error de conexión', 500));
+      ).thenThrow(const UnknownApiException('Error de conexión', 500));
 
       await tester.pumpWidget(createTestApp(provider));
       await pumpUntilSettled(tester);
@@ -164,7 +164,7 @@ void main() {
     testWidgets('Reintentar debe recargar compras', (tester) async {
       when(
         () => mockRepo.getReceipts(),
-      ).thenThrow(const ApiException('Error', 500));
+      ).thenThrow(const UnknownApiException('Error', 500));
 
       await tester.pumpWidget(createTestApp(provider));
       await pumpUntilSettled(tester);

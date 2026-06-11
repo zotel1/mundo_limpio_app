@@ -139,7 +139,7 @@ void main() {
       // Arrange
       when(
         () => mockRepo.getBackups(),
-      ).thenThrow(const ApiException('Error de conexión', 500));
+      ).thenThrow(const UnknownApiException('Error de conexión', 500));
 
       // Act
       await tester.pumpWidget(createTestApp(provider));
@@ -192,7 +192,7 @@ void main() {
       when(() => mockRepo.getBackups()).thenAnswer((_) async => [backup]);
       when(
         () => mockRepo.downloadBackup(any(), any()),
-      ).thenThrow(const ApiException('Error al descargar', 500));
+      ).thenThrow(const UnknownApiException('Error al descargar', 500));
 
       // Act
       await tester.pumpWidget(createTestApp(provider));

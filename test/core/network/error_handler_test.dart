@@ -54,16 +54,16 @@ void main() {
     });
 
     // ApiException genérica debe mostrar el mensaje original
-    test('should return original message for generic ApiException', () {
-      const exception = ApiException('Error personalizado', 418);
+    test('should return original message for generic UnknownApiException', () {
+      const exception = UnknownApiException('Error personalizado', 418);
       final result = ErrorHandler.getMessage(exception);
 
       expect(result, 'Error personalizado');
     });
 
     // ApiException con mensaje vacío debe mostrar fallback genérico
-    test('should return fallback message for empty ApiException', () {
-      const exception = ApiException('', 0);
+    test('should return fallback message for empty UnknownApiException', () {
+      const exception = UnknownApiException('', 0);
       final result = ErrorHandler.getMessage(exception);
 
       expect(result, 'Error inesperado. Intentalo de nuevo.');
@@ -92,12 +92,15 @@ void main() {
     );
 
     // R3.3: ApiException con mensaje vacío → fallback genérico
-    test('R3.3: should return generic fallback for empty ApiException', () {
-      const exception = ApiException('', 0);
-      final result = ErrorHandler.getMessage(exception);
+    test(
+      'R3.3: should return generic fallback for empty UnknownApiException',
+      () {
+        const exception = UnknownApiException('', 0);
+        final result = ErrorHandler.getMessage(exception);
 
-      expect(result, 'Error inesperado. Intentalo de nuevo.');
-    });
+        expect(result, 'Error inesperado. Intentalo de nuevo.');
+      },
+    );
 
     // Triangulación: ValidationException con mensaje default
     test(

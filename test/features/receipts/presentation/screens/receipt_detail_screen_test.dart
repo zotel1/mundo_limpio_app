@@ -129,7 +129,7 @@ void main() {
     ) async {
       when(
         () => mockRepo.getReceiptById(42),
-      ).thenThrow(const ApiException('Compra no encontrada', 404));
+      ).thenThrow(const UnknownApiException('Compra no encontrada', 404));
 
       await tester.pumpWidget(createTestApp(provider, 42));
       await pumpUntilSettled(tester);
@@ -141,7 +141,7 @@ void main() {
     testWidgets('Reintentar debe recargar detalle de compra', (tester) async {
       when(
         () => mockRepo.getReceiptById(42),
-      ).thenThrow(const ApiException('Error', 500));
+      ).thenThrow(const UnknownApiException('Error', 500));
 
       await tester.pumpWidget(createTestApp(provider, 42));
       await pumpUntilSettled(tester);

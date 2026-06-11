@@ -191,7 +191,7 @@ void main() {
         // Override: op 1 falla con stock insuficiente
         when(
           () => inventoryApi.adjustStock(1, any()),
-        ).thenThrow(const ApiException('Stock insuficiente', 400));
+        ).thenThrow(const UnknownApiException('Stock insuficiente', 400));
         // Op 2 sigue usando el default de setupMocksForSync (éxito)
 
         final syncService = SyncService(

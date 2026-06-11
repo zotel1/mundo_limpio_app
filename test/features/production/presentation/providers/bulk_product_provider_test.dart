@@ -120,7 +120,7 @@ void main() {
     test('debe setear error cuando falla con ApiException', () async {
       when(
         () => mockRepo.getBulkProducts(),
-      ).thenThrow(const ApiException('Error de red', 500));
+      ).thenThrow(const UnknownApiException('Error de red', 500));
 
       await provider.getBulkProducts();
 

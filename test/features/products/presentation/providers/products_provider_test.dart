@@ -102,7 +102,7 @@ void main() {
     test('debe setear error cuando falla con ApiException', () async {
       when(
         () => mockRepo.getAll(),
-      ).thenThrow(const ApiException('Error de red', 500));
+      ).thenThrow(const UnknownApiException('Error de red', 500));
 
       await provider.loadProducts();
 
@@ -168,7 +168,7 @@ void main() {
     test('debe setear error si create falla', () async {
       when(
         () => mockRepo.create(any()),
-      ).thenThrow(const ApiException('SKU duplicado', 409));
+      ).thenThrow(const UnknownApiException('SKU duplicado', 409));
 
       await provider.createProduct(
         const Product(id: 0, sku: 'SKU001', name: 'Test'),

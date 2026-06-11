@@ -55,7 +55,7 @@ void main() {
       test('debe lanzar ApiException cuando la API falla', () async {
         when(
           () => mockApi.getUsers(),
-        ).thenThrow(const ApiException('Error', 500));
+        ).thenThrow(const UnknownApiException('Error', 500));
 
         expect(
           () async => await repository.getUsers(),
@@ -89,7 +89,7 @@ void main() {
       test('debe lanzar ApiException cuando la API falla', () async {
         when(
           () => mockApi.getUser(999),
-        ).thenThrow(const ApiException('Not found', 404));
+        ).thenThrow(const UnknownApiException('Not found', 404));
 
         expect(
           () async => await repository.getUser(999),
@@ -132,7 +132,7 @@ void main() {
       test('debe lanzar ApiException cuando la API falla', () async {
         when(
           () => mockApi.updateRoles(1, {UserRole.admin}),
-        ).thenThrow(const ApiException('Bad request', 400));
+        ).thenThrow(const UnknownApiException('Bad request', 400));
 
         expect(
           () async => await repository.updateRoles(1, {UserRole.admin}),
@@ -158,7 +158,7 @@ void main() {
       test('debe lanzar ApiException cuando la API falla', () async {
         when(
           () => mockApi.resetPassword(1, 'pass'),
-        ).thenThrow(const ApiException('Forbidden', 403));
+        ).thenThrow(const UnknownApiException('Forbidden', 403));
 
         expect(
           () async => await repository.resetPassword(1, 'pass'),

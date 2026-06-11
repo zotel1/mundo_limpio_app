@@ -147,7 +147,7 @@ void main() {
     test('propaga ApiException cuando la API falla', () async {
       when(
         () => mockInventoryApi.getInventory(testProductId),
-      ).thenThrow(const ApiException('Producto no encontrado', 404));
+      ).thenThrow(const UnknownApiException('Producto no encontrado', 404));
 
       expect(
         () => repository.getInventory(testProductId),
@@ -275,7 +275,7 @@ void main() {
     test('propaga ApiException cuando la API falla', () async {
       when(
         () => mockInventoryApi.getLowStock(),
-      ).thenThrow(const ApiException('Error interno', 500));
+      ).thenThrow(const UnknownApiException('Error interno', 500));
 
       expect(() => repository.getLowStock(), throwsA(isA<ApiException>()));
     });
@@ -371,7 +371,7 @@ void main() {
     test('propaga ApiException cuando la API falla', () async {
       when(
         () => mockInventoryApi.adjustStock(testProductId, any()),
-      ).thenThrow(const ApiException('Conflicto de versión', 409));
+      ).thenThrow(const UnknownApiException('Conflicto de versión', 409));
 
       expect(
         () => repository.adjustStock(testProductId, testRequest),

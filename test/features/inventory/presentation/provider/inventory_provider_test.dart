@@ -118,7 +118,7 @@ void main() {
       expect(provider.status, InventoryStatus.loading);
 
       completer.completeError(
-        const ApiException('Producto no encontrado', 404),
+        const UnknownApiException('Producto no encontrado', 404),
       );
       await future;
 
@@ -164,7 +164,9 @@ void main() {
 
       expect(provider.status, InventoryStatus.loading);
 
-      completer.completeError(const ApiException('Error del servidor', 500));
+      completer.completeError(
+        const UnknownApiException('Error del servidor', 500),
+      );
       await future;
 
       expect(provider.status, InventoryStatus.error);
@@ -211,7 +213,9 @@ void main() {
 
         expect(provider.status, InventoryStatus.loading);
 
-        completer.completeError(const ApiException('Stock insuficiente', 400));
+        completer.completeError(
+          const UnknownApiException('Stock insuficiente', 400),
+        );
         await future;
 
         expect(provider.status, InventoryStatus.error);
@@ -237,7 +241,7 @@ void main() {
         expect(provider.status, InventoryStatus.loading);
 
         completer.completeError(
-          const ApiException('Conflicto de versión', 409),
+          const UnknownApiException('Conflicto de versión', 409),
         );
         await future;
 
@@ -273,7 +277,7 @@ void main() {
     test('tras error vuelve a idle limpiando errorMessage', () async {
       when(
         () => mockRepository.getInventory(testProductId),
-      ).thenThrow(const ApiException('Error', 500));
+      ).thenThrow(const UnknownApiException('Error', 500));
       await provider.loadInventory(testProductId);
 
       expect(provider.status, InventoryStatus.error);

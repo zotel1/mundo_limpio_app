@@ -363,7 +363,7 @@ void main() {
       () async {
         when(
           () => mockAuthRepository.register(testEmail, testPassword),
-        ).thenThrow(const ApiException('Email already registered', 409));
+        ).thenThrow(const UnknownApiException('Email already registered', 409));
 
         await provider.register(testEmail, testPassword);
 

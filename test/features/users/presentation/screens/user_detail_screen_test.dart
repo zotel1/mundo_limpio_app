@@ -292,7 +292,7 @@ void main() {
 
       when(
         () => mockRepo.updateRoles(any(), any()),
-      ).thenThrow(const ApiException('Error del servidor', 500));
+      ).thenThrow(const UnknownApiException('Error del servidor', 500));
 
       await tester.pumpWidget(createTestApp(usersProvider, authProvider));
       await pumpUntilSettled(tester);
@@ -477,7 +477,7 @@ void main() {
 
       when(
         () => mockRepo.resetPassword(any(), any()),
-      ).thenThrow(const ApiException('Error del servidor', 500));
+      ).thenThrow(const UnknownApiException('Error del servidor', 500));
 
       await tester.pumpWidget(createTestApp(usersProvider, authProvider));
       await pumpUntilSettled(tester);

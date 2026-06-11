@@ -262,7 +262,7 @@ void main() {
     ) async {
       when(
         () => mockRepo.getProducts(),
-      ).thenThrow(const ApiException('Error del servidor', 500));
+      ).thenThrow(const UnknownApiException('Error del servidor', 500));
 
       await tester.pumpWidget(createTestApp(provider));
       await pumpUntilSettled(tester);
@@ -278,7 +278,7 @@ void main() {
       // Arrange: falla primero
       when(
         () => mockRepo.getProducts(),
-      ).thenThrow(const ApiException('Error', 500));
+      ).thenThrow(const UnknownApiException('Error', 500));
       await tester.pumpWidget(createTestApp(provider));
       await pumpUntilSettled(tester);
       expect(find.textContaining('Error'), findsOneWidget);
@@ -312,7 +312,7 @@ void main() {
       // Hacer que loadStock falle
       when(
         () => mockRepo.getBatchesByProduct(any()),
-      ).thenThrow(const ApiException('Producto sin stock', 400));
+      ).thenThrow(const UnknownApiException('Producto sin stock', 400));
 
       await tester.tap(find.text('Producto A').last);
       await pumpUntilSettled(tester);

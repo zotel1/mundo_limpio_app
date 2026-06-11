@@ -161,7 +161,7 @@ void main() {
       // Stub adjustStock para que falle
       when(
         () => mockRepo.adjustStock(any(), any()),
-      ).thenThrow(const ApiException('Conflicto de versión', 409));
+      ).thenThrow(const UnknownApiException('Conflicto de versión', 409));
 
       await openDialog(tester);
 

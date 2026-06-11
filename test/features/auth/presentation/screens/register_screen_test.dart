@@ -247,7 +247,7 @@ void main() {
       // Arrange: register lanza ApiException (código 409 = conflict)
       when(
         () => mockRepo.register(any(), any()),
-      ).thenThrow(const ApiException('Email already registered', 409));
+      ).thenThrow(const UnknownApiException('Email already registered', 409));
 
       await tester.pumpWidget(createTestApp(authProvider));
       await pumpUntilSettled(tester);

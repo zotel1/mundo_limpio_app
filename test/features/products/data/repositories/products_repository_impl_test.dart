@@ -106,7 +106,7 @@ void main() {
           // Arrange
           when(
             () => mockApi.getProducts(),
-          ).thenThrow(const ApiException('Error', 500));
+          ).thenThrow(const UnknownApiException('Error', 500));
 
           // Act & Assert
           expect(
@@ -420,7 +420,7 @@ void main() {
           // Arrange
           when(
             () => mockApi.deleteProduct(1),
-          ).thenThrow(const ApiException('Forbidden', 403));
+          ).thenThrow(const UnknownApiException('Forbidden', 403));
 
           // Act & Assert
           expect(

@@ -56,7 +56,7 @@ class ProductsRepositoryImpl implements IProductsRepository {
 
   /// Lanza [ApiException] cuando no hay conexión ni datos cacheados.
   Never _throwOfflineError() {
-    throw const ApiException('Sin conexión y sin datos en caché', 0);
+    throw const UnknownApiException('Sin conexión y sin datos en caché', 0);
   }
 
   @override

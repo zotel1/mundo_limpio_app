@@ -97,9 +97,9 @@ void main() {
       'debe fallar con error cuando getProducts lanza ApiException (R4-2)',
       () async {
         // Arrange
-        when(
-          () => mockRepo.getProducts(),
-        ).thenThrow(const ApiException('Error al cargar productos', 500));
+        when(() => mockRepo.getProducts()).thenThrow(
+          const UnknownApiException('Error al cargar productos', 500),
+        );
 
         // Act
         await provider.loadProducts();
@@ -114,7 +114,7 @@ void main() {
       // Arrange: fallo primero
       when(
         () => mockRepo.getProducts(),
-      ).thenThrow(const ApiException('Error previo', 500));
+      ).thenThrow(const UnknownApiException('Error previo', 500));
       await provider.loadProducts();
       expect(provider.errorMessage, isNotNull);
 
@@ -210,7 +210,7 @@ void main() {
 
         when(
           () => mockRepo.getBatchesByProduct(1),
-        ).thenThrow(const ApiException('Producto no encontrado', 404));
+        ).thenThrow(const UnknownApiException('Producto no encontrado', 404));
 
         // Act
         await provider.loadStock(1);
@@ -309,7 +309,7 @@ void main() {
 
         when(
           () => mockRepo.createSale(any()),
-        ).thenThrow(const ApiException('Stock insuficiente', 400));
+        ).thenThrow(const UnknownApiException('Stock insuficiente', 400));
 
         // Act
         await provider.createSale(100.0);
@@ -457,7 +457,7 @@ void main() {
       // Arrange: forzar error
       when(
         () => mockRepo.getProducts(),
-      ).thenThrow(const ApiException('Error', 500));
+      ).thenThrow(const UnknownApiException('Error', 500));
       await provider.loadProducts();
       expect(provider.status, SalesStatus.error);
 
@@ -546,7 +546,7 @@ void main() {
     test('debe llamar notifyListeners en clearError', () async {
       when(
         () => mockRepo.getProducts(),
-      ).thenThrow(const ApiException('Error', 500));
+      ).thenThrow(const UnknownApiException('Error', 500));
       await provider.loadProducts();
 
       var notifyCount = 0;
@@ -612,7 +612,7 @@ void main() {
       // Arrange
       when(
         () => mockRepo.getDrafts(),
-      ).thenThrow(const ApiException('Error al cargar', 500));
+      ).thenThrow(const UnknownApiException('Error al cargar', 500));
 
       // Act
       await provider.loadDrafts();
@@ -662,7 +662,7 @@ void main() {
       // Arrange
       when(
         () => mockRepo.confirmDraft(7),
-      ).thenThrow(const ApiException('Stock insuficiente', 400));
+      ).thenThrow(const UnknownApiException('Stock insuficiente', 400));
 
       // Act
       await provider.confirmDraft(7);
