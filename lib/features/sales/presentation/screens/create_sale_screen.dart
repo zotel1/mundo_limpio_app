@@ -161,7 +161,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen> {
   Widget _buildSaleForm(SalesProvider provider) {
     final totalStock = provider.batches.fold<double>(
       0,
-      (sum, batch) => sum + batch.currentStock,
+      (sum, batch) => sum + batch.quantity,
     );
 
     return Form(
@@ -185,7 +185,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen> {
                   ),
                   const SizedBox(height: 8),
                   ...provider.batches.map(
-                    (batch) => Text('Lote #${batch.id}: ${batch.currentStock}'),
+                    (batch) => Text('Lote #${batch.id}: ${batch.quantity}'),
                   ),
                 ],
               ),

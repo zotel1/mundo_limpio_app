@@ -13,10 +13,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/product_line_confirm_dto.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/receipt_confirm_request.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/product_line_confirm.dart';
 import 'package:mundo_limpio_app/features/receipts/domain/entities/purchase.dart';
 import 'package:mundo_limpio_app/features/receipts/domain/entities/receipt.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/receipt_confirmation.dart';
 import 'package:mundo_limpio_app/features/receipts/domain/repository/receipts_repository.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/provider/receipts_provider.dart';
 
@@ -38,12 +38,12 @@ void main() {
     items: const [],
   );
 
-  final confirmRequest = ReceiptConfirmRequest(
+  final confirmRequest = ReceiptConfirmation(
     imageUrl: 'https://storage.example.com/receipts/img1.jpg',
     supplierName: 'Proveedor X',
     purchaseDate: '2026-05-15',
     lines: const [
-      ProductLineConfirmDto(
+      ProductLineConfirm(
         description: 'Leche Entera',
         quantity: 2,
         unitPrice: 150.0,

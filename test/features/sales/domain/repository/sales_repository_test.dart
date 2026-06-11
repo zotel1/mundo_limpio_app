@@ -12,9 +12,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import 'package:mundo_limpio_app/features/sales/data/models/product_response.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/production_batch_response.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_request.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/batch_info.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/create_sale_data.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/product_info.dart';
 import 'package:mundo_limpio_app/features/sales/domain/entities/sale.dart';
 import 'package:mundo_limpio_app/features/sales/domain/entities/sale_item.dart';
 import 'package:mundo_limpio_app/features/sales/domain/repository/sales_repository.dart';
@@ -30,12 +30,12 @@ void main() {
   });
 
   group('SalesRepository', () {
-    // Verifica que getProducts retorna List<ProductResponse>
-    test('getProducts debe retornar List<ProductResponse>', () async {
+    // Verifica que getProducts retorna List<ProductInfo>
+    test('getProducts debe retornar List<ProductInfo>', () async {
       // Arrange: stub del método con datos de ejemplo
       final expectedProducts = [
-        const ProductResponse(id: 1, name: 'Producto A'),
-        const ProductResponse(id: 2, name: 'Producto B'),
+        const ProductInfo(id: 1, name: 'Producto A'),
+        const ProductInfo(id: 2, name: 'Producto B'),
       ];
       when(
         () => mockRepository.getProducts(),
@@ -45,7 +45,7 @@ void main() {
       final result = await mockRepository.getProducts();
 
       // Assert
-      expect(result, isA<List<ProductResponse>>());
+      expect(result, isA<List<ProductInfo>>());
       expect(result, hasLength(2));
       expect(result[0].id, 1);
       expect(result[0].name, 'Producto A');
@@ -53,43 +53,32 @@ void main() {
       expect(result[1].name, 'Producto B');
     });
 
-    // Verifica que getBatchesByProduct retorna List<ProductionBatchResponse>
-    test(
-      'getBatchesByProduct debe retornar List<ProductionBatchResponse>',
-      () async {
-        // Arrange
-        final expectedBatches = [
-          const ProductionBatchResponse(
-            id: 1,
-            productId: 1,
-            currentStock: 100.0,
-          ),
-          const ProductionBatchResponse(
-            id: 2,
-            productId: 1,
-            currentStock: 50.0,
-          ),
-        ];
-        when(
-          () => mockRepository.getBatchesByProduct(1),
-        ).thenAnswer((_) async => expectedBatches);
+    // Verifica que getBatchesByProduct retorna List<BatchInfo>
+    test('getBatchesByProduct debe retornar List<BatchInfo>', () async {
+      // Arrange
+      final expectedBatches = [
+        const BatchInfo(id: 1, productId: 1, quantity: 100.0),
+        const BatchInfo(id: 2, productId: 1, quantity: 50.0),
+      ];
+      when(
+        () => mockRepository.getBatchesByProduct(1),
+      ).thenAnswer((_) async => expectedBatches);
 
-        // Act
-        final result = await mockRepository.getBatchesByProduct(1);
+      // Act
+      final result = await mockRepository.getBatchesByProduct(1);
 
-        // Assert
-        expect(result, isA<List<ProductionBatchResponse>>());
-        expect(result, hasLength(2));
-        expect(result[0].id, 1);
-        expect(result[0].currentStock, 100.0);
-        expect(result[1].currentStock, 50.0);
-      },
-    );
+      // Assert
+      expect(result, isA<List<BatchInfo>>());
+      expect(result, hasLength(2));
+      expect(result[0].id, 1);
+      expect(result[0].quantity, 100.0);
+      expect(result[1].quantity, 50.0);
+    });
 
     // Verifica que createSale retorna Sale
     test('createSale debe retornar Sale', () async {
       // Arrange
-      final request = SaleRequest(productId: 1, quantity: 30.0);
+      final data = CreateSaleData(productId: 1, quantity: 30.0);
       final expectedResponse = Sale(
         id: 1,
         total: 375.00,
@@ -106,11 +95,11 @@ void main() {
       );
 
       when(
-        () => mockRepository.createSale(request),
+        () => mockRepository.createSale(data),
       ).thenAnswer((_) async => expectedResponse);
 
       // Act
-      final result = await mockRepository.createSale(request);
+      final result = await mockRepository.createSale(data);
 
       // Assert
       expect(result, isA<Sale>());
@@ -133,11 +122,11 @@ void main() {
       verify(() => mockRepository.getBatchesByProduct(42)).called(1);
     });
 
-    // Verifica que createSale recibe el SaleRequest correcto
-    test('createSale debe recibir SaleRequest y delegar', () async {
+    // Verifica que createSale recibe el CreateSaleData correcto
+    test('createSale debe recibir CreateSaleData y delegar', () async {
       // Arrange
-      final request = SaleRequest(productId: 5, quantity: 10.0);
-      when(() => mockRepository.createSale(request)).thenAnswer(
+      final data = CreateSaleData(productId: 5, quantity: 10.0);
+      when(() => mockRepository.createSale(data)).thenAnswer(
         (_) async => Sale(
           id: 2,
           total: 100.0,
@@ -148,10 +137,10 @@ void main() {
       );
 
       // Act
-      await mockRepository.createSale(request);
+      await mockRepository.createSale(data);
 
       // Assert
-      verify(() => mockRepository.createSale(request)).called(1);
+      verify(() => mockRepository.createSale(data)).called(1);
     });
   });
 }

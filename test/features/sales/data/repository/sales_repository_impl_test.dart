@@ -21,8 +21,8 @@ import 'package:mundo_limpio_app/features/sales/data/api/sales_api.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/product_response.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/production_batch_response.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/sale_item_response.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_request.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/create_sale_data.dart';
 import 'package:mundo_limpio_app/features/sales/data/repository/sales_repository_impl.dart';
 
 // ─── Mocks ──────────────────────────────────────────────────────────────────
@@ -48,7 +48,7 @@ void main() {
   late SalesRepositoryImpl repository;
 
   setUpAll(() {
-    registerFallbackValue(SaleRequest(productId: 0, quantity: 0));
+    registerFallbackValue(CreateSaleData(productId: 0, quantity: 0));
     registerFallbackValue(
       DraftSalesCompanion.insert(
         productId: 0,
@@ -228,7 +228,7 @@ void main() {
 
         // Assert
         expect(result, hasLength(2));
-        expect(result[0].currentStock, 100.0);
+        expect(result[0].quantity, 100.0);
         verify(() => mockSalesApi.getBatchesByProduct(productId)).called(1);
         verify(() => mockBatchCacheDao.deleteByProductId(productId)).called(1);
         verify(() => mockBatchCacheDao.upsertAll(any())).called(1);
@@ -278,7 +278,7 @@ void main() {
 
       // Assert
       expect(result, hasLength(2));
-      expect(result[0].currentStock, 100.0);
+      expect(result[0].quantity, 100.0);
       verifyNever(() => mockSalesApi.getBatchesByProduct(any()));
     });
 
@@ -343,7 +343,7 @@ void main() {
 
         // Assert: 5 min exactos → aún fresco
         expect(result, hasLength(1));
-        expect(result[0].currentStock, 75.0);
+        expect(result[0].quantity, 75.0);
       },
     );
   });
@@ -356,7 +356,7 @@ void main() {
     test('debe llamar SalesApi.createSale y retornar respuesta', () async {
       // Arrange
       setOnline();
-      final request = SaleRequest(productId: 1, quantity: 30.0);
+      final data = CreateSaleData(productId: 1, quantity: 30.0);
       final expectedResponse = SaleResponse(
         id: 1,
         totalAmount: 375.00,
@@ -373,32 +373,29 @@ void main() {
         ],
       );
       when(
-        () => mockSalesApi.createSale(request),
+        () => mockSalesApi.createSale(any()),
       ).thenAnswer((_) async => expectedResponse);
 
       // Act
-      final result = await repository.createSale(request);
+      final result = await repository.createSale(data);
 
       // Assert
       expect(result.id, 1);
       expect(result.total, 375.00);
-      verify(() => mockSalesApi.createSale(request)).called(1);
+      verify(() => mockSalesApi.createSale(any())).called(1);
       verifyNever(() => mockDraftSaleDao.insert(any()));
     });
 
     test('debe propagar ApiException cuando SalesApi falla', () async {
       // Arrange
       setOnline();
-      final request = SaleRequest(productId: 1, quantity: 100.0);
+      final data = CreateSaleData(productId: 1, quantity: 100.0);
       when(
-        () => mockSalesApi.createSale(request),
+        () => mockSalesApi.createSale(any()),
       ).thenThrow(const UnknownApiException('Stock insuficiente', 400));
 
       // Act & Assert
-      expect(
-        () => repository.createSale(request),
-        throwsA(isA<ApiException>()),
-      );
+      expect(() => repository.createSale(data), throwsA(isA<ApiException>()));
     });
   });
 
@@ -408,11 +405,11 @@ void main() {
       () async {
         // Arrange
         setOffline();
-        final request = SaleRequest(productId: 42, quantity: 15.0);
+        final data = CreateSaleData(productId: 42, quantity: 15.0);
         when(() => mockDraftSaleDao.insert(any())).thenAnswer((_) async => 1);
 
         // Act
-        final result = await repository.createSale(request);
+        final result = await repository.createSale(data);
 
         // Assert
         expect(result.id, -1);

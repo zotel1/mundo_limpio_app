@@ -138,12 +138,6 @@ class UsersProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  @override
-  // ignore: unnecessary_overrides
-  void dispose() {
-    super.dispose();
-  }
-
   /// Resetea la contraseña de un usuario.
   ///
   /// En caso de éxito: status = loaded (mantiene el usuario actual).

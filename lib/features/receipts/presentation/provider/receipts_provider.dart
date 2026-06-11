@@ -30,9 +30,9 @@
 import 'package:flutter/foundation.dart';
 
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/receipt_confirm_request.dart';
 import 'package:mundo_limpio_app/features/receipts/domain/entities/purchase.dart';
 import 'package:mundo_limpio_app/features/receipts/domain/entities/receipt.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/receipt_confirmation.dart';
 import 'package:mundo_limpio_app/features/receipts/domain/repository/receipts_repository.dart';
 
 /// Estados posibles del flujo de escaneo OCR de recibos.
@@ -138,14 +138,14 @@ class ReceiptsProvider extends ChangeNotifier {
 
   /// Confirma la compra revisada para persistir en el backend.
   ///
-  /// [request]: datos revisados de la compra a confirmar.
+  /// [data]: datos revisados de la compra a confirmar.
   /// Precondición: processSuccess
   /// Transición: processSuccess → confirming → confirmed | error
-  Future<void> confirmReceipt(ReceiptConfirmRequest request) async {
+  Future<void> confirmReceipt(ReceiptConfirmation data) async {
     if (_status != ReceiptsStatus.processSuccess) return;
     _setStatus(ReceiptsStatus.confirming);
     try {
-      _purchaseResponse = await _repository.confirmReceipt(request);
+      _purchaseResponse = await _repository.confirmReceipt(data);
       _status = ReceiptsStatus.confirmed;
     } on ApiException catch (e) {
       _status = ReceiptsStatus.error;
@@ -155,12 +155,6 @@ class ReceiptsProvider extends ChangeNotifier {
       _errorMessage = e.toString();
     }
     notifyListeners();
-  }
-
-  @override
-  // ignore: unnecessary_overrides
-  void dispose() {
-    super.dispose();
   }
 
   /// Resetea todos los campos al estado inicial.
