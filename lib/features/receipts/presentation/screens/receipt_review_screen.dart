@@ -23,10 +23,10 @@ import 'package:go_router/go_router.dart';
 
 import 'package:mundo_limpio_app/core/widgets/branded_app_bar.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/receipt_confirm_request.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/product_line_confirm_dto.dart';
 import 'package:mundo_limpio_app/features/receipts/data/models/product_line_dto.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/product_line_confirm.dart';
 import 'package:mundo_limpio_app/features/receipts/domain/entities/receipt.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/receipt_confirmation.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/provider/receipts_provider.dart';
 
 /// Pantalla para revisar y editar los datos detectados por OCR.
@@ -73,8 +73,8 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
   }
 
   /// Construye un request de confirmación con datos editados.
-  ReceiptConfirmRequest _buildConfirmRequest() {
-    return ReceiptConfirmRequest(
+  ReceiptConfirmation _buildConfirmRequest() {
+    return ReceiptConfirmation(
       imageUrl: widget.processResponse.filename,
       supplierName: _supplierController.text,
       purchaseDate: _dateController.text,
@@ -85,7 +85,7 @@ class _ReceiptReviewScreenState extends State<ReceiptReviewScreen> {
         final price =
             double.tryParse(line.unitPriceController.text) ??
             line.originalLine.unitPrice;
-        return ProductLineConfirmDto(
+        return ProductLineConfirm(
           description: line.nameController.text,
           quantity: qty,
           unitPrice: price,

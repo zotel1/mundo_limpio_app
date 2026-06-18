@@ -10,10 +10,10 @@
 // TDD: GREEN — implementación mínima para pasar los tests
 
 import 'package:mundo_limpio_app/core/drift/app_database.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/product_response.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/production_batch_response.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_request.dart';
 
+import '../entities/batch_info.dart';
+import '../entities/create_sale_data.dart';
+import '../entities/product_info.dart';
 import '../entities/sale.dart';
 
 /// Repositorio de Ventas.
@@ -27,16 +27,16 @@ import '../entities/sale.dart';
 abstract class SalesRepository {
   /// Obtiene la lista de productos disponibles.
   ///
-  /// Retorna [List<ProductResponse>] con todos los productos.
+  /// Retorna [List<ProductInfo>] con todos los productos.
   /// Lanza [ApiException] en caso de error de red.
-  Future<List<ProductResponse>> getProducts();
+  Future<List<ProductInfo>> getProducts();
 
   /// Obtiene los lotes de producción de un producto específico.
   ///
   /// [productId]: ID del producto a consultar.
-  /// Retorna [List<ProductionBatchResponse>] con los lotes activos.
+  /// Retorna [List<BatchInfo>] con los lotes activos.
   /// Lanza [ApiException] en caso de error de red.
-  Future<List<ProductionBatchResponse>> getBatchesByProduct(int productId);
+  Future<List<BatchInfo>> getBatchesByProduct(int productId);
 
   /// Obtiene la lista de ventas desde el backend.
   ///
@@ -53,10 +53,10 @@ abstract class SalesRepository {
 
   /// Crea una nueva venta en el backend.
   ///
-  /// [request]: datos de la venta (productId, quantity).
+  /// [data]: datos de la venta (productId, quantity).
   /// Retorna [Sale] con los datos de la venta creada.
   /// Lanza [ApiException] en caso de error (stock insuficiente, etc.).
-  Future<Sale> createSale(SaleRequest request);
+  Future<Sale> createSale(CreateSaleData data);
 
   /// Obtiene todos los borradores de ventas con status 'draft'.
   ///

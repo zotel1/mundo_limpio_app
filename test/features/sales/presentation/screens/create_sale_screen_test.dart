@@ -23,9 +23,9 @@ import 'package:provider/provider.dart';
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
 import 'package:mundo_limpio_app/features/auth/presentation/provider/auth_provider.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/product_response.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/production_batch_response.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_request.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/batch_info.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/create_sale_data.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/product_info.dart';
 import 'package:mundo_limpio_app/features/sales/domain/entities/sale.dart';
 import 'package:mundo_limpio_app/features/sales/domain/entities/sale_item.dart';
 import 'package:mundo_limpio_app/features/sales/domain/repository/sales_repository.dart';
@@ -64,13 +64,9 @@ void main() {
   late MockSalesRepository mockRepo;
   late SalesProvider provider;
 
-  const productA = ProductResponse(id: 1, name: 'Producto A');
-  const productB = ProductResponse(id: 2, name: 'Producto B');
-  const batch = ProductionBatchResponse(
-    id: 1,
-    productId: 1,
-    currentStock: 100.0,
-  );
+  const productA = ProductInfo(id: 1, name: 'Producto A');
+  const productB = ProductInfo(id: 2, name: 'Producto B');
+  const batch = BatchInfo(id: 1, productId: 1, quantity: 100.0);
   const saleItem = SaleItem(
     productId: 1,
     productName: 'Test Product X',
@@ -80,7 +76,7 @@ void main() {
   final testDate = DateTime(2026, 5, 10, 10, 30, 0);
 
   setUpAll(() {
-    registerFallbackValue(const SaleRequest(productId: 0, quantity: 0));
+    registerFallbackValue(const CreateSaleData(productId: 0, quantity: 0));
   });
 
   setUp(() {
@@ -127,7 +123,7 @@ void main() {
     testWidgets('debe mostrar spinner mientras carga productos (R5.2)', (
       tester,
     ) async {
-      final completer = Completer<List<ProductResponse>>();
+      final completer = Completer<List<ProductInfo>>();
       when(() => mockRepo.getProducts()).thenAnswer((_) => completer.future);
 
       await tester.pumpWidget(createTestApp(provider));
@@ -248,7 +244,7 @@ void main() {
       await pumpUntilSettled(tester);
 
       verify(
-        () => mockRepo.createSale(any(that: isA<SaleRequest>())),
+        () => mockRepo.createSale(any(that: isA<CreateSaleData>())),
       ).called(1);
     });
   });

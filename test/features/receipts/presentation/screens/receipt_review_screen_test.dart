@@ -19,9 +19,9 @@ import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mundo_limpio_app/core/widgets/cat_loading_indicator.dart';
-import 'package:mundo_limpio_app/features/receipts/data/models/receipt_confirm_request.dart';
 import 'package:mundo_limpio_app/features/receipts/domain/entities/purchase.dart';
 import 'package:mundo_limpio_app/features/receipts/domain/entities/receipt.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/receipt_confirmation.dart';
 import 'package:mundo_limpio_app/features/receipts/domain/repository/receipts_repository.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/provider/receipts_provider.dart';
 import 'package:mundo_limpio_app/features/receipts/presentation/screens/receipt_review_screen.dart';
@@ -93,7 +93,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-      const ReceiptConfirmRequest(
+      const ReceiptConfirmation(
         imageUrl: '',
         supplierName: '',
         purchaseDate: '',
@@ -264,7 +264,7 @@ void main() {
         // Verificar que el request contiene líneas vacías
         final captured =
             verify(() => mockRepo.confirmReceipt(captureAny())).captured.single
-                as ReceiptConfirmRequest;
+                as ReceiptConfirmation;
 
         expect(captured.lines, isEmpty);
       },

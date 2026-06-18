@@ -18,9 +18,9 @@ import 'package:flutter/foundation.dart';
 
 import 'package:mundo_limpio_app/core/drift/app_database.dart';
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/product_response.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/production_batch_response.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_request.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/batch_info.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/create_sale_data.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/product_info.dart';
 import 'package:mundo_limpio_app/features/sales/domain/entities/sale.dart';
 import 'package:mundo_limpio_app/features/sales/domain/repository/sales_repository.dart';
 
@@ -48,8 +48,8 @@ class SalesProvider extends ChangeNotifier {
   final SalesRepository _repository;
 
   SalesStatus _status = SalesStatus.idle;
-  List<ProductResponse> _products = [];
-  List<ProductionBatchResponse> _batches = [];
+  List<ProductInfo> _products = [];
+  List<BatchInfo> _batches = [];
   List<DraftSale> _drafts = [];
   int? _selectedProductId;
   String? _errorMessage;
@@ -59,10 +59,10 @@ class SalesProvider extends ChangeNotifier {
   SalesStatus get status => _status;
 
   /// Lista de productos disponibles.
-  List<ProductResponse> get products => _products;
+  List<ProductInfo> get products => _products;
 
   /// Lista de lotes del producto seleccionado.
-  List<ProductionBatchResponse> get batches => _batches;
+  List<BatchInfo> get batches => _batches;
 
   /// ID del producto seleccionado (null si no hay selección).
   int? get selectedProductId => _selectedProductId;
@@ -74,7 +74,7 @@ class SalesProvider extends ChangeNotifier {
   ///
   /// Retorna 0.0 si no hay lotes cargados.
   double get stockTotal =>
-      _batches.fold<double>(0, (sum, batch) => sum + batch.currentStock);
+      _batches.fold<double>(0, (sum, batch) => sum + batch.quantity);
 
   /// Última venta creada (null si no hay venta).
   Sale? get lastSale => _lastSale;
@@ -137,11 +137,11 @@ class SalesProvider extends ChangeNotifier {
     }
     _setLoading();
     try {
-      final request = SaleRequest(
+      final data = CreateSaleData(
         productId: _selectedProductId!,
         quantity: quantity,
       );
-      _lastSale = await _repository.createSale(request);
+      _lastSale = await _repository.createSale(data);
       _status = SalesStatus.success;
     } on ApiException catch (e) {
       _status = SalesStatus.error;
@@ -151,12 +151,6 @@ class SalesProvider extends ChangeNotifier {
       _errorMessage = e.toString();
     }
     notifyListeners();
-  }
-
-  @override
-  // ignore: unnecessary_overrides
-  void dispose() {
-    super.dispose();
   }
 
   /// Resetea todos los campos al estado inicial.

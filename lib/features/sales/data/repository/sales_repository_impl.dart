@@ -17,10 +17,11 @@ import 'package:mundo_limpio_app/core/drift/daos/draft_sale_dao.dart';
 import 'package:mundo_limpio_app/core/drift/daos/product_cache_dao.dart';
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
 import 'package:mundo_limpio_app/features/sales/data/api/sales_api.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/product_response.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/production_batch_response.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/sale_request.dart';
 import 'package:mundo_limpio_app/features/sales/data/models/sale_response.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/batch_info.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/create_sale_data.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/product_info.dart';
 import 'package:mundo_limpio_app/features/sales/domain/entities/sale.dart';
 import 'package:mundo_limpio_app/features/sales/domain/repository/sales_repository.dart';
 
@@ -63,7 +64,7 @@ class SalesRepositoryImpl implements SalesRepository {
   }
 
   @override
-  Future<List<ProductResponse>> getProducts() async {
+  Future<List<ProductInfo>> getProducts() async {
     if (_connectivity.isOnline) {
       final products = await _salesApi.getProducts();
       await _productCacheDao.upsertAll(
@@ -78,17 +79,15 @@ class SalesRepositoryImpl implements SalesRepository {
             )
             .toList(),
       );
-      return products;
+      return products.map((p) => ProductInfo(id: p.id, name: p.name)).toList();
     }
     // offline: leer desde caché
     final cached = await _productCacheDao.getAll();
-    return cached.map((c) => ProductResponse(id: c.id, name: c.name)).toList();
+    return cached.map((c) => ProductInfo(id: c.id, name: c.name)).toList();
   }
 
   @override
-  Future<List<ProductionBatchResponse>> getBatchesByProduct(
-    int productId,
-  ) async {
+  Future<List<BatchInfo>> getBatchesByProduct(int productId) async {
     if (_connectivity.isOnline) {
       final batches = await _salesApi.getBatchesByProduct(productId);
       // limpia caché viejo antes de guardar el nuevo
@@ -105,7 +104,15 @@ class SalesRepositoryImpl implements SalesRepository {
             )
             .toList(),
       );
-      return batches;
+      return batches
+          .map(
+            (b) => BatchInfo(
+              id: b.id,
+              productId: b.productId,
+              quantity: b.currentStock,
+            ),
+          )
+          .toList();
     }
     // offline: leer caché con validación de TTL (5 min)
     final cached = await _batchCacheDao.getByProductId(productId);
@@ -114,28 +121,32 @@ class SalesRepositoryImpl implements SalesRepository {
     if (age.inMinutes > 5) return []; // expirado
     return cached
         .map(
-          (c) => ProductionBatchResponse(
+          (c) => BatchInfo(
             id: c.id,
             productId: c.productId,
-            currentStock: c.currentStock,
+            quantity: c.currentStock,
           ),
         )
         .toList();
   }
 
   @override
-  Future<Sale> createSale(SaleRequest request) async {
+  Future<Sale> createSale(CreateSaleData data) async {
     if (_connectivity.isOnline) {
+      final request = SaleRequest(
+        productId: data.productId,
+        quantity: data.quantity,
+      );
       final response = await _salesApi.createSale(request);
       return response.toEntity();
     }
     // offline: guardar como borrador
     await _draftSaleDao.insert(
       DraftSalesCompanion.insert(
-        productId: request.productId,
+        productId: data.productId,
         productName: '',
         batchId: 0,
-        quantity: request.quantity,
+        quantity: data.quantity,
         unitPrice: 0,
       ),
     );

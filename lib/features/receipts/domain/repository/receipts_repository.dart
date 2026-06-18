@@ -13,10 +13,9 @@
 //
 // TDD: GREEN — interfaz puramente estructural, sin lógica
 
-import 'package:mundo_limpio_app/features/receipts/data/models/receipt_confirm_request.dart';
-
-import '../entities/receipt.dart';
 import '../entities/purchase.dart';
+import '../entities/receipt.dart';
+import '../entities/receipt_confirmation.dart';
 
 /// Repositorio de Recibos OCR.
 ///
@@ -37,10 +36,10 @@ abstract class ReceiptsRepository {
 
   /// Confirma una compra desde recibo OCR en el backend.
   ///
-  /// [request]: datos revisados de la compra a confirmar.
+  /// [data]: datos revisados de la compra a confirmar.
   /// Retorna [Purchase] con los datos de la compra confirmada.
   /// Lanza [ApiException] en caso de error de validación o red.
-  Future<Purchase> confirmReceipt(ReceiptConfirmRequest request);
+  Future<Purchase> confirmReceipt(ReceiptConfirmation data);
 
   /// Obtiene la lista de compras (recibos confirmados) desde el backend.
   ///

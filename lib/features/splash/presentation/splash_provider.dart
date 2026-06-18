@@ -120,12 +120,6 @@ class SplashProvider extends ChangeNotifier {
     _checkResolved();
   }
 
-  @override
-  // ignore: unnecessary_overrides
-  void dispose() {
-    super.dispose();
-  }
-
   /// Evalúa si todas las condiciones están listas para navegar.
   ///
   /// Se dispara por eventos (timer, wake result, auth resolved)

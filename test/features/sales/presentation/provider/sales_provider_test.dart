@@ -12,9 +12,9 @@ import 'package:mocktail/mocktail.dart';
 
 import 'package:mundo_limpio_app/core/drift/app_database.dart';
 import 'package:mundo_limpio_app/core/network/api_exception.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/product_response.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/production_batch_response.dart';
-import 'package:mundo_limpio_app/features/sales/data/models/sale_request.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/batch_info.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/create_sale_data.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/product_info.dart';
 import 'package:mundo_limpio_app/features/sales/domain/entities/sale.dart';
 import 'package:mundo_limpio_app/features/sales/domain/entities/sale_item.dart';
 import 'package:mundo_limpio_app/features/sales/domain/repository/sales_repository.dart';
@@ -26,11 +26,11 @@ void main() {
   late MockSalesRepository mockRepo;
   late SalesProvider provider;
 
-  const productA = ProductResponse(id: 1, name: 'Producto A');
-  const productB = ProductResponse(id: 2, name: 'Producto B');
+  const productA = ProductInfo(id: 1, name: 'Producto A');
+  const productB = ProductInfo(id: 2, name: 'Producto B');
 
   setUpAll(() {
-    registerFallbackValue(const SaleRequest(productId: 0, quantity: 0));
+    registerFallbackValue(const CreateSaleData(productId: 0, quantity: 0));
     registerFallbackValue(
       const SaleItem(productId: 0, productName: '', quantity: 0, unitPrice: 0),
     );
@@ -174,16 +174,8 @@ void main() {
         await provider.loadProducts();
 
         final batches = [
-          const ProductionBatchResponse(
-            id: 1,
-            productId: 1,
-            currentStock: 100.0,
-          ),
-          const ProductionBatchResponse(
-            id: 2,
-            productId: 1,
-            currentStock: 50.0,
-          ),
+          const BatchInfo(id: 1, productId: 1, quantity: 100.0),
+          const BatchInfo(id: 2, productId: 1, quantity: 50.0),
         ];
         when(
           () => mockRepo.getBatchesByProduct(1),
@@ -196,8 +188,8 @@ void main() {
         expect(provider.status, SalesStatus.stockLoaded);
         expect(provider.selectedProductId, 1);
         expect(provider.batches, hasLength(2));
-        expect(provider.batches[0].currentStock, 100.0);
-        expect(provider.batches[1].currentStock, 50.0);
+        expect(provider.batches[0].quantity, 100.0);
+        expect(provider.batches[1].quantity, 50.0);
       },
     );
 
@@ -254,13 +246,7 @@ void main() {
       await provider.loadProducts();
 
       when(() => mockRepo.getBatchesByProduct(1)).thenAnswer(
-        (_) async => [
-          const ProductionBatchResponse(
-            id: 1,
-            productId: 1,
-            currentStock: 100.0,
-          ),
-        ],
+        (_) async => [const BatchInfo(id: 1, productId: 1, quantity: 100.0)],
       );
       await provider.loadStock(1);
     }
@@ -321,7 +307,7 @@ void main() {
     );
 
     test(
-      'debe crear SaleRequest con los campos correctos (triangulación)',
+      'debe crear CreateSaleData con los campos correctos (triangulación)',
       () async {
         // Arrange
         await setupLoaded();
@@ -338,9 +324,9 @@ void main() {
         // Act
         await provider.createSale(30.0);
 
-        // Assert: verifica que se llamó con un SaleRequest válido
+        // Assert: verifica que se llamó con un CreateSaleData válido
         verify(
-          () => mockRepo.createSale(any(that: isA<SaleRequest>())),
+          () => mockRepo.createSale(any(that: isA<CreateSaleData>())),
         ).called(1);
         expect(provider.status, SalesStatus.success);
       },
@@ -374,13 +360,7 @@ void main() {
       await provider.loadProducts();
 
       when(() => mockRepo.getBatchesByProduct(1)).thenAnswer(
-        (_) async => [
-          const ProductionBatchResponse(
-            id: 1,
-            productId: 1,
-            currentStock: 100.0,
-          ),
-        ],
+        (_) async => [const BatchInfo(id: 1, productId: 1, quantity: 100.0)],
       );
       await provider.loadStock(1);
 
@@ -422,16 +402,8 @@ void main() {
 
         when(() => mockRepo.getBatchesByProduct(1)).thenAnswer(
           (_) async => [
-            const ProductionBatchResponse(
-              id: 1,
-              productId: 1,
-              currentStock: 100.0,
-            ),
-            const ProductionBatchResponse(
-              id: 2,
-              productId: 1,
-              currentStock: 50.0,
-            ),
+            const BatchInfo(id: 1, productId: 1, quantity: 100.0),
+            const BatchInfo(id: 2, productId: 1, quantity: 50.0),
           ],
         );
         await provider.loadStock(1);
@@ -698,13 +670,7 @@ void main() {
         when(() => mockRepo.getProducts()).thenAnswer((_) async => [productA]);
         await provider.loadProducts();
         when(() => mockRepo.getBatchesByProduct(1)).thenAnswer(
-          (_) async => [
-            const ProductionBatchResponse(
-              id: 1,
-              productId: 1,
-              currentStock: 100.0,
-            ),
-          ],
+          (_) async => [const BatchInfo(id: 1, productId: 1, quantity: 100.0)],
         );
         await provider.loadStock(1);
 

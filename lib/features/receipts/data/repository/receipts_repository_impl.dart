@@ -13,8 +13,10 @@ import 'package:mundo_limpio_app/features/receipts/data/api/receipts_api.dart';
 import 'package:mundo_limpio_app/features/receipts/data/models/receipt_confirm_request.dart';
 import 'package:mundo_limpio_app/features/receipts/data/models/receipt_process_response.dart';
 import 'package:mundo_limpio_app/features/receipts/data/models/purchase_response.dart';
+import 'package:mundo_limpio_app/features/receipts/data/models/product_line_confirm_dto.dart';
 import 'package:mundo_limpio_app/features/receipts/domain/entities/purchase.dart';
 import 'package:mundo_limpio_app/features/receipts/domain/entities/receipt.dart';
+import 'package:mundo_limpio_app/features/receipts/domain/entities/receipt_confirmation.dart';
 import 'package:mundo_limpio_app/features/receipts/domain/repository/receipts_repository.dart';
 
 /// Implementación de [ReceiptsRepository] con delegación directa al API.
@@ -34,7 +36,22 @@ class ReceiptsRepositoryImpl implements ReceiptsRepository {
   }
 
   @override
-  Future<Purchase> confirmReceipt(ReceiptConfirmRequest request) async {
+  Future<Purchase> confirmReceipt(ReceiptConfirmation data) async {
+    final request = ReceiptConfirmRequest(
+      imageUrl: data.imageUrl,
+      supplierName: data.supplierName,
+      purchaseDate: data.purchaseDate,
+      lines: data.lines
+          .map(
+            (l) => ProductLineConfirmDto(
+              description: l.description,
+              quantity: l.quantity,
+              unitPrice: l.unitPrice,
+              bulkProductId: l.bulkProductId,
+            ),
+          )
+          .toList(),
+    );
     final response = await _api.confirmReceipt(request);
     return response.toEntity();
   }

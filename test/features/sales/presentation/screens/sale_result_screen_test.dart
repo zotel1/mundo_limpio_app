@@ -12,7 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
-import 'package:mundo_limpio_app/features/sales/data/models/sale_request.dart';
+import 'package:mundo_limpio_app/features/sales/domain/entities/create_sale_data.dart';
 import 'package:mundo_limpio_app/features/sales/domain/entities/sale.dart';
 import 'package:mundo_limpio_app/features/sales/domain/entities/sale_item.dart';
 import 'package:mundo_limpio_app/features/sales/domain/repository/sales_repository.dart';
@@ -65,7 +65,7 @@ void main() {
   );
 
   setUpAll(() {
-    registerFallbackValue(const SaleRequest(productId: 0, quantity: 0));
+    registerFallbackValue(const CreateSaleData(productId: 0, quantity: 0));
   });
 
   setUp(() {
