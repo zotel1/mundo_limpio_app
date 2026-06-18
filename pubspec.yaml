@@ -41,7 +41,7 @@ dependencies:
 
   # Almacenamiento seguro de tokens (iOS Keychain, Android EncryptedSharedPreferences).
   # No usar shared_preferences porque almacena en texto plano.
-  flutter_secure_storage: ^9.2.0
+  flutter_secure_storage: ^10.3.0
 
   # Estado global con ChangeNotifier. Oficial de Flutter, suficiente
   # para el scope actual. Migrar a Riverpod después si hace falta.
@@ -51,7 +51,7 @@ dependencies:
   image_picker: ^1.1.2
 
   # Routing declarativo con redirects por estado de autenticación.
-  go_router: ^14.0.0
+  go_router: ^17.3.0
 
   # Equality por valor (evita tener que sobreescribir == y hashCode a mano).
   equatable: ^2.0.0
@@ -64,7 +64,7 @@ dependencies:
   drift: ^2.34.0
 
   # Binarios nativos de SQLite para Android/iOS empaquetados con la app.
-  sqlite3_flutter_libs: ^0.5.30
+  sqlite3_flutter_libs: ^0.6.0
 
   # Resuelve el directorio de documentos para guardar la DB local.
   path_provider: ^2.1.0
@@ -73,18 +73,18 @@ dependencies:
   path: ^1.9.0
 
   # Monitoreo de conectividad de red (online/offline) con stream reactivo.
-  connectivity_plus: ^6.1.0
-  firebase_core: ^4.9.0
-  firebase_crashlytics: ^5.2.2
+  connectivity_plus: ^7.1.0
+  firebase_core: ^4.10.0
+  firebase_crashlytics: ^5.2.3
 
   # Firebase Cloud Messaging para notificaciones push de nuevas versiones.
-  firebase_messaging: ^16.2.2
+  firebase_messaging: ^16.3.0
 
   # Deep links para abrir Play Store / App Distribution desde notificaciones.
   url_launcher: ^6.3.0
 
   # Lectura de valores de configuración remota (update_url, etc.)
-  firebase_remote_config: ^6.5.1
+  firebase_remote_config: ^6.5.2
 
 dev_dependencies:
   flutter_test:
@@ -110,7 +110,7 @@ dev_dependencies:
   # Generador de código para Drift (base de datos y DAOs tipados).
   drift_dev: ^2.34.0
   flutter_launcher_icons: ^0.14.4
-  flutter_native_splash: ^2.4.7
+  flutter_native_splash: ^2.4.8
   yaml: ^3.1.3
 
 # For information on the generic Dart part of this file, see the
